@@ -1,0 +1,8 @@
+[submodule "client-sites/calmstorm-decks"]
+	path = client-sites/calmstorm-decks
+	url = https://github.com/lossless-group/calmstorm-decks.git
+	branch = development
+[submodule "client-sites/reach-edu-hub"]
+	path = client-sites/reach-edu-hub
+	url = https://github.com/lossless-group/reach-edu-hub.git
+	branch = main

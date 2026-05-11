@@ -6,7 +6,7 @@ built by [The Lossless Group](https://lossless.group).
 The codename **DidiDecks** is a contraction of **Due Diligence** — the bar this
 product is built to clear. We are not building a "better Gamma." We are building
 the end-to-end deck-content operating system for high-stakes, time-pressured,
-recurring VC work that single-deck tools don't address.
+recurring VC/Private Markets/Philanthropy work that single-deck tools don't address.
 
 ## Where things live
 
