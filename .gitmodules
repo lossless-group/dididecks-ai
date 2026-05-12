@@ -6,3 +6,7 @@
 	path = client-sites/reach-edu-hub
 	url = https://github.com/lossless-group/reach-edu-hub.git
 	branch = main
+[submodule "client-sites/chroma-decks"]
+	path = client-sites/chroma-decks
+	url = git@github.com:lossless-group/chroma-decks.git
+	branch = development
