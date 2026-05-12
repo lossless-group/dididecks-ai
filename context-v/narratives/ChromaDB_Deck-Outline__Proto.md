@@ -22,7 +22,7 @@ tags:
   - Series-A-Fundraise
 deck_variant: Proto
 deck_slug: pitch
-deck_route: /scroll/pitch/
+deck_route: /scroll/pitch/proto/
 deck_repo: lossless-group/chroma-decks
 deck_branch: development
 proto_baseline_commit: 06d5e59
@@ -61,9 +61,9 @@ This answers the open question in [[Dididecks-AI-Slide-Decks-as-Code]] § Versio
 ## Code anchor
 
 - **Repo:** `lossless-group/chroma-decks` (private, `branch = development`)
-- **Route:** [`/scroll/pitch/`](https://chroma-decks.vercel.app/scroll/pitch/) (Vercel preview)
-- **Slide components:** `src/components/slides/pitch/01..13-*.astro` — one per slide
-- **Composition:** `src/pages/scroll/pitch/index.astro` (imports + orders the 13 slide components inside `<PageAsDeckWrapper>`)
+- **Route:** [`/scroll/pitch/proto/`](https://chroma-decks.vercel.app/scroll/pitch/proto/) (Vercel preview). `/scroll/pitch/` itself is now the **variant chooser** listing all variants of the Pitch deck (Proto today; Enhanced-v1, etc. tomorrow).
+- **Slide components:** `src/components/slides/proto/01..14-*.astro` — one per slide, variant-scoped
+- **Composition:** `src/pages/scroll/pitch/proto/index.astro` (imports + orders the 13 slide components inside `<PageAsDeckWrapper>`)
 - **Pinned commit for Proto:** `06d5e59` — also git-tagged `chroma-pitch__proto`. Roll back to this exact state any time.
 
 ## The 13 slides
@@ -73,7 +73,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 01 · Cover
-**File:** `src/components/slides/pitch/01-cover.astro`
+**File:** `src/components/slides/proto/01-cover.astro`
 **Composition:** centered — Wordmark · Title · "Confidential" · 4-icon row on dotted background.
 
 - **Title:** "Context and Memory Infrastructure for AI"
@@ -84,7 +84,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 02 · Opening Statement
-**File:** `src/components/slides/pitch/02-opening.astro`
+**File:** `src/components/slides/proto/02-opening.astro`
 **Composition:** centered, single large headline.
 
 - **Headline:** "Agents will automate knowledge work at every organization on earth"
@@ -93,7 +93,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 03 · Traction
-**File:** `src/components/slides/pitch/03-traction.astro`
+**File:** `src/components/slides/proto/03-traction.astro`
 **Composition:** center-aligned — title · 4 stat cards · "Context Rot" line · customer logo grid · "Cloud platform customers" caption.
 
 - **Title:** "One of the leading brands in developer AI"
@@ -106,7 +106,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 04 · Competition
-**File:** `src/components/slides/pitch/04-competition.astro`
+**File:** `src/components/slides/proto/04-competition.astro`
 **Composition:** top-aligned (the only slide retaining `align="start"`) — title · 2×2 quadrant matrix · "How we win" right rail.
 
 - **Title:** "Competition"
@@ -122,7 +122,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 05 · Bottleneck + Chroma Solution (merged from PDF pages 5 + 6)
-**File:** `src/components/slides/pitch/05-bottleneck.astro`
+**File:** `src/components/slides/proto/05-bottleneck.astro`
 **Composition:** centered, two-column. Connector line (cobalt SVG arrow) from Memory & Context box → right column.
 
 **Left column:**
@@ -144,7 +144,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 06 · Difficult Problems (was slide 7 in PDF)
-**File:** `src/components/slides/pitch/07-difficult.astro` (file kept at `07-` for now; rendering order set by `pitch/index.astro` imports)
+**File:** `src/components/slides/proto/07-difficult.astro` (file kept at `07-` for now; rendering order set by `pitch/index.astro` imports)
 **Composition:** centered — title · 3-box mini-stack left · two-column bullet list right.
 
 - **Title:** "Context and memory are difficult problems"
@@ -157,7 +157,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 07 · Two Segments
-**File:** `src/components/slides/pitch/08-segments.astro`
+**File:** `src/components/slides/proto/08-segments.astro`
 **Composition:** centered split layout (Teams ↔ Developers), each side with title · lede · sublede · 3-band mini stack diagram.
 
 - **Left — Context for Teams:** "Agents that know your business" · *Focusing currently on engineering teams with 10-100 engineers* · stack: Slack, MCP, Web → **Chroma** → Raw data (Slack, Notion, Agent traces, Github)
@@ -167,7 +167,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 08 · xAI Case Study
-**File:** `src/components/slides/pitch/09-case-study.astro`
+**File:** `src/components/slides/proto/09-case-study.astro`
 **Composition:** centered — title · sublede · two-column (3-row stack left, pull-quote + powering list right).
 
 - **Title:** "Case Study"
@@ -180,7 +180,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 09 · Team
-**File:** `src/components/slides/pitch/10-team.astro`
+**File:** `src/components/slides/proto/10-team.astro`
 **Composition:** centered — title · 6×2 card grid (12 members).
 
 - **Title:** "Team"
@@ -191,7 +191,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 10 · Business Model
-**File:** `src/components/slides/pitch/11-business-model.astro`
+**File:** `src/components/slides/proto/11-business-model.astro`
 **Composition:** centered — title · 3 tier cards.
 
 - **Title:** "Open-core, usage-based, enterprise"
@@ -203,7 +203,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 11 · Roadmap
-**File:** `src/components/slides/pitch/12-roadmap.astro`
+**File:** `src/components/slides/proto/12-roadmap.astro`
 **Composition:** centered — title · 3 columns each with sub-title, content, mini bar chart.
 
 - **Title:** "Roadmap"
@@ -215,7 +215,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 12 · Ask
-**File:** `src/components/slides/pitch/13-ask.astro`
+**File:** `src/components/slides/proto/13-ask.astro`
 **Composition:** centered — title (large) · two-column list.
 
 - **Title:** "Chroma is the context layer for agents, raising $12M"
@@ -226,7 +226,7 @@ Note: the PDF has 14 pages. Slides 5 (bottleneck framing) and 6 (Chroma solution
 ---
 
 ### 13 · Closing
-**File:** `src/components/slides/pitch/14-closing.astro`
+**File:** `src/components/slides/proto/14-closing.astro`
 **Composition:** centered — large headline · sub · ChromaMark · 4-icon row.
 
 - **Headline:** "Every agent needs context and memory"
