@@ -1,0 +1,84 @@
+---
+/**
+ * DecomposeFirstPlaceholder — empty-slot fallback for /play.
+ *
+ * Rendered when /play/[deck]/[variant]/[slot] resolves to a slot whose per-slide
+ * file at {slidesComponentsRoot}/{variant}/{slot}-{slug}.astro does not yet
+ * exist. Communicates the next action (open the TOC, rank as redo-worthy,
+ * scaffold the stub) without sounding like an error state.
+ */
+interface Props {
+  deckSlug: string;
+  variantSlug: string;
+  slot: string;
+  slug: string;
+  title: string;
+}
+
+const { deckSlug, variantSlug, slot, slug, title } = Astro.props as Props;
+const tocHref = `/toc/${deckSlug}/${variantSlug}/?focus=${slot}`;
+---
+<div class="dididecks-decompose-placeholder">
+  <div class="dididecks-decompose-placeholder__head">
+    <span class="dididecks-decompose-placeholder__slot">{slot}</span>
+    <h1 class="dididecks-decompose-placeholder__title">{title}</h1>
+  </div>
+  <p class="dididecks-decompose-placeholder__lede">
+    This slot has not been decomposed yet — no per-slide file exists at
+    <code>src/components/slides/{variantSlug}/{slot}-{slug}.astro</code>.
+  </p>
+  <p class="dididecks-decompose-placeholder__next">
+    Rank it from the TOC, then click <strong>scaffold</strong> to generate the empty stub.
+  </p>
+  <a class="dididecks-decompose-placeholder__cta" href={tocHref}>Open TOC →</a>
+</div>
+
+<style>
+  .dididecks-decompose-placeholder {
+    max-width: 640px;
+    margin: 0 auto;
+    padding: 48px 24px;
+    color: var(--color-text, #e6e9ee);
+    font: 15px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  .dididecks-decompose-placeholder__head {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .dididecks-decompose-placeholder__slot {
+    color: var(--color-text-muted, #8a93a0);
+    font: 600 14px/1 ui-monospace, "SFMono-Regular", Menlo, monospace;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+  }
+  .dididecks-decompose-placeholder__title {
+    margin: 0;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .dididecks-decompose-placeholder__lede,
+  .dididecks-decompose-placeholder__next {
+    color: var(--color-text-muted, #8a93a0);
+    margin: 0 0 12px;
+  }
+  .dididecks-decompose-placeholder code {
+    background: var(--color-surface, #161a20);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+  .dididecks-decompose-placeholder__cta {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 8px 14px;
+    border-radius: 6px;
+    background: var(--color-accent-1, #2b7fff);
+    color: #fff;
+    text-decoration: none;
+    font-weight: 500;
+  }
+  .dididecks-decompose-placeholder__cta:hover { opacity: 0.9; }
+</style>

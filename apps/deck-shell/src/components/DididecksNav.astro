@@ -1,0 +1,132 @@
+---
+/**
+ * DididecksNav — shell-injected global navigation chrome.
+ *
+ * Auto-mounted on every shell-injected route (/toc/*, /play/*). Also exported
+ * for opt-in import from the consumer's own routes (scroll-deck index,
+ * homepage, etc.) where the consumer chooses whether the nav fits the page's
+ * visual register.
+ *
+ * Links derive from the consumer's deck registry:
+ *   - Scroll    → /scroll/{firstDeckSlug}/
+ *   - TOC       → /toc/{firstDeckSlug}/{firstVariantSlug}/
+ *   - Play      → /play/{firstDeckSlug}/{firstVariantSlug}/01/
+ *   - Changelog → /changelog/ (consumer-side, renders unconditionally;
+ *                              clickable only if the consumer has the route).
+ *
+ * Brand slot — consumers override the default text wordmark by passing a
+ * `<slot name="brand">` child.
+ */
+import type { Deck } from "../types/index.js";
+import { loadDecksRegistry } from "../registry-loader.js";
+
+const opts = globalThis.__dididecksShellOptions;
+let firstDeckSlug = "";
+let firstVariantSlug = "";
+let client = "";
+
+if (opts) {
+  try {
+    const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+    const firstDeck: Deck | undefined = DECKS[0];
+    firstDeckSlug = firstDeck?.slug ?? "";
+    firstVariantSlug = firstDeck?.variants[0]?.slug ?? "";
+  } catch {
+    // registry not loadable — render nav with empty hrefs; consumer hasn't set up decks yet
+  }
+  client = opts.client;
+}
+
+const pathname = Astro.url.pathname;
+
+const scrollHref = firstDeckSlug ? `/scroll/${firstDeckSlug}/` : "/scroll/";
+const tocHref =
+  firstDeckSlug && firstVariantSlug
+    ? `/toc/${firstDeckSlug}/${firstVariantSlug}/`
+    : "/toc/";
+const playHref =
+  firstDeckSlug && firstVariantSlug
+    ? `/play/${firstDeckSlug}/${firstVariantSlug}/01/`
+    : "/play/";
+const changelogHref = "/changelog/";
+
+function isActive(prefix: string): boolean {
+  return pathname === prefix || pathname.startsWith(prefix);
+}
+
+const links = [
+  { label: "Scroll", href: scrollHref, active: isActive("/scroll/") },
+  { label: "TOC", href: tocHref, active: isActive("/toc/") },
+  { label: "Play", href: playHref, active: isActive("/play/") },
+  { label: "Changelog", href: changelogHref, active: isActive("/changelog/") },
+];
+---
+<nav class="dididecks-nav" aria-label="Dididecks shell navigation">
+  <div class="dididecks-nav__brand">
+    <slot name="brand">
+      <span class="dididecks-nav__wordmark">dididecks{client ? ` · ${client}` : ""}</span>
+    </slot>
+  </div>
+  <ul class="dididecks-nav__links">
+    {links.map((l) => (
+      <li>
+        <a
+          href={l.href}
+          class={`dididecks-nav__link${l.active ? " is-active" : ""}`}
+          aria-current={l.active ? "page" : undefined}
+        >
+          {l.label}
+        </a>
+      </li>
+    ))}
+  </ul>
+</nav>
+
+<style>
+  .dididecks-nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    padding: 12px 24px;
+    border-bottom: 1px solid var(--color-border, var(--line, #1f242c));
+    background: var(--color-background, var(--bg, #0b0d10));
+    color: var(--color-text, var(--fg, #e6e9ee));
+    font: 13px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  .dididecks-nav__brand {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .dididecks-nav__wordmark {
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-transform: lowercase;
+  }
+  .dididecks-nav__links {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .dididecks-nav__link {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 6px;
+    color: var(--color-text-muted, var(--muted, #8a93a0));
+    text-decoration: none;
+    font-weight: 500;
+    transition: background 0.12s, color 0.12s;
+  }
+  .dididecks-nav__link:hover {
+    background: var(--color-surface, var(--pill-bg, #161a20));
+    color: var(--color-text, var(--fg, #e6e9ee));
+  }
+  .dididecks-nav__link.is-active {
+    color: var(--color-text, var(--fg, #e6e9ee));
+    background: var(--color-surface, var(--pill-bg, #161a20));
+  }
+</style>

@@ -1,0 +1,124 @@
+---
+/**
+ * /play/[deckSlug]/[variantSlug]/[slot]/ — minimum-viable play runtime.
+ *
+ * Renders the per-slide component at {slidesComponentsRoot}/{variant}/{slot}-{slug}.astro
+ * if it exists, falling back to DecomposeFirstPlaceholder if not. Wraps in
+ * PlayChrome (nav + bottom strip + keyboard nav).
+ *
+ * The dynamic-import path is hardcoded to /src/components/slides/** for v0 —
+ * Vite's import.meta.glob requires a literal string. Phase B can support
+ * arbitrary slidesComponentsRoot if needed.
+ */
+import type { Deck, SlotRef } from "../../../../types/index.js";
+import { loadDecksRegistry, loadSlotsRegistry } from "../../../../registry-loader.js";
+import PlayChrome from "../../../../components/PlayChrome.astro";
+import DecomposeFirstPlaceholder from "../../../../components/DecomposeFirstPlaceholder.astro";
+
+// Globbed lazily; Vite resolves against the consumer's project root at build.
+const slideModules = import.meta.glob("/src/components/slides/**/*.astro");
+
+export async function getStaticPaths() {
+  const opts = globalThis.__dididecksShellOptions;
+  if (!opts) {
+    throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+  }
+  const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+  const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+  const slotsByVariant = slotsMod?.SLOTS ?? {};
+
+  const paths: Array<{
+    params: { deckSlug: string; variantSlug: string; slot: string };
+    props: { slug: string; title: string; slotIdx: number; slots: SlotRef[]; variantLabel: string };
+  }> = [];
+
+  for (const deck of DECKS as Deck[]) {
+    for (const variant of deck.variants) {
+      const slots = slotsByVariant[variant.slug] ?? [];
+      slots.forEach((slot, idx) => {
+        paths.push({
+          params: { deckSlug: deck.slug, variantSlug: variant.slug, slot: slot.slot },
+          props: {
+            slug: slot.slug,
+            title: slot.title,
+            slotIdx: idx,
+            slots,
+            variantLabel: variant.label,
+          },
+        });
+      });
+    }
+  }
+  return paths;
+}
+
+const { deckSlug, variantSlug, slot } = Astro.params as {
+  deckSlug: string;
+  variantSlug: string;
+  slot: string;
+};
+const { slug, title, slotIdx, slots, variantLabel } = Astro.props as {
+  slug: string;
+  title: string;
+  slotIdx: number;
+  slots: SlotRef[];
+  variantLabel: string;
+};
+
+const totalSlots = slots.length;
+const prevSlot = slotIdx > 0 ? slots[slotIdx - 1] : null;
+const nextSlot = slotIdx < totalSlots - 1 ? slots[slotIdx + 1] : null;
+const firstSlot = slots[0];
+const lastSlot = slots[totalSlots - 1];
+
+const prevHref = prevSlot ? `/play/${deckSlug}/${variantSlug}/${prevSlot.slot}/` : null;
+const nextHref = nextSlot ? `/play/${deckSlug}/${variantSlug}/${nextSlot.slot}/` : null;
+const firstHref = `/play/${deckSlug}/${variantSlug}/${firstSlot.slot}/`;
+const lastHref = `/play/${deckSlug}/${variantSlug}/${lastSlot.slot}/`;
+const tocHref = `/toc/${deckSlug}/${variantSlug}/`;
+
+const globKey = `/src/components/slides/${variantSlug}/${slot}-${slug}.astro`;
+type SlideLoader = () => Promise<{ default: unknown }>;
+const slideLoader = slideModules[globKey] as SlideLoader | undefined;
+const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title} · {variantLabel} · play</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      html, body { margin: 0; padding: 0; }
+    </style>
+  </head>
+  <body>
+    <PlayChrome
+      deckSlug={deckSlug}
+      variantSlug={variantSlug}
+      slot={slot}
+      totalSlots={totalSlots}
+      prevHref={prevHref}
+      nextHref={nextHref}
+      firstHref={firstHref}
+      lastHref={lastHref}
+      tocHref={tocHref}
+      variantLabel={variantLabel}
+    >
+      <div class="dididecks-play__slide">
+        {Slide ? (
+          <Slide />
+        ) : (
+          <DecomposeFirstPlaceholder
+            deckSlug={deckSlug}
+            variantSlug={variantSlug}
+            slot={slot}
+            slug={slug}
+            title={title}
+          />
+        )}
+      </div>
+    </PlayChrome>
+  </body>
+</html>

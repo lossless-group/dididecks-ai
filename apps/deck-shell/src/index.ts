@@ -38,6 +38,16 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
           pattern: "/api/slide-decompose",
           entrypoint: new URL("./routes/api/slide-decompose.ts", import.meta.url).href,
         });
+
+        injectRoute({
+          pattern: "/play/[deckSlug]/[variantSlug]",
+          entrypoint: new URL("./routes/play/[deckSlug]/[variantSlug]/index.astro", import.meta.url).href,
+        });
+
+        injectRoute({
+          pattern: "/play/[deckSlug]/[variantSlug]/[slot]",
+          entrypoint: new URL("./routes/play/[deckSlug]/[variantSlug]/[slot].astro", import.meta.url).href,
+        });
       },
       "astro:config:done": ({ config, logger }) => {
         const projectRoot = fileURLToPath(config.root);

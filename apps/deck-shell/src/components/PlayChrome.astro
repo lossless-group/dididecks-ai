@@ -1,0 +1,185 @@
+---
+/**
+ * PlayChrome — wrapper around a rendered /play slot.
+ *
+ * Provides: shell nav at top, slot content in the middle (via <slot />),
+ * a bottom strip with `{slot}/{total}` + prev/next/TOC links, and an inline
+ * keyboard handler implementing the contract in the Phase A+ plan
+ * (← / → / Space / Home / End / F / C / T / Esc).
+ *
+ * The chrome and bottom strip are hideable via `C` (toggle chrome) or `F`
+ * (fullscreen → also hides chrome).
+ */
+import DididecksNav from "./DididecksNav.astro";
+
+interface Props {
+  deckSlug: string;
+  variantSlug: string;
+  slot: string;
+  totalSlots: number;
+  prevHref: string | null;
+  nextHref: string | null;
+  firstHref: string;
+  lastHref: string;
+  tocHref: string;
+  variantLabel: string;
+}
+
+const {
+  deckSlug,
+  variantSlug,
+  slot,
+  totalSlots,
+  prevHref,
+  nextHref,
+  firstHref,
+  lastHref,
+  tocHref,
+  variantLabel,
+} = Astro.props as Props;
+---
+<div class="dididecks-play" data-play-root>
+  <div class="dididecks-play__chrome" data-play-chrome>
+    <DididecksNav />
+  </div>
+
+  <main class="dididecks-play__stage">
+    <slot />
+  </main>
+
+  <div class="dididecks-play__chrome dididecks-play__bottom" data-play-chrome>
+    <div class="dididecks-play__counter">
+      <span class="dididecks-play__slot-num">{slot}</span>
+      <span class="dididecks-play__sep">/</span>
+      <span class="dididecks-play__total">{String(totalSlots).padStart(2, "0")}</span>
+      <span class="dididecks-play__variant">· {variantLabel}</span>
+    </div>
+    <div class="dididecks-play__actions">
+      {prevHref ? (
+        <a class="dididecks-play__btn" href={prevHref} data-key="prev" aria-label="Previous slot">←</a>
+      ) : (
+        <span class="dididecks-play__btn is-disabled" aria-disabled="true">←</span>
+      )}
+      <a class="dididecks-play__btn" href={tocHref} title="Jump to TOC (T)">TOC</a>
+      {nextHref ? (
+        <a class="dididecks-play__btn" href={nextHref} data-key="next" aria-label="Next slot">→</a>
+      ) : (
+        <span class="dididecks-play__btn is-disabled" aria-disabled="true">→</span>
+      )}
+    </div>
+  </div>
+</div>
+
+<style>
+  .dididecks-play {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background: var(--color-background, #0b0d10);
+    color: var(--color-text, #e6e9ee);
+  }
+  .dididecks-play__stage {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: auto;
+  }
+  .dididecks-play__chrome {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .dididecks-play[data-chrome-hidden="true"] .dididecks-play__chrome {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .dididecks-play__bottom {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 10px 24px;
+    border-top: 1px solid var(--color-border, #1f242c);
+    background: var(--color-surface, var(--color-background, #0b0d10));
+    font: 12px/1 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  .dididecks-play__counter {
+    color: var(--color-text-muted, #8a93a0);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.04em;
+  }
+  .dididecks-play__slot-num { color: var(--color-text, #e6e9ee); font-weight: 600; }
+  .dididecks-play__sep { margin: 0 4px; opacity: 0.5; }
+  .dididecks-play__variant { margin-left: 12px; }
+  .dididecks-play__actions { display: flex; gap: 6px; align-items: center; }
+  .dididecks-play__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 36px;
+    height: 28px;
+    padding: 0 10px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border, #1f242c);
+    color: var(--color-text, #e6e9ee);
+    text-decoration: none;
+    font: inherit;
+    font-weight: 600;
+    transition: background 0.12s;
+  }
+  .dididecks-play__btn:hover { background: var(--color-background, #0b0d10); }
+  .dididecks-play__btn.is-disabled { opacity: 0.35; cursor: not-allowed; }
+</style>
+
+<script
+  is:inline
+  data-prev={prevHref ?? ""}
+  data-next={nextHref ?? ""}
+  data-first={firstHref}
+  data-last={lastHref}
+  data-toc={tocHref}
+  data-play-keys
+>
+  (() => {
+    const cfg = document.currentScript;
+    if (!cfg) return;
+    const prev = cfg.getAttribute("data-prev");
+    const next = cfg.getAttribute("data-next");
+    const first = cfg.getAttribute("data-first");
+    const last = cfg.getAttribute("data-last");
+    const toc = cfg.getAttribute("data-toc");
+    const root = document.querySelector("[data-play-root]");
+    if (!root) return;
+
+    function go(href) { if (href) window.location.href = href; }
+    function toggleChrome() {
+      const current = root.getAttribute("data-chrome-hidden") === "true";
+      root.setAttribute("data-chrome-hidden", current ? "false" : "true");
+    }
+    function enterFullscreen() {
+      const el = document.documentElement;
+      if (document.fullscreenElement) document.exitFullscreen();
+      else if (el.requestFullscreen) el.requestFullscreen().catch(() => {});
+    }
+
+    document.addEventListener("keydown", (e) => {
+      // Skip if user is typing in an input/textarea
+      const t = e.target;
+      if (t instanceof HTMLElement) {
+        const tag = t.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || t.isContentEditable) return;
+      }
+      if (e.key === "ArrowRight" || e.key === "PageDown") { e.preventDefault(); go(next); }
+      else if (e.key === " " && !e.shiftKey)              { e.preventDefault(); go(next); }
+      else if (e.key === "ArrowLeft" || e.key === "PageUp"){ e.preventDefault(); go(prev); }
+      else if (e.key === " " && e.shiftKey)               { e.preventDefault(); go(prev); }
+      else if (e.key === "Home")                           { e.preventDefault(); go(first); }
+      else if (e.key === "End")                            { e.preventDefault(); go(last); }
+      else if (e.key === "f" || e.key === "F")             { e.preventDefault(); enterFullscreen(); }
+      else if (e.key === "c" || e.key === "C")             { e.preventDefault(); toggleChrome(); }
+      else if (e.key === "t" || e.key === "T")             { e.preventDefault(); go(toc); }
+      else if (e.key === "Escape") {
+        if (document.fullscreenElement) document.exitFullscreen();
+        root.setAttribute("data-chrome-hidden", "false");
+      }
+    });
+  })();
+</script>

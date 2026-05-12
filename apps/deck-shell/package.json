@@ -1,6 +1,6 @@
 {
   "name": "@dididecks/shell",
-  "version": "0.0.1",
+  "version": "0.1.0-rc.0",
   "description": "Astro integration that wraps a client-site deck workspace with shared chrome — TOC + slide-ranking UI in v0.1, lifted calmstorm primitives + /play runtime in later releases.",
   "type": "module",
   "main": "./src/index.ts",

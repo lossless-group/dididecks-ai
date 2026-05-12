@@ -1,0 +1,26 @@
+---
+/**
+ * /play/[deckSlug]/[variantSlug]/ — redirect to the first slot.
+ *
+ * Enumerates every (deck, variant) pair from the consumer's deck registry and
+ * 302s to /play/{deck}/{variant}/01/.
+ */
+import type { Deck } from "../../../../types/index.js";
+import { loadDecksRegistry } from "../../../../registry-loader.js";
+
+export async function getStaticPaths() {
+  const opts = globalThis.__dididecksShellOptions;
+  if (!opts) {
+    throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+  }
+  const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+  return DECKS.flatMap((deck: Deck) =>
+    deck.variants.map((variant) => ({
+      params: { deckSlug: deck.slug, variantSlug: variant.slug },
+    })),
+  );
+}
+
+const { deckSlug, variantSlug } = Astro.params as { deckSlug: string; variantSlug: string };
+return Astro.redirect(`/play/${deckSlug}/${variantSlug}/01/`);
+---

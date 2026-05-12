@@ -7,6 +7,7 @@ import {
   loadAuditRegistry,
   perSlideFileExists,
 } from "../registry-loader.js";
+import DididecksNav from "../components/DididecksNav.astro";
 
 export async function getStaticPaths() {
   const opts = globalThis.__dididecksShellOptions;
@@ -149,6 +150,15 @@ const pillLabel: Record<(typeof STATUSES_FOR_PILLS)[number], string> = {
       .ghost-btn:hover { background: var(--pill-bg); }
       .filebadge { color: var(--muted); font-size: 11px; }
       .filebadge[data-exists="true"] { color: var(--perfect); }
+      .view-link {
+        font-size: 12px;
+        color: var(--pill-active-bg);
+        text-decoration: none;
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-weight: 500;
+      }
+      .view-link:hover { background: var(--pill-bg); }
       .empty {
         border: 1px dashed var(--line);
         padding: 24px;
@@ -160,6 +170,7 @@ const pillLabel: Record<(typeof STATUSES_FOR_PILLS)[number], string> = {
     </style>
   </head>
   <body>
+    <DididecksNav />
     <div class="wrap">
       <header>
         <div class="crumb">@dididecks/shell · TOC</div>
@@ -208,6 +219,15 @@ const pillLabel: Record<(typeof STATUSES_FOR_PILLS)[number], string> = {
                     <span class="filebadge" data-exists={String(row.hasFile)}>
                       {row.hasFile ? "exists" : "—"}
                     </span>
+                    {row.hasFile && (
+                      <a
+                        class="view-link"
+                        href={`/play/${deckSlug}/${variantSlug}/${row.slot}/`}
+                        title="Open this slot in the /play runtime"
+                      >
+                        view →
+                      </a>
+                    )}
                     {!row.hasFile && (
                       <button
                         type="button"
