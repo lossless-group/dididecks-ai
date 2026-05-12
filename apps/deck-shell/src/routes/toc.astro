@@ -1,0 +1,302 @@
+---
+import type { Deck, SlotRef, RankEntry } from "../types/index.js";
+import { buildRankKey } from "../types/index.js";
+import {
+  loadDecksRegistry,
+  loadSlotsRegistry,
+  loadAuditRegistry,
+  perSlideFileExists,
+} from "../registry-loader.js";
+
+export async function getStaticPaths() {
+  const opts = globalThis.__dididecksShellOptions;
+  if (!opts) {
+    throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+  }
+  const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+  return DECKS.flatMap((deck) =>
+    deck.variants.map((variant) => ({
+      params: { deckSlug: deck.slug, variantSlug: variant.slug },
+    })),
+  );
+}
+
+const { deckSlug, variantSlug } = Astro.params as { deckSlug: string; variantSlug: string };
+const opts = globalThis.__dididecksShellOptions!;
+
+const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+const deck = DECKS.find((d: Deck) => d.slug === deckSlug);
+const variant = deck?.variants.find((v) => v.slug === variantSlug);
+
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slots: SlotRef[] = slotsMod?.SLOTS?.[variantSlug] ?? [];
+
+const audit = await loadAuditRegistry(opts.absolute.audits);
+
+const rows = await Promise.all(
+  slots.map(async (s) => {
+    const key = buildRankKey(deckSlug, variantSlug, s.slot);
+    const rank: RankEntry | undefined = audit.ranks[key];
+    const hasFile = await perSlideFileExists(
+      opts.absolute.slidesComponentsRoot,
+      variantSlug,
+      s.slot,
+      s.slug,
+    );
+    const decomposable =
+      !hasFile &&
+      (rank?.status === "urgent-redo" || rank?.status === "non-urgent-could-be-better");
+    return { ...s, rank, hasFile, decomposable };
+  }),
+);
+
+const STATUSES_FOR_PILLS = [
+  "urgent-redo",
+  "non-urgent-could-be-better",
+  "passable",
+  "perfect",
+  "pending",
+] as const;
+
+const pillLabel: Record<(typeof STATUSES_FOR_PILLS)[number], string> = {
+  "urgent-redo": "Urgent redo",
+  "non-urgent-could-be-better": "Could be better",
+  passable: "Passable",
+  perfect: "Perfect",
+  pending: "Pending",
+};
+---
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TOC · {deck?.title ?? deckSlug} · {variant?.label ?? variantSlug}</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0d10;
+        --fg: #e6e9ee;
+        --muted: #8a93a0;
+        --line: #1f242c;
+        --pill-bg: #161a20;
+        --pill-bg-hover: #1f242c;
+        --pill-active-bg: #2b7fff;
+        --pill-active-fg: #ffffff;
+        --urgent: #ff5e57;
+        --could: #ffb84a;
+        --passable: #66c0f4;
+        --perfect: #4ade80;
+        --pending: #6b7280;
+      }
+      @media (prefers-color-scheme: light) {
+        :root {
+          --bg: #ffffff;
+          --fg: #14181d;
+          --muted: #5a6470;
+          --line: #e5e7eb;
+          --pill-bg: #f3f4f6;
+          --pill-bg-hover: #e5e7eb;
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      .wrap { max-width: 980px; margin: 0 auto; padding: 32px 24px 80px; }
+      header { border-bottom: 1px solid var(--line); padding-bottom: 16px; margin-bottom: 24px; }
+      h1 { margin: 0 0 4px; font-size: 22px; font-weight: 600; }
+      .crumb { color: var(--muted); font-size: 13px; }
+      .lede { color: var(--muted); margin: 6px 0 0; font-size: 13px; }
+      table { width: 100%; border-collapse: collapse; }
+      th, td { padding: 12px 8px; text-align: left; border-bottom: 1px solid var(--line); vertical-align: middle; }
+      th { color: var(--muted); font-weight: 500; font-size: 11px; letter-spacing: 0.04em; text-transform: uppercase; }
+      td.slot { color: var(--muted); width: 48px; font-variant-numeric: tabular-nums; }
+      td.title { font-weight: 500; }
+      td.title .slug { display: block; color: var(--muted); font-size: 12px; font-weight: 400; margin-top: 2px; }
+      .pills { display: flex; flex-wrap: wrap; gap: 4px; }
+      .pill {
+        background: var(--pill-bg);
+        color: var(--fg);
+        border: 1px solid var(--line);
+        border-radius: 999px;
+        padding: 4px 10px;
+        font-size: 12px;
+        cursor: pointer;
+        transition: background 0.12s;
+      }
+      .pill:hover { background: var(--pill-bg-hover); }
+      .pill.active { background: var(--pill-active-bg); color: var(--pill-active-fg); border-color: transparent; }
+      .pill[data-status="urgent-redo"].active { background: var(--urgent); }
+      .pill[data-status="non-urgent-could-be-better"].active { background: var(--could); color: #1a1a1a; }
+      .pill[data-status="passable"].active { background: var(--passable); color: #0b1a26; }
+      .pill[data-status="perfect"].active { background: var(--perfect); color: #06210c; }
+      .pill[data-status="pending"].active { background: var(--pending); }
+      .actions { display: flex; gap: 8px; align-items: center; }
+      .ghost-btn {
+        background: transparent;
+        border: 1px dashed var(--line);
+        color: var(--muted);
+        font-size: 12px;
+        padding: 5px 10px;
+        border-radius: 6px;
+        cursor: pointer;
+      }
+      .ghost-btn[data-state="ready"] { color: var(--fg); border-color: var(--fg); border-style: solid; }
+      .ghost-btn:hover { background: var(--pill-bg); }
+      .filebadge { color: var(--muted); font-size: 11px; }
+      .filebadge[data-exists="true"] { color: var(--perfect); }
+      .empty {
+        border: 1px dashed var(--line);
+        padding: 24px;
+        border-radius: 8px;
+        color: var(--muted);
+        text-align: center;
+      }
+      .empty code { background: var(--pill-bg); padding: 1px 6px; border-radius: 4px; font-size: 12px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <header>
+        <div class="crumb">@dididecks/shell · TOC</div>
+        <h1>{deck?.title ?? deckSlug} · {variant?.label ?? variantSlug}</h1>
+        {variant?.lede && <p class="lede">{variant.lede}</p>}
+      </header>
+
+      {slots.length === 0 ? (
+        <div class="empty">
+          <p>No slot registry found for variant <code>{variantSlug}</code>.</p>
+          <p>Create <code>src/data/slides.ts</code> in your client-site and export <code>SLOTS</code> as <code>Record&lt;variantSlug, SlotRef[]&gt;</code>.</p>
+        </div>
+      ) : (
+        <table data-deck-slug={deckSlug} data-variant-slug={variantSlug}>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Slot</th>
+              <th>Rank</th>
+              <th>Per-slide file</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row) => (
+              <tr data-slot={row.slot} data-slug={row.slug}>
+                <td class="slot">{row.slot}</td>
+                <td class="title">
+                  {row.title}
+                  <span class="slug">{row.slug}</span>
+                </td>
+                <td>
+                  <div class="pills">
+                    {STATUSES_FOR_PILLS.map((s) => (
+                      <button
+                        type="button"
+                        class={`pill${(row.rank?.status ?? "pending") === s ? " active" : ""}`}
+                        data-status={s}
+                      >
+                        {pillLabel[s]}
+                      </button>
+                    ))}
+                  </div>
+                </td>
+                <td>
+                  <div class="actions">
+                    <span class="filebadge" data-exists={String(row.hasFile)}>
+                      {row.hasFile ? "exists" : "—"}
+                    </span>
+                    {!row.hasFile && (
+                      <button
+                        type="button"
+                        class="ghost-btn"
+                        data-action="decompose"
+                        data-state={row.decomposable ? "ready" : "gated"}
+                        disabled={!row.decomposable}
+                        title={row.decomposable ? "Scaffold per-slide file" : "Rank as 'urgent-redo' or 'could be better' to enable"}
+                      >
+                        scaffold
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </div>
+
+    <script is:inline>
+      (() => {
+        const table = document.querySelector("table[data-deck-slug]");
+        if (!table) return;
+        const deckSlug = table.dataset.deckSlug;
+        const variantSlug = table.dataset.variantSlug;
+
+        table.addEventListener("click", async (e) => {
+          const target = e.target;
+          if (!(target instanceof HTMLElement)) return;
+
+          if (target.classList.contains("pill")) {
+            const row = target.closest("tr");
+            if (!row) return;
+            const slot = row.dataset.slot;
+            const status = target.dataset.status;
+            try {
+              const res = await fetch("/api/slide-rank", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ deckSlug, variantSlug, slot, status }),
+              });
+              if (!res.ok) throw new Error(`POST /api/slide-rank failed: ${res.status}`);
+              // Optimistic UI: clear active on siblings, set on clicked
+              row.querySelectorAll(".pill").forEach((p) => p.classList.remove("active"));
+              target.classList.add("active");
+              // Update decompose button gating
+              const fileBadge = row.querySelector(".filebadge");
+              const hasFile = fileBadge?.dataset.exists === "true";
+              const decomposeBtn = row.querySelector('[data-action="decompose"]');
+              if (!hasFile && decomposeBtn) {
+                const ready = status === "urgent-redo" || status === "non-urgent-could-be-better";
+                decomposeBtn.dataset.state = ready ? "ready" : "gated";
+                decomposeBtn.disabled = !ready;
+              }
+            } catch (err) {
+              console.error(err);
+              alert("Rank update failed — is the dev server running with /api/slide-rank enabled?");
+            }
+          }
+
+          if (target.dataset.action === "decompose") {
+            const row = target.closest("tr");
+            if (!row) return;
+            const slot = row.dataset.slot;
+            const slug = row.dataset.slug;
+            try {
+              const res = await fetch("/api/slide-decompose", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ deckSlug, variantSlug, slot, slug }),
+              });
+              if (!res.ok) {
+                const body = await res.json().catch(() => ({}));
+                throw new Error(body.error || `POST /api/slide-decompose failed: ${res.status}`);
+              }
+              const { path: writtenPath } = await res.json();
+              const badge = row.querySelector(".filebadge");
+              if (badge) { badge.dataset.exists = "true"; badge.textContent = "exists"; }
+              target.remove();
+              console.info(`@dididecks/shell: scaffolded ${writtenPath}`);
+            } catch (err) {
+              console.error(err);
+              alert(err instanceof Error ? err.message : String(err));
+            }
+          }
+        });
+      })();
+    </script>
+  </body>
+</html>
