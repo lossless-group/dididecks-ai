@@ -38,7 +38,7 @@ async function evalTsModule<T>(absPath: string): Promise<T> {
     sourcefile: absPath,
   });
   const dataUrl = `data:text/javascript;base64,${Buffer.from(code).toString("base64")}`;
-  return (await import(dataUrl)) as T;
+  return (await import(/* @vite-ignore */ dataUrl)) as T;
 }
 
 export async function loadDecksRegistry(absPath: string): Promise<{ DECKS: Deck[] }> {
