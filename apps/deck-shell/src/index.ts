@@ -21,8 +21,25 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
   return {
     name: "@dididecks/shell",
     hooks: {
-      "astro:config:setup": ({ logger, injectRoute }) => {
+      "astro:config:setup": ({ config, logger, injectRoute, updateConfig }) => {
         logger.info(`loaded for client: ${options.client}`);
+
+        const projectRoot = fileURLToPath(config.root);
+        const resolved = resolveOptions(options, projectRoot);
+
+        // Tell Vite's file watcher NOT to watch the audits file. When the
+        // /api/slide-rank POST writes to it, the default watch behaviour
+        // would emit `full-reload` (JSON isn't HMR-recoverable), which
+        // destroys the reader's scroll position in the middle of ranking.
+        updateConfig({
+          vite: {
+            server: {
+              watch: {
+                ignored: [resolved.absolute.audits],
+              },
+            },
+          },
+        });
 
         injectRoute({
           pattern: "/toc/[deckSlug]/[variantSlug]",
@@ -47,6 +64,11 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
         injectRoute({
           pattern: "/play/[deckSlug]/[variantSlug]/[slot]",
           entrypoint: new URL("./routes/play/[deckSlug]/[variantSlug]/[slot].astro", import.meta.url).href,
+        });
+
+        injectRoute({
+          pattern: "/play/[deckSlug]/[variantSlug]/print",
+          entrypoint: new URL("./routes/play/[deckSlug]/[variantSlug]/print.astro", import.meta.url).href,
         });
       },
       "astro:config:done": ({ config, logger }) => {

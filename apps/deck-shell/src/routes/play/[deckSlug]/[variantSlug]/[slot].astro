@@ -14,6 +14,7 @@ import type { Deck, SlotRef } from "../../../../types/index.js";
 import { loadDecksRegistry, loadSlotsRegistry } from "../../../../registry-loader.js";
 import PlayChrome from "../../../../components/PlayChrome.astro";
 import DecomposeFirstPlaceholder from "../../../../components/DecomposeFirstPlaceholder.astro";
+import SlideCanvas from "../../../../components/SlideCanvas.astro";
 
 // Globbed lazily; Vite resolves against the consumer's project root at build.
 const slideModules = import.meta.glob("/src/components/slides/**/*.astro");
@@ -107,17 +108,19 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
       variantLabel={variantLabel}
     >
       <div class="dididecks-play__slide">
-        {Slide ? (
-          <Slide />
-        ) : (
-          <DecomposeFirstPlaceholder
-            deckSlug={deckSlug}
-            variantSlug={variantSlug}
-            slot={slot}
-            slug={slug}
-            title={title}
-          />
-        )}
+        <SlideCanvas>
+          {Slide ? (
+            <Slide />
+          ) : (
+            <DecomposeFirstPlaceholder
+              deckSlug={deckSlug}
+              variantSlug={variantSlug}
+              slot={slot}
+              slug={slug}
+              title={title}
+            />
+          )}
+        </SlideCanvas>
       </div>
     </PlayChrome>
   </body>

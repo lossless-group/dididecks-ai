@@ -1,0 +1,136 @@
+---
+/**
+ * /play/[deckSlug]/[variantSlug]/print/ — one-shot PDF export surface.
+ *
+ * Calmstorm pattern (verbatim): no @page size override, just
+ * page-break-after:always per slide. The SlideCanvas inside each page
+ * uses CSS-only container-query scaling (cqi/cqb) so the 1920×1080
+ * design stage fits whatever printable area the browser gives it.
+ * Browser decides paper size; slide letterboxes within.
+ */
+import type { Deck, SlotRef } from "../../../../types/index.js";
+import { loadDecksRegistry, loadSlotsRegistry } from "../../../../registry-loader.js";
+import DecomposeFirstPlaceholder from "../../../../components/DecomposeFirstPlaceholder.astro";
+import SlideCanvas from "../../../../components/SlideCanvas.astro";
+
+const slideModules = import.meta.glob("/src/components/slides/**/*.astro");
+
+export async function getStaticPaths() {
+  const opts = globalThis.__dididecksShellOptions;
+  if (!opts) {
+    throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+  }
+  const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+  const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+  const slotsByVariant = slotsMod?.SLOTS ?? {};
+
+  return (DECKS as Deck[]).flatMap((deck) =>
+    deck.variants.map((variant) => ({
+      params: { deckSlug: deck.slug, variantSlug: variant.slug },
+      props: {
+        slots: slotsByVariant[variant.slug] ?? [],
+        variantLabel: variant.label,
+        deckTitle: deck.title,
+      },
+    })),
+  );
+}
+
+const { deckSlug, variantSlug } = Astro.params as { deckSlug: string; variantSlug: string };
+const { slots, variantLabel, deckTitle } = Astro.props as {
+  slots: SlotRef[];
+  variantLabel: string;
+  deckTitle: string;
+};
+
+type SlideLoader = () => Promise<{ default: unknown }>;
+
+const resolved = await Promise.all(
+  slots.map(async (s) => {
+    const key = `/src/components/slides/${variantSlug}/${s.slot}-${s.slug}.astro`;
+    const loader = slideModules[key] as SlideLoader | undefined;
+    const Component = loader ? ((await loader()).default as unknown) : null;
+    return { slot: s, Component };
+  }),
+);
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>{deckTitle} · {variantLabel} · print</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style is:global>
+      @page { margin: 0; }
+      html, body { margin: 0; padding: 0; background: #fff; }
+
+      .dididecks-print-doc {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0;
+      }
+      .dididecks-print-page {
+        width: 100%;
+        max-width: 1920px;
+        aspect-ratio: 16 / 9;
+        overflow: hidden;
+        position: relative;
+        page-break-after: always;
+        break-after: page;
+      }
+      .dididecks-print-page:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+      .dididecks-print-placeholder {
+        width: 100%;
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fbf8f1;
+      }
+
+      @media screen {
+        body { background: #e5e7eb; padding: 24px 0; }
+        .dididecks-print-page {
+          margin-bottom: 24px;
+          box-shadow: 0 4px 24px rgba(0, 0, 0, 0.12);
+        }
+      }
+
+      @media print {
+        body { background: #fff; padding: 0; }
+        .dididecks-print-page {
+          margin: 0;
+          box-shadow: none;
+          max-width: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="dididecks-print-doc" data-deck-slug={deckSlug} data-variant-slug={variantSlug}>
+      {resolved.map(({ slot, Component }) => (
+        <div class="dididecks-print-page" data-slot={slot.slot}>
+          <SlideCanvas>
+            {Component ? (
+              <Component />
+            ) : (
+              <div class="dididecks-print-placeholder">
+                <DecomposeFirstPlaceholder
+                  deckSlug={deckSlug}
+                  variantSlug={variantSlug}
+                  slot={slot.slot}
+                  slug={slot.slug}
+                  title={slot.title}
+                />
+              </div>
+            )}
+          </SlideCanvas>
+        </div>
+      ))}
+    </div>
+  </body>
+</html>
