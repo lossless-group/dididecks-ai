@@ -145,10 +145,13 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
 
     <main class="ddd-play-stage">
       <article class="ddd-play-slide" aria-hidden="false">
-        <SlideCanvas>
-          {Slide ? (
-            <Slide />
-          ) : (
+        {/* Slides self-wrap in their own SlideCanvas. The route does NOT
+            wrap — that caused double-canvas drift. For empty-slot fallback
+            we wrap the placeholder manually since it doesn't bring its own. */}
+        {Slide ? (
+          <Slide />
+        ) : (
+          <SlideCanvas>
             <DecomposeFirstPlaceholder
               deckSlug={deckSlug}
               variantSlug={variantSlug}
@@ -156,8 +159,8 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
               slug={slug}
               title={title}
             />
-          )}
-        </SlideCanvas>
+          </SlideCanvas>
+        )}
       </article>
     </main>
 
@@ -370,7 +373,11 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
         padding: 3.5rem 2rem;
       }
 
-      .ddd-play-slide :global(.slide-canvas) {
+      /* Direct-child only — slides may self-wrap in their own
+         SlideCanvas (per the scroll-ported-slides refactor plan), so
+         the descendant combinator would double-apply this letterbox
+         sizing to the inner canvas and break the stage transform. */
+      .ddd-play-slide > :global(.slide-canvas) {
         width: min(100%, calc((100vh - 7rem) * 16 / 9));
         max-height: calc(100vh - 7rem);
         max-height: calc(100dvh - 7rem);
@@ -380,9 +387,10 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
 
       /* Chrome-off mode neutralizes the canvas's own aspect-ratio rule
          and locks both axes to the largest 16:9 box that fits the
-         viewport, with symmetric letterbox on the leftover axis. */
+         viewport, with symmetric letterbox on the leftover axis.
+         Direct-child only — same reason as the chrome-on rule above. */
       .ddd-play-body[data-chrome="off"] .ddd-play-slide { padding: 0; }
-      .ddd-play-body[data-chrome="off"] .ddd-play-slide :global(.slide-canvas) {
+      .ddd-play-body[data-chrome="off"] .ddd-play-slide > :global(.slide-canvas) {
         width:  min(100vw, calc(100vh * 16 / 9));
         height: min(100vh, calc(100vw * 9 / 16));
         max-width: 100vw;
