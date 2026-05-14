@@ -1,0 +1,149 @@
+/* =====================================================================
+ * @dididecks/shell — chrome theming contract
+ *
+ * The full catalog of CSS custom properties the deck-chrome primitives
+ * read. Values declared here are NOT the defaults the chrome ships
+ * with — they document the contract. The defaults live in
+ * `themes/neutral.css` (calmstorm-flavored white/grey/black), which is
+ * what every consumer inherits when they override nothing.
+ *
+ * To re-skin: override any of these tokens at any wrapping element
+ * (commonly `:root` or `:root[data-deck-skin="..."]`). Partial overrides
+ * are fine — un-overridden tokens fall back to the neutral default,
+ * never to undefined.
+ *
+ * Namespace: --ddd-chrome-*
+ * Unique enough to avoid collision with consumer design tokens. If a
+ * conflict surfaces, bump to --dididecks-chrome-* in a minor release.
+ *
+ * Plan of record:
+ *   dididecks-ai/context-v/plans/
+ *   Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
+ * ===================================================================== */
+
+:root {
+  /* ── Surface ────────────────────────────────────────────────────── */
+
+  /** Capsule background. Alpha < 1 lets `backdrop-filter` read through. */
+  --ddd-chrome-bg:                rgb(255 255 255 / 0.85);
+
+  /** Button hover-state background. Lands on top of `--ddd-chrome-bg`. */
+  --ddd-chrome-bg-hover:          rgb(249 250 251);
+
+  /** Backdrop filter applied behind the capsule. */
+  --ddd-chrome-backdrop:          blur(8px);
+
+  /* ── Border + radius ────────────────────────────────────────────── */
+
+  /** Border color for capsule + each button. */
+  --ddd-chrome-border:            rgb(209 213 219);
+
+  /** Corner radius for capsule + buttons. 2px = calmstorm's `rounded-sm`. */
+  --ddd-chrome-radius:            2px;
+
+  /* ── Type ───────────────────────────────────────────────────────── */
+
+  /** Default button glyph + label color. */
+  --ddd-chrome-fg:                rgb(55 65 81);
+
+  /** Strong text (counter numeral, button hover, focus). */
+  --ddd-chrome-fg-strong:         rgb(15 23 42);
+
+  /** Muted text (counter label, separators). */
+  --ddd-chrome-fg-muted:          rgb(107 114 128);
+
+  /** Body font for buttons + counter labels. */
+  --ddd-chrome-font:              ui-sans-serif, system-ui, sans-serif;
+
+  /** Monospace for tabular-num counters. */
+  --ddd-chrome-font-mono:         ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+  /** Counter font-size (pill of "01 / 17 · v2"). */
+  --ddd-chrome-size-counter:      11px;
+
+  /** Button glyph font-size (‹ › ↑ ↓ etc.). */
+  --ddd-chrome-size-button:       12px;
+
+  /* ── Button geometry ────────────────────────────────────────────── */
+
+  /** Button height. Square for arrows; width auto-grows for text buttons. */
+  --ddd-chrome-button-h:          28px;
+
+  /** Square-button width (matches height for arrow buttons). */
+  --ddd-chrome-button-w:          28px;
+
+  /* ── Idle behavior ──────────────────────────────────────────────── */
+
+  /** Resting opacity of the floating chrome. Hover → 1. */
+  --ddd-chrome-idle-opacity:      0.3;
+
+  /** Fade transition duration on hover/focus-within. */
+  --ddd-chrome-fade-ms:           200ms;
+
+  /** z-index of the floating chrome. */
+  --ddd-chrome-z:                 100;
+
+  /* ── Tooltip ────────────────────────────────────────────────────── */
+
+  /** Tooltip background. Alpha to read on glass surfaces. */
+  --ddd-chrome-tooltip-bg:        rgb(15 23 42 / 0.95);
+
+  /** Tooltip text color. */
+  --ddd-chrome-tooltip-fg:        white;
+
+  /** Tooltip corner radius. */
+  --ddd-chrome-tooltip-radius:    4px;
+
+  /** Tooltip padding. */
+  --ddd-chrome-tooltip-pad:       0.4rem 0.65rem;
+
+  /** Tooltip transition duration. */
+  --ddd-chrome-tooltip-fade-ms:   120ms;
+
+  /* ── Play-surface tokens (dark cinema chrome) ─────────────────────
+   * The /play/[slot] route uses a different visual register than the
+   * floating capsule — full-width fixed top + bottom bars over a dark
+   * stage, so the white slide canvas pops as paper-on-table. These
+   * tokens parameterize that surface. Calmstorm-flavored defaults:
+   * stage = #0a0f1a, chrome = stage @ 0.85 alpha with 6px blur.
+   * ───────────────────────────────────────────────────────────────── */
+
+  /** Stage background (what the slide canvas sits on). */
+  --ddd-play-stage-bg:            #0a0f1a;
+
+  /** Top/bottom chrome bar background. Alpha < 1 so backdrop-filter reads. */
+  --ddd-play-chrome-bg:           rgb(10 15 26 / 0.85);
+
+  /** Backdrop filter for chrome bars over the stage. */
+  --ddd-play-chrome-backdrop:     blur(6px);
+
+  /** Chrome bar border (separator from stage). */
+  --ddd-play-chrome-border:       rgb(255 255 255 / 0.08);
+
+  /** Chrome bar text — muted default. */
+  --ddd-play-chrome-fg:           rgb(255 255 255 / 0.65);
+
+  /** Chrome bar text — strong (brand label). */
+  --ddd-play-chrome-fg-strong:    white;
+
+  /** Chrome bar text — extra muted (hints, secondary labels). */
+  --ddd-play-chrome-fg-muted:     rgb(255 255 255 / 0.45);
+
+  /** Nav-link button bg (resting). */
+  --ddd-play-link-bg:             transparent;
+
+  /** Nav-link button bg (hover). */
+  --ddd-play-link-bg-hover:       rgb(255 255 255 / 0.08);
+
+  /** Nav-link button border. */
+  --ddd-play-link-border:         rgb(255 255 255 / 0.2);
+
+  /** Nav-link button border on hover. */
+  --ddd-play-link-border-hover:   rgb(255 255 255 / 0.5);
+
+  /** Canvas drop-shadow (paper-on-table effect). */
+  --ddd-play-canvas-shadow:       0 12px 48px rgb(0 0 0 / 0.4);
+
+  /** Canvas border radius. */
+  --ddd-play-canvas-radius:       4px;
+}

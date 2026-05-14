@@ -2,16 +2,30 @@
 /**
  * SlideCanvas — fixed-aspect 16:9 wrapper for a single play slide.
  *
- * Lifted from client-sites/calmstorm-decks/src/components/slides/SlideCanvas.astro
- * (the proven pattern for slides that need to render at a fixed 1920×1080
- * design size yet letterbox cleanly into any container — viewport, print
- * page, embed). The Phase A++ plan flagged this as the eventual lift into
- * `@dididecks/shell`; doing it client-side first to ship the chroma PDF
- * tonight, will re-home into the shell in Phase A++.3 tomorrow.
+ * PURE CSS — no JS. Per @dididecks/shell contract: rendered play decks
+ * must be static HTML/CSS/Tailwind. JS is acceptable in scroll decks
+ * but NOT in play decks; this means the scaling pipeline itself has to
+ * work without scripts.
  *
- * Authoring model: slide content lives in a 1920×1080 conceptual stage.
- * The canvas scales the stage to fit whatever parent it's inside, preserving
- * the aspect ratio. ResizeObserver re-applies on every layout change.
+ * Approach:
+ *   - Canvas gets `container-type: size`, making it a query container
+ *     for both its inline (width) and block (height) size.
+ *   - Stage is 1920×1080 absolute-positioned at top-left.
+ *   - Stage's `transform: scale()` is computed from canvas's container
+ *     query units. `100cqw / 1920px` gives the unitless ratio that
+ *     scales the 1920px design width down to whatever the canvas's
+ *     inline-size is (and similarly for block-size / 1080px).
+ *   - `min(...)` picks whichever axis is the binding constraint —
+ *     letterboxes correctly when canvas aspect ≠ 16:9.
+ *
+ * The route's [slot].astro is responsible for sizing the canvas
+ * (`width: min(100%, calc((100vh - 7rem) * 16/9))` + max-height); this
+ * component just translates that into a scaled 1920×1080 stage.
+ *
+ * Force-resolve note: scroll-deck reveal animations (`[data-reveal]` /
+ * `.reveal-item`) depend on IntersectionObserver, which doesn't run in
+ * the canvas. The global rule below pins their visible state so slides
+ * authored with reveal opt-ins still render statically.
  */
 export interface Props {
   designWidth?: number;
@@ -34,15 +48,38 @@ const {
   data-design-width={designWidth}
   data-design-height={designHeight}
   aria-label={title}
-  style={background ? `--canvas-bg: ${background};` : undefined}
+  style={`
+    --ddd-design-w: ${designWidth}px;
+    --ddd-design-h: ${designHeight}px;
+    ${background ? `--canvas-bg: ${background};` : ""}
+  `}
 >
-  <div
-    class="slide-canvas__stage"
-    style={`width: ${designWidth}px; height: ${designHeight}px;`}
-  >
+  <div class="slide-canvas__stage">
     <slot />
   </div>
 </div>
+
+<style is:global>
+  /* Force-resolve scroll-deck reveal animations inside the canvas.
+     [data-reveal] + .reveal-item depend on IntersectionObserver wiring
+     that doesn't exist in play mode. Without these overrides they stay
+     opacity:0 forever and the slide looks blank. */
+  .slide-canvas [data-reveal],
+  .slide-canvas .reveal-item {
+    opacity: 1 !important;
+    transform: none !important;
+    transition: none !important;
+  }
+
+  /* Sections in scroll decks often use `min-height: var(--deck-height, 100vh)`.
+     Inside a fixed canvas, the slide is constrained by the stage's height,
+     not the viewport. Reset so content lays out against stage bounds. */
+  .slide-canvas .slide,
+  .slide-canvas .play-slide {
+    min-height: 100% !important;
+    height: 100% !important;
+  }
+</style>
 
 <style>
   .slide-canvas {
@@ -50,59 +87,23 @@ const {
     width: 100%;
     aspect-ratio: 16 / 9;
     overflow: hidden;
-    background: var(--canvas-bg, #ffffff);
+    background: var(--canvas-bg, var(--color-surface, #ffffff));
     container-type: size;
   }
+
   .slide-canvas__stage {
     position: absolute;
     top: 0;
     left: 0;
+    width: var(--ddd-design-w, 1920px);
+    height: var(--ddd-design-h, 1080px);
     transform-origin: top left;
-    /* CSS-only fallback scale via container queries. Works without JS.
-       The JS below refines for sub-pixel accuracy + resize handling. */
+    /* Pure CSS scale: derive the scale ratio from container-query units.
+       100cqw = canvas inline-size in px; / 1920px = unitless ratio.
+       min() picks the limiting axis so non-16:9 canvases letterbox cleanly. */
     transform: scale(min(
-      calc(100cqi / 1px / 1920),
-      calc(100cqb / 1px / 1080)
+      calc(100cqw / var(--ddd-design-w, 1920px)),
+      calc(100cqh / var(--ddd-design-h, 1080px))
     ));
   }
-  /* Print uses the same CSS scale as screen — container-query units (cqi/cqb)
-     resolve against the slide-canvas's own size, so the stage scales to
-     whatever the print page gives it. No special print overrides needed. */
 </style>
-
-<script>
-  function scaleSlideCanvas(el: HTMLElement) {
-    const stage = el.querySelector<HTMLElement>(".slide-canvas__stage");
-    if (!stage) return;
-    const designW = Number(el.dataset.designWidth || 1920);
-    const designH = Number(el.dataset.designHeight || 1080);
-    const rect = el.getBoundingClientRect();
-    if (rect.width === 0 || rect.height === 0) return;
-    const scale = Math.min(rect.width / designW, rect.height / designH);
-    stage.style.transform = `scale(${scale})`;
-  }
-
-  function init(el: HTMLElement) {
-    if ((el as unknown as { __slideCanvasInit?: boolean }).__slideCanvasInit) return;
-    (el as unknown as { __slideCanvasInit?: boolean }).__slideCanvasInit = true;
-    const ro = new ResizeObserver(() => scaleSlideCanvas(el));
-    ro.observe(el);
-    scaleSlideCanvas(el);
-  }
-
-  for (const el of document.querySelectorAll<HTMLElement>("[data-slide-canvas]")) {
-    init(el);
-  }
-  new MutationObserver((mutations) => {
-    for (const m of mutations) {
-      for (const node of m.addedNodes) {
-        if (node instanceof HTMLElement) {
-          if (node.matches?.("[data-slide-canvas]")) init(node);
-          for (const inner of node.querySelectorAll?.("[data-slide-canvas]") ?? []) {
-            init(inner as HTMLElement);
-          }
-        }
-      }
-    }
-  }).observe(document.body, { childList: true, subtree: true });
-</script>
