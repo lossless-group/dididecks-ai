@@ -1,0 +1,75 @@
+---
+/**
+ * DeckOverlay--Scroll-UI — the floating overlay layer for a Scroll-mode deck.
+ *
+ * One mount point per scroll-deck variant page. Composes the persistent
+ * affordances that should "ride together" over the slides as the reader
+ * scrolls: classifier pill (today), variant-cycling nav + counter (Phase 2
+ * via PageAsDeckWrapper), presenter notes (Phase 3), telemetry beacons
+ * (Phase D). Each is a named slot so consumers can rearrange or omit.
+ *
+ * Mode contract — Scroll vs. Play (see CLAUDE.md "naming is fuzzy" note):
+ *   Scroll-UI: one long page, sections walked by scroll. Active slot is
+ *              discovered via IntersectionObserver. Slot-step nav (← / →)
+ *              does NOT apply; variant-cycling does.
+ *   Play-UI:   one slot per route, walked by ← / →. See DeckOverlay--Play-UI.
+ *
+ * Consumer integration (chroma's enhanced-v3 scroll page is the reference):
+ *
+ *   <PageAsDeckWrapper>                    {/* future, Phase 2 *}{/*}
+ *     <section data-slot="01" data-variant="enhanced-v3">…</section>
+ *     <section data-slot="02" data-variant="enhanced-v3">…</section>
+ *     …
+ *     <DeckOverlay--Scroll-UI deckSlug="pitch" variantSlug="enhanced-v3" />
+ *   </PageAsDeckWrapper>
+ *
+ * Plans of record:
+ *   context-v/plans/Phase-A-Plus-In-Deck-Ranking-Shared-Nav-and-Play-Runtime.md
+ *   context-v/plans/Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
+ */
+import SlideRankPill from "./SlideRankPill.astro";
+
+interface Props {
+  deckSlug: string;
+  variantSlug: string;
+  /** Hide the classifier pill (e.g. for public/share-tier embeds). Default false. */
+  hideClassifier?: boolean;
+}
+
+const { deckSlug, variantSlug, hideClassifier = false } = Astro.props as Props;
+---
+
+<div
+  class="ddd-overlay ddd-overlay--scroll"
+  data-ddd-overlay="scroll"
+  data-deck-slug={deckSlug}
+  data-variant-slug={variantSlug}
+>
+  {/* Future: <slot name="nav">…variant-cycling DeckChrome variant…</slot> */}
+  <slot name="nav" />
+
+  {!hideClassifier && (
+    <slot name="classify">
+      <SlideRankPill deckSlug={deckSlug} variantSlug={variantSlug} />
+    </slot>
+  )}
+
+  {/* Phase 3: presenter notes drawer */}
+  <slot name="notes" />
+
+  {/* Phase D: engagement-telemetry beacons */}
+  <slot name="telemetry" />
+
+  {/* Catch-all for anything else a consumer wants to ride along */}
+  <slot />
+</div>
+
+<style>
+  /* The overlay element itself is layout-neutral — it just hosts fixed/
+     absolute-positioned children. Each child owns its own positioning.
+     Kept as a real element (not a Fragment) so consumers can target it
+     via [data-ddd-overlay="scroll"] for diagnostics or DevTools. */
+  .ddd-overlay {
+    display: contents;
+  }
+</style>

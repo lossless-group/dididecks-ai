@@ -1,0 +1,158 @@
+---
+/**
+ * DeckOverlay--Play-UI — the floating overlay layer for a Play-mode deck.
+ *
+ * One mount point per /play/[deck]/[variant]/[slot] render. Composes the
+ * same family of overlay affordances as DeckOverlay--Scroll-UI, but for
+ * the single-slot-on-screen presentation surface:
+ *   - DeckChrome (paginator + slot-step nav + keyboard contract)  → "nav" slot
+ *   - SlideRankPill (classifier UI, current slot is known explicitly) → "classify" slot
+ *   - Future Phase 3 / Phase D additions via named slots
+ *
+ * Mode contract — Scroll vs. Play (see CLAUDE.md "naming is fuzzy" note):
+ *   Play-UI:   one slot per route. Active slot is the route param. Slot-step
+ *              nav (← / →) applies; variant cycling optional.
+ *   Scroll-UI: one long page, sections walked by scroll. See sibling component.
+ *
+ * Wrapping discipline: this component sets `data-play-root` and
+ * `data-chrome-hidden="false"` so DeckChrome's `C` keypress can toggle the
+ * whole overlay. Slide content is passed as the default <slot/> and gets
+ * wrapped in a `<section data-slot data-variant>` so SlideRankPill's existing
+ * IntersectionObserver picks up the active slot without a special play-mode
+ * code path. Exactly one section is in view at a time → exactly one
+ * classifier target. (This is how A++.2 lands without modifying
+ * SlideRankPill — the section wrap *is* the play-mode adapter.)
+ *
+ * Plans of record:
+ *   context-v/plans/Phase-A-Plus-In-Deck-Ranking-Shared-Nav-and-Play-Runtime.md
+ *   context-v/plans/Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
+ */
+import DeckChrome from "./DeckChrome.astro";
+import SlideRankPill from "./SlideRankPill.astro";
+
+interface Props {
+  /* Slot identity — wraps the rendered slide in <section data-slot data-variant>. */
+  deckSlug: string;
+  variantSlug: string;
+  slot: string;
+
+  /* DeckChrome (nav) props — passed straight through. */
+  totalSlots: number;
+  variantLabel: string;
+  prevHref: string | null;
+  nextHref: string | null;
+  firstHref: string;
+  lastHref: string;
+  tocHref: string;
+  prevVariantHref?: string | null;
+  nextVariantHref?: string | null;
+  variantCounter?: string;
+  cycling?: boolean;
+  showVariantNav?: boolean;
+  showHelp?: boolean;
+  enableKeyboard?: boolean;
+
+  /* Overlay-level toggles. */
+  hideClassifier?: boolean;
+  hideNav?: boolean;
+}
+
+const {
+  deckSlug,
+  variantSlug,
+  slot,
+  totalSlots,
+  variantLabel,
+  prevHref,
+  nextHref,
+  firstHref,
+  lastHref,
+  tocHref,
+  prevVariantHref,
+  nextVariantHref,
+  variantCounter,
+  cycling,
+  showVariantNav,
+  showHelp,
+  enableKeyboard,
+  hideClassifier = false,
+  hideNav = false,
+} = Astro.props as Props;
+---
+
+<div
+  class="ddd-overlay ddd-overlay--play"
+  data-ddd-overlay="play"
+  data-play-root
+  data-chrome-hidden="false"
+  data-deck-slug={deckSlug}
+  data-variant-slug={variantSlug}
+  data-slot={slot}
+>
+  {/* Slide content — wrapped in a section so SlideRankPill's IO finds it. */}
+  <section
+    class="ddd-overlay__stage"
+    data-slot={slot}
+    data-variant={variantSlug}
+  >
+    <slot />
+  </section>
+
+  {!hideNav && (
+    <slot name="nav">
+      <DeckChrome
+        slot={slot}
+        totalSlots={totalSlots}
+        variantLabel={variantLabel}
+        prevHref={prevHref}
+        nextHref={nextHref}
+        firstHref={firstHref}
+        lastHref={lastHref}
+        tocHref={tocHref}
+        prevVariantHref={prevVariantHref}
+        nextVariantHref={nextVariantHref}
+        variantCounter={variantCounter}
+        cycling={cycling}
+        showVariantNav={showVariantNav}
+        showHelp={showHelp}
+        enableKeyboard={enableKeyboard}
+      />
+    </slot>
+  )}
+
+  {!hideClassifier && (
+    <slot name="classify">
+      <SlideRankPill
+        deckSlug={deckSlug}
+        variantSlug={variantSlug}
+        position="top-right"
+      />
+    </slot>
+  )}
+
+  {/* Phase 3: presenter notes drawer */}
+  <slot name="notes" />
+
+  {/* Phase D: engagement-telemetry beacons */}
+  <slot name="telemetry" />
+</div>
+
+<style>
+  .ddd-overlay--play {
+    position: relative;
+    width: 100%;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+  }
+  .ddd-overlay__stage {
+    flex: 1 1 auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+  }
+  /* The C-keypress toggle fades the overlay's nav + classifier together
+     (DeckChrome / SlideRankPill respect [data-chrome-hidden="true"] via
+     descendant selectors on their own elements). */
+</style>

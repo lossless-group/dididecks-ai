@@ -22,9 +22,16 @@ import { loadSlotsRegistry } from "../registry-loader.js";
 interface Props {
   deckSlug: string;
   variantSlug: string;
+  /**
+   * Corner placement. Default `bottom-right` matches the Scroll-UI behavior
+   * shipped in Phase A+. Pass `top-right` when composing inside
+   * `DeckOverlay--Play-UI` to avoid stacking on top of `DeckChrome`, which
+   * occupies the bottom-right capsule slot in Play-UI.
+   */
+  position?: "bottom-right" | "top-right";
 }
 
-const { deckSlug, variantSlug } = Astro.props as Props;
+const { deckSlug, variantSlug, position = "bottom-right" } = Astro.props as Props;
 
 const opts = globalThis.__dididecksShellOptions;
 let slots: SlotRef[] = [];
@@ -42,8 +49,9 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
 );
 ---
 <div
-  class="dididecks-slide-rank-pill"
+  class:list={["dididecks-slide-rank-pill", `dididecks-slide-rank-pill--${position}`]}
   data-slide-rank-pill
+  data-position={position}
   data-deck-slug={deckSlug}
   data-variant-slug={variantSlug}
   data-titles={JSON.stringify(titleBySlot)}
@@ -66,7 +74,6 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
   .dididecks-slide-rank-pill {
     position: fixed;
     right: 16px;
-    bottom: 16px;
     z-index: 9999;
     display: flex;
     flex-direction: column;
@@ -82,6 +89,9 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
     opacity: 0.35;
     transition: opacity 0.15s ease;
   }
+  .dididecks-slide-rank-pill--bottom-right { bottom: 16px; }
+  .dididecks-slide-rank-pill--top-right    { top: 16px; }
+
   .dididecks-slide-rank-pill:hover,
   .dididecks-slide-rank-pill:focus-within {
     opacity: 1;

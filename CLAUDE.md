@@ -12,7 +12,25 @@ content. The driving narrative lives in `context-v/specs/Dididecks-AI-Slide-Deck
 2. `context-v/specs/Dididecks-AI-DD-Ready-Citation-and-Source-Access.md` — sibling spec.
 3. `context-v/specs/Dididecks-AI-Visual-and-Diagram-Component-Library.md` — sibling spec.
 4. `context-v/explorations/Dididecks-AI-Business-Model.md` — business-model exploration.
-5. `client-sites/calmstorm-decks/` and `client-sites/reach-edu-hub/` — the two live client engagements that exercise the DidiDecks pattern.
+5. `context-v/sitemap/README.md` — living map of every shell artifact (routes + components). Per-client sitemaps live in `client-sites/<client>/context-v/sitemap/`.
+6. `client-sites/calmstorm-decks/` and `client-sites/reach-edu-hub/` — the two live client engagements that exercise the DidiDecks pattern.
+
+## Naming is fuzzy here — Scroll-UI vs. Play-UI
+
+DidiDecks' proprietary process maintains **two coordinated views of the same deck**:
+
+- **Scroll-UI** — a single long page where sections are walked by scrolling. The active slot is discovered via `IntersectionObserver`. Slot-step nav (← / →) does *not* apply; variant cycling does. Used for in-place authoring and ranking.
+- **Play-UI** — one slot per route (`/play/[deck]/[variant]/[slot]/`). Slot-step nav applies. Used for presentation, sharing, slot-isolated review.
+
+Several components ship in **paired variants** to honor this — `<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>` are the load-bearing pair. The `--Scroll-UI` / `--Play-UI` suffix is part of the public name (not a private flag); the two variants are sibling files, not props on one file.
+
+The fuzziness: some readers expect "deck" to mean only Play-UI (the presentation), while in DidiDecks the deck *is* both views together. When in doubt:
+
+- A **slide** is one slot.
+- A **variant** is an ordered set of slides (e.g. `enhanced-v3`).
+- A **deck** is a variant viewed in either UI mode — the *content* is the deck; the UI is a rendering of it.
+
+When you author or rename a UI artifact, ask which UI mode it belongs in. If it's both, give it a mode-agnostic name. If it's mode-specific, use the `--Scroll-UI` / `--Play-UI` suffix discipline.
 
 ## Skills to load when working here
 
