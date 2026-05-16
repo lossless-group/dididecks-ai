@@ -28,14 +28,21 @@ This is the **universal layer**. Every client deck under `client-sites/*` inheri
 
 ## Naming-is-fuzzy note — Scroll-UI vs. Play-UI
 
-DidiDecks' proprietary process maintains **two coordinated views** of the same deck:
+DidiDecks' proprietary process maintains **two coordinated implementations** of every deck — NOT two views of the same content. They are different components with different constraints, deliberately coupled only by slot identity:
 
-- **Scroll-UI** — a single long page where sections are walked by scrolling. The active slot is discovered via `IntersectionObserver`. Slot-step nav (← / →) does *not* apply; variant cycling does. Used for in-place authoring and ranking.
-- **Play-UI** — one slot per route (`/play/[deck]/[variant]/[slot]/`). Slot-step nav applies. Used for presentation, sharing, and slot-isolated review.
+- **Scroll-UI slide** — a **section component** inside one long `/scroll/{deck}/{variant}/index.astro` page. Responsive CSS, vertical reading, JS / animations allowed. The surface Claude (and humans) design **in**, because responsive sections come naturally.
+- **Play-UI slide** — a **standalone component file** at `<consumer>/src/components/slides/{variant}/{slot}-{slug}.astro`. Rigid 16:9 at 1920×1080 design size. **No responsive CSS. No JS.** Static HTML/CSS only, so it letterboxes cleanly and PDF-exports without runtime hydration. The surface Claude is **bad at** — rigid-aspect / no-responsive / no-JS is unfamiliar territory.
 
-Many components ship in **paired variants** to honor this — most prominently `<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>`. Where you see a `--Scroll-UI` / `--Play-UI` suffix on a component name, the suffix is part of the public name (not a private flag) and the two variants are sibling files, not props on one file.
+The workflow this implies: **design in Scroll-UI first, then convert each section into its Play-UI counterpart.** The conversion is non-trivial — "recreate, don't extract" is the discipline encoded in `/api/slide-decompose`. This is Phase 1 → Phase 2 of the deck-iteration-workflow.
 
-The fuzziness comes from the fact that some readers expect "deck" to mean only Play-UI (the presentation), while in DidiDecks the deck *is* both views together. When in doubt: a **slide** is one slot; a **deck** is the variant (an ordered set of slides) viewed in either UI mode.
+Practical consequence for this sitemap: a deck **has** Play-UI only when its per-slide files exist. The presence of a `/scroll/` route does **not** imply `/play/` is renderable. Mini-specs for `routes/play-slot.md` and `components/SlideCanvas.md` reflect this; consumer-side sitemaps under `client-sites/*/context-v/sitemap/` should annotate which slot files exist (status `shipped` vs `stub` vs `planned`).
+
+Several **overlay** components ship in paired variants — most prominently `<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>` — because the overlay *surfaces* differ even though both wrap the same conceptual slot. The `--Scroll-UI` / `--Play-UI` suffix is part of the public name; the two variants are sibling files, not props on one file. The slides themselves are not paired in this way — they are unrelated files coordinated only by slot identity.
+
+Glossary:
+- **slide** = one slot's worth of content (one section or one standalone file).
+- **variant** = an ordered set of slides (e.g. `enhanced-v3`).
+- **deck** = a variant as rendered in whichever UI mode the reader is in.
 
 ## Directory shape
 

@@ -17,20 +17,25 @@ content. The driving narrative lives in `context-v/specs/Dididecks-AI-Slide-Deck
 
 ## Naming is fuzzy here — Scroll-UI vs. Play-UI
 
-DidiDecks' proprietary process maintains **two coordinated views of the same deck**:
+DidiDecks' proprietary process maintains **two coordinated implementations** of every deck — NOT two views of the same content. They are different components with different constraints, deliberately coupled by slot identity.
 
-- **Scroll-UI** — a single long page where sections are walked by scrolling. The active slot is discovered via `IntersectionObserver`. Slot-step nav (← / →) does *not* apply; variant cycling does. Used for in-place authoring and ranking.
-- **Play-UI** — one slot per route (`/play/[deck]/[variant]/[slot]/`). Slot-step nav applies. Used for presentation, sharing, slot-isolated review.
+- **Scroll-UI slide** — a **section** component inside one long `/scroll/{deck}/{variant}/index.astro` page. Responsive CSS, vertical reading, can carry inline scripts and reveal animations. This is the surface Claude (and most humans) design **in**, because responsive sections come naturally.
+- **Play-UI slide** — a **standalone component file** at `src/components/slides/{variant}/{slot}-{slug}.astro`, rendered by the shell's `/play/[deck]/[variant]/[slot]/` route inside `SlideCanvas`. Rigid 16:9 aspect ratio at the 1920×1080 design size. **No responsive CSS. No JS in the slide itself.** Static HTML/CSS only, so it letterboxes cleanly to any viewport and can be exported to PDF without runtime hydration. This is the surface Claude is **bad at** — the rigid-aspect, no-responsive, no-JS constraint is unfamiliar.
 
-Several components ship in **paired variants** to honor this — `<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>` are the load-bearing pair. The `--Scroll-UI` / `--Play-UI` suffix is part of the public name (not a private flag); the two variants are sibling files, not props on one file.
+### The workflow this implies
 
-The fuzziness: some readers expect "deck" to mean only Play-UI (the presentation), while in DidiDecks the deck *is* both views together. When in doubt:
+Design first in Scroll-UI, then **convert each section into its Play-UI counterpart**. The conversion is non-trivial — it's the "recreate, don't extract" discipline encoded in `/api/slide-decompose`. This is Phase 1 → Phase 2 of the deck-iteration-workflow. The two implementations are coordinated by **slot identity** (e.g. `pitch/enhanced-v3/05` is the same conceptual slot in both), but the files are different and live in different parts of the tree.
 
-- A **slide** is one slot.
-- A **variant** is an ordered set of slides (e.g. `enhanced-v3`).
-- A **deck** is a variant viewed in either UI mode — the *content* is the deck; the UI is a rendering of it.
+### Practical consequences
 
-When you author or rename a UI artifact, ask which UI mode it belongs in. If it's both, give it a mode-agnostic name. If it's mode-specific, use the `--Scroll-UI` / `--Play-UI` suffix discipline.
+- A deck **has** Play-UI only when its per-slide files exist at `src/components/slides/{variant}/`. The presence of a `/scroll/` route does **not** imply `/play/` is available. The `/play/` chooser should reflect per-slide-file existence at runtime, not a static `format` field in the registry.
+- When asked to "add a slide," ask which UI you're working in. If you're designing fresh, default to Scroll-UI; if you're presenting/shipping, the Play-UI counterpart must exist.
+- Several **overlay** components ship in paired variants (`<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>`) because the overlay surfaces themselves differ; the `--Scroll-UI` / `--Play-UI` suffix is part of the public name.
+- A **slide** is one slot's worth of content; a **variant** is an ordered set of slides (e.g. `enhanced-v3`); a **deck** is the variant *as-rendered* in whichever UI mode the reader is in.
+
+### Why we work this way
+
+Claude (and modern LLMs in general) are good at responsive section-based design and poor at rigid no-JS static-aspect-ratio layouts. The Scroll-UI is where ideas get explored cheaply; the Play-UI is where they get pinned to fundraise-grade presentation discipline. The shell exists to keep those two implementations coordinated without forcing premature pinning.
 
 ## Skills to load when working here
 
