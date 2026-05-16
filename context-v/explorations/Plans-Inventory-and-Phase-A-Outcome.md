@@ -3,11 +3,21 @@ title: "Plans Inventory and Phase A Outcome — What Shipped, What Remains, and 
 lede: "Four plans live in `dididecks-ai/context-v/plans/`. Two have been fully executed (the dididecks-ai monorepo init and the chroma-decks scaffold). One is partly executed (Phase A of `@dididecks/shell` — A.1 through A.6 working in workspace-link mode; A.7 publish is administratively blocked). One is fully deferred (the slide componentization sweep, which now retargets into the shell). After landing the shell today, the founder smoke-tested the running surface and named three concrete gaps: no global navigation chrome, no in-scroll-deck slide-rank UI (a feature neither calmstorm nor chroma has today), and no per-slide static HTML files to feed a `/play` runtime. The next plan — Phase A+ — closes those three in a single coherent slice."
 date_authored_initial_draft: 2026-05-12
 date_authored_current_draft: 2026-05-12
-date_authored_final_draft:
-date_first_published:
-date_last_updated: 2026-05-12
+date_authored_final_draft: 2026-05-12
+date_first_published: 2026-05-12
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Superseded
+superseded_by: "[[Plans-Inventory-2026-05-16]]"
+historical_correction_note: |
+  This doc characterizes TOC + Scroll + Play as "the same content viewed
+  three ways." That framing was later sharpened: Scroll-UI and Play-UI
+  are two coordinated IMPLEMENTATIONS per slide (different files,
+  different constraints — responsive sections vs. rigid 16:9 no-JS
+  standalone files), coupled only by slot identity, NOT two views of the
+  same content. See `CLAUDE.md` "Naming is fuzzy here — Scroll-UI vs.
+  Play-UI" and the memory note `feedback_scroll_vs_play_are_different_components`
+  for the corrected model.
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Exploration
 tags:
