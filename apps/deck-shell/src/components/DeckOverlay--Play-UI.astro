@@ -28,15 +28,20 @@
  *   context-v/plans/Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
  */
 import DeckChrome from "./DeckChrome.astro";
+import DeckFramePlayUI from "./DeckFrame--Play-UI.astro";
 import SlideRankPill from "./SlideRankPill.astro";
+
+export type Intent = "workflow" | "presentation";
+export type ChromeStyle = "frame" | "capsule";
 
 interface Props {
   /* Slot identity — wraps the rendered slide in <section data-slot data-variant>. */
   deckSlug: string;
   variantSlug: string;
   slot: string;
+  slotTitle?: string;
 
-  /* DeckChrome (nav) props — passed straight through. */
+  /* DeckChrome / DeckFrame nav props — passed through. */
   totalSlots: number;
   variantLabel: string;
   prevHref: string | null;
@@ -52,6 +57,21 @@ interface Props {
   showHelp?: boolean;
   enableKeyboard?: boolean;
 
+  /* DeckFrame-only extras. */
+  auditHref?: string | null;
+  otherVariants?: Array<{ slug: string; label: string; href: string }>;
+
+  /* Audience intent — drives whether workflow chrome (status, audit,
+     variant switches) renders. Default "workflow" to preserve operator
+     defaults; consumers can pass "presentation" for end-user views. */
+  intent?: Intent;
+
+  /* Which chrome variant to mount. Default "frame" — the calmstorm-style
+     full top+bottom bars (DeckFrame--Play-UI). Pass "capsule" for the
+     quieter floating bottom-right capsule (DeckChrome) when a less
+     prominent chrome is wanted (splash embeds, print pre-rolls). */
+  chromeStyle?: ChromeStyle;
+
   /* Overlay-level toggles. */
   hideClassifier?: boolean;
   hideNav?: boolean;
@@ -61,6 +81,7 @@ const {
   deckSlug,
   variantSlug,
   slot,
+  slotTitle,
   totalSlots,
   variantLabel,
   prevHref,
@@ -75,9 +96,21 @@ const {
   showVariantNav,
   showHelp,
   enableKeyboard,
+  auditHref = null,
+  otherVariants = [],
+  intent = "workflow",
+  chromeStyle = "frame",
   hideClassifier = false,
   hideNav = false,
 } = Astro.props as Props;
+
+// Visibility rules:
+//   - frame + workflow:      DeckFrame carries inline status → suppress SlideRankPill
+//   - frame + presentation:  No workflow UI at all → suppress SlideRankPill
+//   - capsule + workflow:    DeckChrome is capsule (no inline status) → keep SlideRankPill
+//   - capsule + presentation: Quiet chrome only → suppress SlideRankPill
+const renderClassifier =
+  !hideClassifier && chromeStyle === "capsule" && intent === "workflow";
 ---
 
 <div
@@ -89,21 +122,26 @@ const {
   data-variant-slug={variantSlug}
   data-slot={slot}
 >
-  {/* Slide content — wrapped in a section so SlideRankPill's IO finds it. */}
-  <section
-    class="ddd-overlay__stage"
-    data-slot={slot}
-    data-variant={variantSlug}
-  >
-    <slot />
-  </section>
-
-  {!hideNav && (
+  {/*
+    Layout splits by chromeStyle:
+      - frame    → DeckFrame--Play-UI wraps the slide in its own <main> stage.
+                    No outer <section data-slot> is needed (SlideRankPill is
+                    suppressed in this mode; nothing else reads the data-slot
+                    section in play-mode).
+      - capsule  → Slide lives in a <section data-slot data-variant> so the
+                    SlideRankPill's IntersectionObserver picks it up.
+                    DeckChrome and SlideRankPill ride alongside as siblings.
+  */}
+  {!hideNav && chromeStyle === "frame" ? (
     <slot name="nav">
-      <DeckChrome
+      <DeckFramePlayUI
+        deckSlug={deckSlug}
+        variantSlug={variantSlug}
         slot={slot}
+        slotTitle={slotTitle}
         totalSlots={totalSlots}
         variantLabel={variantLabel}
+        variantCounter={variantCounter}
         prevHref={prevHref}
         nextHref={nextHref}
         firstHref={firstHref}
@@ -111,23 +149,57 @@ const {
         tocHref={tocHref}
         prevVariantHref={prevVariantHref}
         nextVariantHref={nextVariantHref}
-        variantCounter={variantCounter}
-        cycling={cycling}
-        showVariantNav={showVariantNav}
-        showHelp={showHelp}
+        otherVariants={otherVariants}
+        auditHref={auditHref}
+        intent={intent}
         enableKeyboard={enableKeyboard}
-      />
+      >
+        <slot />
+      </DeckFramePlayUI>
     </slot>
-  )}
+  ) : (
+    <>
+      <section
+        class="ddd-overlay__stage"
+        data-slot={slot}
+        data-variant={variantSlug}
+      >
+        <slot />
+      </section>
 
-  {!hideClassifier && (
-    <slot name="classify">
-      <SlideRankPill
-        deckSlug={deckSlug}
-        variantSlug={variantSlug}
-        position="top-right"
-      />
-    </slot>
+      {!hideNav && (
+        <slot name="nav">
+          <DeckChrome
+            slot={slot}
+            totalSlots={totalSlots}
+            variantLabel={variantLabel}
+            prevHref={prevHref}
+            nextHref={nextHref}
+            firstHref={firstHref}
+            lastHref={lastHref}
+            tocHref={tocHref}
+            prevVariantHref={prevVariantHref}
+            nextVariantHref={nextVariantHref}
+            variantCounter={variantCounter}
+            cycling={cycling}
+            showVariantNav={showVariantNav}
+            showHelp={showHelp}
+            enableKeyboard={enableKeyboard}
+          />
+        </slot>
+      )}
+
+      {renderClassifier && (
+        <slot name="classify">
+          <SlideRankPill
+            deckSlug={deckSlug}
+            variantSlug={variantSlug}
+            surface="play"
+            position="top-right"
+          />
+        </slot>
+      )}
+    </>
   )}
 
   {/* Phase 3: presenter notes drawer */}

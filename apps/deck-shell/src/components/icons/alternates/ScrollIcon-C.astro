@@ -1,0 +1,29 @@
+---
+/**
+ * ScrollIcon-C — filled capsule with punched wheel notch.
+ * Mouse-wheel / scrollbar-thumb metaphor. Even-odd fill punches the wheel
+ * notch transparently so the icon works on any background. Paired with
+ * PlayIcon-C.
+ */
+interface Props {
+  size?: number | string;
+  title?: string;
+}
+const { size = "1em", title = "Scroll review" } = Astro.props as Props;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="currentColor"
+  fill-rule="evenodd"
+  role="img"
+  aria-label={title}
+>
+  <title>{title}</title>
+  <path
+    d="M12 2.5 a5 5 0 0 1 5 5 v9 a5 5 0 0 1 -10 0 v-9 a5 5 0 0 1 5 -5 z
+       M11.25 7 h1.5 a0.75 0.75 0 0 1 0.75 0.75 v2.5 a0.75 0.75 0 0 1 -0.75 0.75 h-1.5 a0.75 0.75 0 0 1 -0.75 -0.75 v-2.5 a0.75 0.75 0 0 1 0.75 -0.75 z"
+  />
+</svg>

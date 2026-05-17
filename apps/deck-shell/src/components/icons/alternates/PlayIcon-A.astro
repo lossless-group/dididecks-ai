@@ -1,0 +1,29 @@
+---
+/**
+ * PlayIcon-A — surface-shaped frame.
+ * Landscape 16:9-feeling rectangle (the play slide) with a centered filled
+ * triangle. Paired with ScrollIcon-A.
+ */
+interface Props {
+  size?: number | string;
+  title?: string;
+}
+const { size = "1em", title = "Play review" } = Astro.props as Props;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="1.75"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-label={title}
+>
+  <title>{title}</title>
+  <rect x="2.5" y="6" width="19" height="12" rx="2" />
+  <polygon points="10 9.5 15.5 12 10 14.5" fill="currentColor" stroke="none" />
+</svg>

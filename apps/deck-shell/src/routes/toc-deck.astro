@@ -1,0 +1,62 @@
+---
+/**
+ * /toc/[deckSlug] — canonical deck-level TOC matrix route.
+ *
+ * Thin wrapper around `<DeckMatrix>`. The component carries all the data
+ * + UI; the route adds page chrome (DididecksNav, body wrap) and reads
+ * `?variant=X` from the URL to focus a column.
+ *
+ * Plan of record:
+ *   context-v/plans/Redesign-TOC-as-Deck-Level-Dual-Surface-Review-Matrix.md
+ *   (Phase 5 + 5.5)
+ */
+import type { Deck } from "../types/index.js";
+import { loadDecksRegistry } from "../registry-loader.js";
+import DididecksNav from "../components/DididecksNav.astro";
+import DeckMatrix from "../components/DeckMatrix.astro";
+
+export async function getStaticPaths() {
+  const opts = globalThis.__dididecksShellOptions;
+  if (!opts) {
+    throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+  }
+  const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+  return (DECKS as Deck[]).map((deck) => ({ params: { deckSlug: deck.slug } }));
+}
+
+const { deckSlug } = Astro.params as { deckSlug: string };
+const focusVariant = Astro.url.searchParams.get("variant");
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>TOC · {deckSlug}</title>
+    <meta name="robots" content="noindex,nofollow" />
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #0b0d10;
+        --fg: #e6e9ee;
+      }
+      @media (prefers-color-scheme: light) {
+        :root { --bg: #ffffff; --fg: #14181d; }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
+    </style>
+  </head>
+  <body>
+    <DididecksNav />
+    <div class="wrap">
+      <DeckMatrix deckSlug={deckSlug} focusVariant={focusVariant} />
+    </div>
+  </body>
+</html>

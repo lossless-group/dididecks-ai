@@ -2,21 +2,25 @@
  * /api/slide-rank — read + write per-slide rank state into the consuming
  * client-site's audits file (`data/audits/slides.json` by default).
  *
- * Storage shape (schema 1):
+ * Storage shape (schema 2 — dual-surface):
  *   {
- *     "schema": 1,
+ *     "schema": 2,
  *     "ranks": {
  *       "<deckSlug>/<variantSlug>/<slot>": {
- *         "status": "urgent-redo" | "non-urgent-could-be-better" | "passable" | "perfect",
- *         "rankedAt": "<ISO-8601>",
- *         "rankedBy": "founder",
- *         "notes": null
+ *         "scroll": { "status": "...", "rankedAt": "...", "rankedBy": "founder", "notes": null },
+ *         "play":   { "status": "...", "rankedAt": "...", "rankedBy": "founder", "notes": null }
  *       }
  *     }
  *   }
  *
+ * POST body requires `surface: "scroll" | "play"`. Transitionally, a missing
+ * surface is accepted with a 200 + server-log warning and defaulted to scroll
+ * (matches pre-v2 behavior) so consumers can update at their pace. The default
+ * is removed in a later release.
+ *
  * Status "pending" is the implicit default — it is never persisted; a POST with
- * status === "pending" deletes the existing entry.
+ * status === "pending" deletes the existing surface entry (and the row entirely
+ * if no other surface remains).
  *
  * Dev-only — `prerender = false` makes this route on-demand. Static Vercel
  * builds skip it cleanly.
@@ -34,6 +38,9 @@ const VALID_STATUSES = new Set([
   "perfect",
   "pending",
 ]);
+
+const VALID_SURFACES = new Set(["scroll", "play"] as const);
+type Surface = "scroll" | "play";
 
 function getOptionsOrThrow() {
   const opts = globalThis.__dididecksShellOptions;
@@ -55,14 +62,21 @@ export const GET: APIRoute = async () => {
 export const POST: APIRoute = async ({ request }) => {
   const opts = getOptionsOrThrow();
 
-  let body: { deckSlug?: string; variantSlug?: string; slot?: string; status?: string; notes?: string | null };
+  let body: {
+    deckSlug?: string;
+    variantSlug?: string;
+    slot?: string;
+    status?: string;
+    surface?: string;
+    notes?: string | null;
+  };
   try {
     body = await request.json();
   } catch {
     return new Response(JSON.stringify({ error: "invalid JSON body" }), { status: 400 });
   }
 
-  const { deckSlug, variantSlug, slot, status, notes } = body;
+  const { deckSlug, variantSlug, slot, status, surface: bodySurface, notes } = body;
   if (!deckSlug || !variantSlug || !slot) {
     return new Response(
       JSON.stringify({ error: "missing 'deckSlug', 'variantSlug', or 'slot'" }),
@@ -76,18 +90,39 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 
+  let surface: Surface;
+  if (bodySurface === undefined) {
+    console.warn(
+      "[@dididecks/shell] /api/slide-rank: POST missing 'surface' — defaulting to 'scroll' for backcompat. This default will be removed; update your <SlideRankPill surface={…}> mounts.",
+    );
+    surface = "scroll";
+  } else if (!VALID_SURFACES.has(bodySurface as Surface)) {
+    return new Response(
+      JSON.stringify({ error: `'surface' must be one of: ${[...VALID_SURFACES].join(", ")}` }),
+      { status: 400 },
+    );
+  } else {
+    surface = bodySurface as Surface;
+  }
+
   const key = buildRankKey(deckSlug, variantSlug, slot);
   const audit = await loadAuditRegistry(opts.absolute.audits);
 
   if (status === "pending") {
-    delete audit.ranks[key];
+    const row = audit.ranks[key];
+    if (row) {
+      delete row[surface];
+      if (!row.scroll && !row.play) delete audit.ranks[key];
+    }
   } else {
-    audit.ranks[key] = {
+    const row = audit.ranks[key] ?? {};
+    row[surface] = {
       status: status as "urgent-redo" | "non-urgent-could-be-better" | "passable" | "perfect",
       rankedAt: new Date().toISOString(),
       rankedBy: "founder",
       notes: notes ?? null,
     };
+    audit.ranks[key] = row;
   }
 
   await writeAuditRegistry(opts.absolute.audits, audit);

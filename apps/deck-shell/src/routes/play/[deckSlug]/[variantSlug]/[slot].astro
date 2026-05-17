@@ -1,43 +1,27 @@
 ---
 /**
- * /play/[deckSlug]/[variantSlug]/[slot]/ — minimum-viable play runtime.
+ * /play/[deckSlug]/[variantSlug]/[slot]/ — play runtime.
  *
- * Faithful port of calmstorm-decks' /play/section/[slot].astro pattern:
- *   - body is `overflow: hidden`, full-viewport (100dvh)
- *   - fixed top + bottom chrome bars (NOT a floating capsule — that's
- *     the scroll-route surface, lives in DeckChrome.astro for later)
- *   - center-stage with letterbox-constrained canvas:
- *       width: min(100%, calc((100vh - 7rem) * 16 / 9))
- *       max-height: calc(100vh - 7rem)
- *     This is the load-bearing CSS that prevents the
- *     `width:100% + aspect-ratio:16/9` canvas from blowing out the
- *     viewport. Calmstorm tested; we copy it.
- *   - Chrome-off mode (`C` / `F`) neutralizes the canvas's own
- *     aspect-ratio rule and locks both axes to the largest 16:9 box
- *     that fits the viewport, symmetric letterbox on the leftover axis.
+ * Consumes <DeckOverlay--Play-UI>, which composes:
+ *   - DeckChrome      (floating bottom-right capsule, full keyboard contract)
+ *   - SlideRankPill   (top-right, in-play classifier — closes A++.2)
+ *   - Section wrap    (<section data-slot data-variant>) so SlideRankPill's
+ *                     IntersectionObserver picks up the active slot without a
+ *                     special play-mode code path.
  *
- * Calmstorm's hardcoded #0a0f1a dark theme is parameterized via
- * --ddd-play-*-* and --ddd-chrome-*-* CSS custom properties. Consumers
- * override at any wrapping element (commonly `:root` or scoped via
- * `:root[data-deck-skin="..."]`); the defaults in
- * styles/themes/neutral.css reproduce calmstorm's look.
+ * Plans of record:
+ *   context-v/plans/Phase-A-Plus-Plus-Play-Fidelity-In-Play-Ranking-and-Variant-URL-Safety.md (A++.2)
+ *   context-v/plans/Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
  *
- * Keyboard contract: ← / → / Space / PageUp / PageDown / Home / End
- * walk slots; F fullscreens; C toggles chrome (body[data-chrome=off]);
- * T jumps to TOC; Esc restores chrome + exits fullscreen.
- *
- * The dynamic-import path is hardcoded to /src/components/slides/** for
- * v0 — Vite's import.meta.glob requires a literal string. Phase B can
- * support arbitrary slidesComponentsRoot if needed.
- *
- * Plan of record:
- *   dididecks-ai/context-v/plans/
- *   Restore-Calmstorm-Nav-Elegance-as-Themable-Shell-Primitives.md
+ * The dynamic-import path is hardcoded to /src/components/slides/** — Vite's
+ * import.meta.glob requires a literal string. Phase B can support arbitrary
+ * slidesComponentsRoot if needed.
  */
 import type { Deck, SlotRef } from "../../../../types/index.js";
 import { loadDecksRegistry, loadSlotsRegistry } from "../../../../registry-loader.js";
 import DecomposeFirstPlaceholder from "../../../../components/DecomposeFirstPlaceholder.astro";
 import SlideCanvas from "../../../../components/SlideCanvas.astro";
+import DeckOverlayPlayUI from "../../../../components/DeckOverlay--Play-UI.astro";
 import "../../../../styles/themes/neutral.css";
 
 // Globbed lazily; Vite resolves against the consumer's project root at build.
@@ -54,11 +38,20 @@ export async function getStaticPaths() {
 
   const paths: Array<{
     params: { deckSlug: string; variantSlug: string; slot: string };
-    props: { slug: string; title: string; slotIdx: number; slots: SlotRef[]; variantLabel: string };
+    props: {
+      slug: string;
+      title: string;
+      slotIdx: number;
+      slots: SlotRef[];
+      variantLabel: string;
+      deckVariants: Array<{ slug: string; label: string }>;
+      variantIdx: number;
+    };
   }> = [];
 
   for (const deck of DECKS as Deck[]) {
-    for (const variant of deck.variants) {
+    const deckVariants = deck.variants.map((v) => ({ slug: v.slug, label: v.label }));
+    deck.variants.forEach((variant, variantIdx) => {
       const slots = slotsByVariant[variant.slug] ?? [];
       slots.forEach((slot, idx) => {
         paths.push({
@@ -69,10 +62,12 @@ export async function getStaticPaths() {
             slotIdx: idx,
             slots,
             variantLabel: variant.label,
+            deckVariants,
+            variantIdx,
           },
         });
       });
-    }
+    });
   }
   return paths;
 }
@@ -82,12 +77,14 @@ const { deckSlug, variantSlug, slot } = Astro.params as {
   variantSlug: string;
   slot: string;
 };
-const { slug, title, slotIdx, slots, variantLabel } = Astro.props as {
+const { slug, title, slotIdx, slots, variantLabel, deckVariants, variantIdx } = Astro.props as {
   slug: string;
   title: string;
   slotIdx: number;
   slots: SlotRef[];
   variantLabel: string;
+  deckVariants: Array<{ slug: string; label: string }>;
+  variantIdx: number;
 };
 
 const totalSlots = slots.length;
@@ -101,9 +98,34 @@ const nextHref = nextSlot ? `/play/${deckSlug}/${variantSlug}/${nextSlot.slot}/`
 const firstHref = `/play/${deckSlug}/${variantSlug}/${firstSlot.slot}/`;
 const lastHref = `/play/${deckSlug}/${variantSlug}/${lastSlot.slot}/`;
 const tocHref = `/toc/${deckSlug}/${variantSlug}/`;
+const auditHref = `/toc/${deckSlug}/?variant=${variantSlug}`;
 
-const slotPadded = String(slot).padStart(2, "0");
-const totalPadded = String(totalSlots).padStart(2, "0");
+// Variant cycle — siblings of this variant in registry order. Land each
+// switch on the same slot number if it exists in the target variant;
+// otherwise the variant's slot 01. (Slot existence in the target is
+// resolved at runtime by getStaticPaths; we just send the user there.)
+const totalVariants = deckVariants.length;
+const prevVariantIdx = totalVariants > 1 ? (variantIdx - 1 + totalVariants) % totalVariants : -1;
+const nextVariantIdx = totalVariants > 1 ? (variantIdx + 1) % totalVariants : -1;
+const prevVariant = prevVariantIdx >= 0 ? deckVariants[prevVariantIdx] : null;
+const nextVariant = nextVariantIdx >= 0 ? deckVariants[nextVariantIdx] : null;
+const prevVariantHref = prevVariant ? `/play/${deckSlug}/${prevVariant.slug}/${slot}/` : null;
+const nextVariantHref = nextVariant ? `/play/${deckSlug}/${nextVariant.slug}/${slot}/` : null;
+const variantCounter = totalVariants > 1 ? `${variantIdx + 1}/${totalVariants}` : undefined;
+const otherVariants = deckVariants
+  .filter((v) => v.slug !== variantSlug)
+  .map((v) => ({
+    slug: v.slug,
+    label: v.label,
+    href: `/play/${deckSlug}/${v.slug}/${slot}/`,
+  }));
+
+// Audience intent — URL-param toggle per the redesign plan. Default "workflow"
+// preserves the operator/VC-firm view that's been the only mode shipped so
+// far. Pass ?intent=presentation to render the end-user view.
+const intentParam = Astro.url.searchParams.get("intent");
+const intent: "workflow" | "presentation" =
+  intentParam === "presentation" ? "presentation" : "workflow";
 
 const globKey = `/src/components/slides/${variantSlug}/${slot}-${slug}.astro`;
 type SlideLoader = () => Promise<{ default: unknown }>;
@@ -118,74 +140,42 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
     <title>{title} · {variantLabel} · play</title>
     <meta name="robots" content="noindex,nofollow" />
   </head>
-  <body class="ddd-play-body" data-chrome="on">
-
-    <header class="ddd-play-chrome ddd-play-chrome--top">
-      <a
-        href={tocHref}
-        class="ddd-play-exit"
-        aria-label="Exit to table of contents"
-        title="Exit to TOC (T)"
-      >
-        <span aria-hidden="true">✕</span>
-      </a>
-      <span class="ddd-play-brand">
-        {title}
-      </span>
-      <span class="ddd-play-mid">
-        <span class="ddd-play-variant">
-          <span class="ddd-play-variant-label">Variant</span>
-          <span class="ddd-play-variant-name">{variantLabel}</span>
-        </span>
-      </span>
-      <span class="ddd-play-counter">
-        <span data-counter-slot>{slotPadded}</span> / {totalPadded}
-      </span>
-    </header>
-
-    <main class="ddd-play-stage">
-      <article class="ddd-play-slide" aria-hidden="false">
-        {/* Slides self-wrap in their own SlideCanvas. The route does NOT
-            wrap — that caused double-canvas drift. For empty-slot fallback
-            we wrap the placeholder manually since it doesn't bring its own. */}
-        {Slide ? (
-          <Slide />
-        ) : (
-          <SlideCanvas>
-            <DecomposeFirstPlaceholder
-              deckSlug={deckSlug}
-              variantSlug={variantSlug}
-              slot={slot}
-              slug={slug}
-              title={title}
-            />
-          </SlideCanvas>
-        )}
-      </article>
-    </main>
-
-    <nav class="ddd-play-chrome ddd-play-chrome--bottom">
-      <span class="ddd-play-section-nav">
-        {prevHref ? (
-          <a href={prevHref} class="ddd-play-nav-link" data-nav="prev">‹ Prev</a>
-        ) : (
-          <span class="ddd-play-nav-link is-disabled" aria-disabled="true">‹ Prev</span>
-        )}
-      </span>
-
-      <span class="ddd-play-hint">
-        ← → slots · F fullscreen · C toggle chrome · T toc
-      </span>
-
-      <span class="ddd-play-section-nav">
-        <a href={tocHref} class="ddd-play-nav-link" data-nav="toc">TOC</a>
-        {nextHref ? (
-          <a href={nextHref} class="ddd-play-nav-link" data-nav="next">Next ›</a>
-        ) : (
-          <span class="ddd-play-nav-link is-disabled" aria-disabled="true">Next ›</span>
-        )}
-      </span>
-    </nav>
+  <body class="ddd-play-body">
+    <DeckOverlayPlayUI
+      deckSlug={deckSlug}
+      variantSlug={variantSlug}
+      slot={slot}
+      slotTitle={title}
+      totalSlots={totalSlots}
+      variantLabel={variantLabel}
+      variantCounter={variantCounter}
+      prevHref={prevHref}
+      nextHref={nextHref}
+      firstHref={firstHref}
+      lastHref={lastHref}
+      tocHref={tocHref}
+      prevVariantHref={prevVariantHref}
+      nextVariantHref={nextVariantHref}
+      otherVariants={otherVariants}
+      auditHref={auditHref}
+      intent={intent}
+    >
+      {/* Slides self-wrap in their own SlideCanvas. The empty-slot fallback
+          wraps the placeholder manually since it doesn't bring its own. */}
+      {Slide ? (
+        <Slide />
+      ) : (
+        <SlideCanvas>
+          <DecomposeFirstPlaceholder
+            deckSlug={deckSlug}
+            variantSlug={variantSlug}
+            slot={slot}
+            slug={slug}
+            title={title}
+          />
+        </SlideCanvas>
+      )}
+    </DeckOverlayPlayUI>
 
     <style is:global>
       html, body { margin: 0; padding: 0; }
@@ -195,282 +185,29 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
         min-height: 100dvh;
         overflow: hidden;
       }
-    </style>
 
-    <style>
-      /* ── Chrome bars (fixed top + bottom) ─────────────────────────── */
-
-      .ddd-play-chrome {
-        position: fixed;
-        left: 0;
-        right: 0;
-        z-index: 50;
-        display: flex;
-        align-items: center;
-        gap: 1rem;
-        padding: 0.65rem 1rem;
-        font-family: var(--ddd-chrome-font, ui-sans-serif, system-ui, sans-serif);
-        font-size: 0.7rem;
-        color: var(--ddd-play-chrome-fg, rgb(255 255 255 / 0.65));
-        background: var(--ddd-play-chrome-bg, rgb(10 15 26 / 0.85));
-        backdrop-filter: var(--ddd-play-chrome-backdrop, blur(6px));
-        -webkit-backdrop-filter: var(--ddd-play-chrome-backdrop, blur(6px));
-        transition: opacity 200ms ease, transform 200ms ease;
-      }
-      .ddd-play-chrome--top {
-        top: 0;
-        border-bottom: 1px solid var(--ddd-play-chrome-border, rgb(255 255 255 / 0.08));
-      }
-      .ddd-play-chrome--bottom {
-        bottom: 0;
-        border-top: 1px solid var(--ddd-play-chrome-border, rgb(255 255 255 / 0.08));
-        justify-content: space-between;
-      }
-
-      /* ── Top-chrome contents ──────────────────────────────────────── */
-
-      .ddd-play-brand {
-        font-weight: 600;
-        letter-spacing: 0.04em;
-        color: var(--ddd-play-chrome-fg-strong, white);
-        flex-shrink: 0;
-        max-width: 40%;
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-      .ddd-play-exit {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        width: 1.6rem;
-        height: 1.6rem;
-        margin-right: 0.75rem;
-        border: 1px solid var(--ddd-play-link-border, rgb(255 255 255 / 0.25));
-        border-radius: 4px;
-        color: var(--ddd-play-chrome-fg, rgb(255 255 255 / 0.75));
-        font-size: 0.95rem;
-        line-height: 1;
-        text-decoration: none;
-        flex-shrink: 0;
-        transition:
-          color 0.15s ease,
-          border-color 0.15s ease,
-          background-color 0.15s ease,
-          box-shadow 0.15s ease,
-          transform 0.1s ease;
-      }
-      .ddd-play-exit:hover {
-        color: var(--ddd-play-chrome-fg-strong, white);
-        border-color: var(--ddd-play-link-border-hover, rgb(255 255 255 / 0.7));
-        background-color: var(--ddd-play-link-bg-hover, rgb(255 255 255 / 0.06));
-        box-shadow: 0 0 14px rgb(255 255 255 / 0.25);
-      }
-      .ddd-play-exit:active { transform: scale(0.94); }
-      .ddd-play-exit:focus-visible {
-        outline: 2px solid rgb(125 211 252 / 0.7);
-        outline-offset: 2px;
-      }
-
-      .ddd-play-mid {
-        display: flex;
-        align-items: center;
-        gap: 1.25rem;
-        flex: 1;
-        justify-content: center;
-        flex-wrap: wrap;
-      }
-      .ddd-play-variant {
-        display: inline-flex;
-        align-items: baseline;
-        gap: 0.5rem;
-        font-size: 0.72rem;
-        color: var(--ddd-play-chrome-fg-strong, rgb(255 255 255 / 0.85));
-      }
-      .ddd-play-variant-label {
-        font-size: 0.6rem;
-        letter-spacing: 0.25em;
-        text-transform: uppercase;
-        color: var(--ddd-play-chrome-fg-muted, rgb(255 255 255 / 0.45));
-      }
-      .ddd-play-variant-name {
-        font-family: var(--ddd-chrome-font, ui-sans-serif, system-ui, sans-serif);
-        font-weight: 600;
-        font-size: 0.85rem;
-        letter-spacing: 0.05em;
-      }
-
-      .ddd-play-counter {
-        font-variant-numeric: tabular-nums;
-        letter-spacing: 0.08em;
-        flex-shrink: 0;
-      }
-
-      /* ── Bottom-chrome contents ───────────────────────────────────── */
-
-      .ddd-play-hint {
-        margin: 0 auto;
-        font-size: 0.62rem;
-        letter-spacing: 0.18em;
-        text-transform: uppercase;
-        opacity: 0.55;
-      }
-      .ddd-play-section-nav {
-        display: flex;
-        gap: 0.6rem;
-        flex-shrink: 0;
-      }
-      .ddd-play-nav-link {
-        color: var(--ddd-play-chrome-fg-strong, rgb(255 255 255 / 0.85));
-        text-decoration: none;
-        font-size: 0.72rem;
-        font-weight: 600;
-        letter-spacing: 0.05em;
-        padding: 0.35rem 0.85rem;
-        background: var(--ddd-play-link-bg, transparent);
-        border: 1px solid var(--ddd-play-link-border, rgb(255 255 255 / 0.2));
-        border-radius: 3px;
-        transition: background 150ms ease, border-color 150ms ease;
-      }
-      .ddd-play-nav-link:hover {
-        background: var(--ddd-play-link-bg-hover, rgb(255 255 255 / 0.08));
-        border-color: var(--ddd-play-link-border-hover, rgb(255 255 255 / 0.5));
-      }
-      .ddd-play-nav-link.is-disabled {
-        opacity: 0.3;
-        pointer-events: none;
-      }
-
-      /* ── Chrome-off mode (C key or F fullscreen) ──────────────────── */
-
-      .ddd-play-body[data-chrome="off"] .ddd-play-chrome--top {
-        opacity: 0;
-        transform: translateY(-100%);
-        pointer-events: none;
-      }
-      .ddd-play-body[data-chrome="off"] .ddd-play-chrome--bottom {
-        opacity: 0;
-        transform: translateY(100%);
-        pointer-events: none;
-      }
-
-      /* ── Stage + slide + canvas (the load-bearing letterbox CSS) ──── */
-
-      .ddd-play-stage {
-        position: relative;
-        width: 100vw;
-        height: 100vh;
-        height: 100dvh;
-        display: grid;
-        place-items: center;
-      }
-
-      .ddd-play-slide {
-        position: absolute;
-        inset: 0;
-        display: grid;
-        place-items: center;
-        padding: 3.5rem 2rem;
-      }
-
-      /* Direct-child only — slides may self-wrap in their own
-         SlideCanvas (per the scroll-ported-slides refactor plan), so
-         the descendant combinator would double-apply this letterbox
-         sizing to the inner canvas and break the stage transform. */
-      .ddd-play-slide > :global(.slide-canvas) {
-        width: min(100%, calc((100vh - 7rem) * 16 / 9));
-        max-height: calc(100vh - 7rem);
-        max-height: calc(100dvh - 7rem);
+      /* ── Canvas letterbox (load-bearing) ────────────────────────────
+         The overlay's .ddd-overlay__stage centers a single flex child.
+         The slide-canvas inside has aspect-ratio:16/9 + width:100%, which
+         would overflow the viewport vertically when the viewport is wide.
+         This rule sizes the canvas to the largest 16:9 box that fits the
+         current viewport. With DeckChrome as a floating capsule (no top
+         or bottom bars) we have the full viewport to work with. */
+      .ddd-play-body .ddd-overlay__stage > .slide-canvas {
+        width: min(100vw, calc(100vh * 16 / 9));
+        max-height: 100vh;
+        max-height: 100dvh;
         box-shadow: var(--ddd-play-canvas-shadow, 0 12px 48px rgb(0 0 0 / 0.4));
         border-radius: var(--ddd-play-canvas-radius, 4px);
       }
 
-      /* Chrome-off mode neutralizes the canvas's own aspect-ratio rule
-         and locks both axes to the largest 16:9 box that fits the
-         viewport, with symmetric letterbox on the leftover axis.
-         Direct-child only — same reason as the chrome-on rule above. */
-      .ddd-play-body[data-chrome="off"] .ddd-play-slide { padding: 0; }
-      .ddd-play-body[data-chrome="off"] .ddd-play-slide > :global(.slide-canvas) {
-        width:  min(100vw, calc(100vh * 16 / 9));
-        height: min(100vh, calc(100vw * 9 / 16));
-        max-width: 100vw;
-        max-height: 100vh;
-        max-height: 100dvh;
-        aspect-ratio: auto;
+      /* Chrome-off mode (C / F) — DeckChrome's keypress flips
+         [data-chrome-hidden] on the overlay root. Drop the canvas shadow
+         and rounding for a cleaner fullscreen feel. */
+      .ddd-overlay--play[data-chrome-hidden="true"] .ddd-overlay__stage > .slide-canvas {
         border-radius: 0;
         box-shadow: none;
       }
     </style>
-
-    <script
-      is:inline
-      data-prev={prevHref ?? ""}
-      data-next={nextHref ?? ""}
-      data-first={firstHref}
-      data-last={lastHref}
-      data-toc={tocHref}
-    >
-      (() => {
-        const cfg = document.currentScript;
-        if (!cfg) return;
-        const prev = cfg.getAttribute("data-prev") || null;
-        const next = cfg.getAttribute("data-next") || null;
-        const first = cfg.getAttribute("data-first");
-        const last = cfg.getAttribute("data-last");
-        const toc = cfg.getAttribute("data-toc");
-        const body = document.body;
-
-        function go(href) {
-          if (href && href !== "#") window.location.href = href;
-        }
-        function toggleChrome() {
-          body.dataset.chrome = body.dataset.chrome === "off" ? "on" : "off";
-        }
-        function toggleFullscreen() {
-          if (!document.fullscreenElement) {
-            document.documentElement.requestFullscreen?.().catch(() => {});
-          } else {
-            document.exitFullscreen?.();
-          }
-        }
-
-        document.addEventListener("keydown", (e) => {
-          const t = e.target;
-          if (t instanceof HTMLElement) {
-            const tag = t.tagName;
-            if (tag === "INPUT" || tag === "TEXTAREA" || t.isContentEditable) return;
-          }
-          switch (e.key) {
-            case "ArrowRight":
-            case "PageDown":
-              e.preventDefault(); go(next); break;
-            case " ":
-              e.preventDefault();
-              if (e.shiftKey) go(prev); else go(next);
-              break;
-            case "ArrowLeft":
-            case "PageUp":
-              e.preventDefault(); go(prev); break;
-            case "Home":
-              e.preventDefault(); go(first); break;
-            case "End":
-              e.preventDefault(); go(last); break;
-            case "f":
-            case "F":
-              e.preventDefault(); toggleFullscreen(); break;
-            case "c":
-            case "C":
-              e.preventDefault(); toggleChrome(); break;
-            case "t":
-            case "T":
-              e.preventDefault(); go(toc); break;
-            case "Escape":
-              if (document.fullscreenElement) document.exitFullscreen?.();
-              body.dataset.chrome = "on";
-              break;
-          }
-        });
-      })();
-    </script>
   </body>
 </html>

@@ -1,0 +1,589 @@
+---
+/**
+ * DeckMatrix — deck-level dual-surface review matrix as an embeddable component.
+ *
+ * Drop into any consumer page that wants a deck rollup. Renders the full
+ * variants × slots matrix with dual-surface (Scroll + Play) ratings per cell,
+ * per-variant shippability rollups in column headers, and a per-row drift
+ * indicator. Reads from the same audits registry the /api/slide-rank endpoint
+ * writes to, so it reflects current state without an extra fetch.
+ *
+ * Consumers:
+ *   - apps/deck-shell/src/routes/toc-deck.astro  (canonical /toc/[deck] route)
+ *   - client-sites/<client>/src/pages/index.astro  (landing dashboard)
+ *   - any splash / share-tier page that wants a deck-progress surface
+ *
+ * Props:
+ *   - deckSlug (required) — which deck to render
+ *   - focusVariant (optional) — variant slug to ring/highlight (e.g. when the
+ *     consumer also has a column-specific link selected). The /toc/[deck]
+ *     route reads ?variant=X from the URL and passes it through.
+ *   - title (optional) — heading rendered above the matrix; pass null to omit
+ *   - lede (optional) — short description below the heading; pass null to omit
+ *   - showNav (optional, default false) — render the shell's DididecksNav above
+ *     the matrix. The /toc/[deck] route uses this; landing dashboards usually
+ *     have their own chrome and pass false (the default).
+ *
+ * Plan of record:
+ *   context-v/plans/Redesign-TOC-as-Deck-Level-Dual-Surface-Review-Matrix.md
+ *   (Phase 5.5)
+ */
+import type { Deck, SlotRef, Status, Surface } from "../types/index.js";
+import { buildRankKey } from "../types/index.js";
+import {
+  loadDecksRegistry,
+  loadSlotsRegistry,
+  loadAuditRegistry,
+  perSlideFileExists,
+} from "../registry-loader.js";
+import DididecksNav from "./DididecksNav.astro";
+import ScrollIcon from "./icons/ScrollIcon.astro";
+import PlayIcon from "./icons/PlayIcon.astro";
+
+interface Props {
+  deckSlug: string;
+  focusVariant?: string | null;
+  title?: string | null;
+  lede?: string | null;
+  showNav?: boolean;
+}
+
+const {
+  deckSlug,
+  focusVariant: focusVariantProp = null,
+  title: titleProp,
+  lede: ledeProp,
+  showNav = false,
+} = Astro.props as Props;
+
+const opts = globalThis.__dididecksShellOptions;
+if (!opts) {
+  throw new Error("@dididecks/shell <DeckMatrix>: options not resolved. Did astro:config:done run?");
+}
+
+const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+const deck = (DECKS as Deck[]).find((d) => d.slug === deckSlug);
+
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slotsByVariant: Record<string, SlotRef[]> = slotsMod?.SLOTS ?? {};
+
+const audit = await loadAuditRegistry(opts.absolute.audits);
+
+type Rated = Exclude<Status, "pending">;
+type CellSurface =
+  | { kind: "rated"; status: Rated }
+  | { kind: "pending" }
+  | { kind: "missing-slot" }
+  | { kind: "missing-file" };
+
+interface Cell {
+  scroll: CellSurface;
+  play: CellSurface;
+  scrollHref: string | null;
+  playHref: string | null;
+  drift: boolean;
+  blocker: boolean;
+}
+
+function compareSlot(a: string, b: string): number {
+  const ra = /^(\d+)(.*)$/.exec(a);
+  const rb = /^(\d+)(.*)$/.exec(b);
+  const na = ra ? parseInt(ra[1], 10) : Number.MAX_SAFE_INTEGER;
+  const nb = rb ? parseInt(rb[1], 10) : Number.MAX_SAFE_INTEGER;
+  if (na !== nb) return na - nb;
+  return (ra?.[2] ?? "").localeCompare(rb?.[2] ?? "");
+}
+
+const variants = deck?.variants ?? [];
+
+const slotSet = new Set<string>();
+const titleBySlot: Record<string, string> = {};
+const slugBySlotByVariant: Record<string, Record<string, string>> = {};
+for (const variant of variants) {
+  const variantSlots = slotsByVariant[variant.slug] ?? [];
+  slugBySlotByVariant[variant.slug] = {};
+  for (const s of variantSlots) {
+    slotSet.add(s.slot);
+    if (!titleBySlot[s.slot]) titleBySlot[s.slot] = s.title;
+    slugBySlotByVariant[variant.slug][s.slot] = s.slug;
+  }
+}
+const orderedSlots = Array.from(slotSet).sort(compareSlot);
+
+const PASSABLE_OR_BETTER: ReadonlySet<Rated> = new Set(["passable", "perfect"]);
+
+function readSurface(
+  variantSlug: string,
+  slot: string,
+  surface: Surface,
+  hasFile: boolean,
+  variantHasSlot: boolean,
+): CellSurface {
+  if (!variantHasSlot) return { kind: "missing-slot" };
+  if (surface === "play" && !hasFile) return { kind: "missing-file" };
+  const key = buildRankKey(deckSlug, variantSlug, slot);
+  const entry = audit.ranks[key]?.[surface];
+  if (entry && entry.status) return { kind: "rated", status: entry.status };
+  return { kind: "pending" };
+}
+
+function isBlocker(cell: CellSurface): boolean {
+  if (cell.kind === "missing-slot") return false;
+  if (cell.kind === "rated") return !PASSABLE_OR_BETTER.has(cell.status);
+  return true;
+}
+
+type Rollup = {
+  scroll: Record<Rated | "pending" | "na", number>;
+  play: Record<Rated | "pending" | "missing-file" | "na", number>;
+  totalRated: number;
+  ready: boolean;
+};
+
+const emptyScroll = (): Rollup["scroll"] => ({
+  "urgent-redo": 0,
+  "non-urgent-could-be-better": 0,
+  passable: 0,
+  perfect: 0,
+  pending: 0,
+  na: 0,
+});
+const emptyPlay = (): Rollup["play"] => ({
+  "urgent-redo": 0,
+  "non-urgent-could-be-better": 0,
+  passable: 0,
+  perfect: 0,
+  pending: 0,
+  "missing-file": 0,
+  na: 0,
+});
+
+const rollups: Record<string, Rollup> = {};
+for (const v of variants) rollups[v.slug] = { scroll: emptyScroll(), play: emptyPlay(), totalRated: 0, ready: true };
+
+interface Row {
+  slot: string;
+  title: string;
+  cells: Record<string, Cell>;
+  drift: boolean;
+}
+
+const rows: Row[] = await Promise.all(
+  orderedSlots.map(async (slot) => {
+    const cells: Record<string, Cell> = {};
+    let rowDrift = false;
+    for (const variant of variants) {
+      const variantHasSlot = slugBySlotByVariant[variant.slug]?.[slot] !== undefined;
+      const slug = variantHasSlot ? slugBySlotByVariant[variant.slug][slot] : "";
+      const hasFile = variantHasSlot
+        ? await perSlideFileExists(opts.absolute.slidesComponentsRoot, variant.slug, slot, slug)
+        : false;
+      const scroll = readSurface(variant.slug, slot, "scroll", hasFile, variantHasSlot);
+      const play = readSurface(variant.slug, slot, "play", hasFile, variantHasSlot);
+
+      const drift =
+        scroll.kind === "rated" && play.kind === "rated" && scroll.status !== play.status;
+      if (drift) rowDrift = true;
+
+      const cell: Cell = {
+        scroll,
+        play,
+        scrollHref: variantHasSlot ? `/scroll/${deckSlug}/${variant.slug}/#slot-${slot}` : null,
+        playHref: variantHasSlot && hasFile ? `/play/${deckSlug}/${variant.slug}/${slot}/` : null,
+        drift,
+        blocker: isBlocker(scroll) || isBlocker(play),
+      };
+      cells[variant.slug] = cell;
+
+      const r = rollups[variant.slug];
+      if (scroll.kind === "missing-slot") r.scroll.na += 1;
+      else if (scroll.kind === "rated") {
+        r.scroll[scroll.status] += 1;
+        r.totalRated += 1;
+      } else r.scroll.pending += 1;
+      if (play.kind === "missing-slot") r.play.na += 1;
+      else if (play.kind === "missing-file") r.play["missing-file"] += 1;
+      else if (play.kind === "rated") {
+        r.play[play.status] += 1;
+        r.totalRated += 1;
+      } else r.play.pending += 1;
+      if (cell.blocker && variantHasSlot) r.ready = false;
+    }
+    return { slot, title: titleBySlot[slot] ?? slot, cells, drift: rowDrift };
+  }),
+);
+
+const focusVariant =
+  focusVariantProp && variants.some((v) => v.slug === focusVariantProp) ? focusVariantProp : null;
+
+const STATUS_LABEL: Record<Rated | "pending", string> = {
+  "urgent-redo": "U",
+  "non-urgent-could-be-better": "C",
+  passable: "P",
+  perfect: "★",
+  pending: "—",
+};
+
+const resolvedTitle = titleProp === undefined ? deck?.title ?? deckSlug : titleProp;
+const resolvedLede =
+  ledeProp === undefined
+    ? `${variants.length} ${variants.length === 1 ? "variant" : "variants"} · ${orderedSlots.length} ${orderedSlots.length === 1 ? "slot" : "slots"}. Each cell pairs a Scroll-UI review (left) and a Play-UI review (right). Click an icon to open that surface for that slot. Drift (≠) means Scroll and Play rated the same slot differently — the port may have lost fidelity.`
+    : ledeProp;
+---
+
+{showNav && <DididecksNav />}
+
+<section class="deck-matrix">
+  {(resolvedTitle || resolvedLede) && (
+    <header class="deck-matrix__head">
+      <div class="deck-matrix__crumb">@dididecks/shell · TOC matrix</div>
+      {resolvedTitle && <h2 class="deck-matrix__title">{resolvedTitle}</h2>}
+      {resolvedLede && <p class="deck-matrix__lede">{resolvedLede}</p>}
+    </header>
+  )}
+
+  {variants.length === 0 || orderedSlots.length === 0 ? (
+    <div class="deck-matrix__empty">
+      <p>No variants or slots registered for this deck yet.</p>
+    </div>
+  ) : (
+    <div class="deck-matrix__scroll">
+      <table class="deck-matrix__table">
+        <thead>
+          <tr>
+            <th class="deck-matrix__slot-col" scope="col">Slot</th>
+            <th class="deck-matrix__title-col" scope="col">Title</th>
+            {variants.map((v) => {
+              const r = rollups[v.slug];
+              const isFocused = v.slug === focusVariant;
+              const scrollAllHref = `/scroll/${deckSlug}/${v.slug}/`;
+              return (
+                <th
+                  class:list={["deck-matrix__variant-col", { "is-focused": isFocused }]}
+                  scope="col"
+                >
+                  <div class="deck-matrix__variant-head">
+                    <div class="deck-matrix__variant-label">
+                      <span class="deck-matrix__variant-name">{v.label}</span>
+                      <a class="deck-matrix__variant-open" href={scrollAllHref}>open ↗</a>
+                    </div>
+
+                    <div class="deck-matrix__surface-row" title="Scroll-UI ratings">
+                      <span class="deck-matrix__surface-icon"><ScrollIcon size="14px" /></span>
+                      <span class="deck-matrix__count-chip" data-status="perfect" data-zero={r.scroll.perfect === 0 ? "true" : "false"}>★ {r.scroll.perfect}</span>
+                      <span class="deck-matrix__count-chip" data-status="passable" data-zero={r.scroll.passable === 0 ? "true" : "false"}>P {r.scroll.passable}</span>
+                      <span class="deck-matrix__count-chip" data-status="non-urgent-could-be-better" data-zero={r.scroll["non-urgent-could-be-better"] === 0 ? "true" : "false"}>C {r.scroll["non-urgent-could-be-better"]}</span>
+                      <span class="deck-matrix__count-chip" data-status="urgent-redo" data-zero={r.scroll["urgent-redo"] === 0 ? "true" : "false"}>U {r.scroll["urgent-redo"]}</span>
+                      <span class="deck-matrix__count-chip" data-status="pending" data-zero={r.scroll.pending === 0 ? "true" : "false"}>— {r.scroll.pending}</span>
+                    </div>
+
+                    <div class="deck-matrix__surface-row" title="Play-UI ratings">
+                      <span class="deck-matrix__surface-icon"><PlayIcon size="14px" /></span>
+                      <span class="deck-matrix__count-chip" data-status="perfect" data-zero={r.play.perfect === 0 ? "true" : "false"}>★ {r.play.perfect}</span>
+                      <span class="deck-matrix__count-chip" data-status="passable" data-zero={r.play.passable === 0 ? "true" : "false"}>P {r.play.passable}</span>
+                      <span class="deck-matrix__count-chip" data-status="non-urgent-could-be-better" data-zero={r.play["non-urgent-could-be-better"] === 0 ? "true" : "false"}>C {r.play["non-urgent-could-be-better"]}</span>
+                      <span class="deck-matrix__count-chip" data-status="urgent-redo" data-zero={r.play["urgent-redo"] === 0 ? "true" : "false"}>U {r.play["urgent-redo"]}</span>
+                      <span class="deck-matrix__count-chip" data-status="pending" data-zero={r.play.pending === 0 ? "true" : "false"}>— {r.play.pending}</span>
+                      {r.play["missing-file"] > 0 && (
+                        <span class="deck-matrix__count-chip" data-kind="missing-file">✕ {r.play["missing-file"]}</span>
+                      )}
+                    </div>
+
+                    <div>
+                      {r.ready ? (
+                        <span class="deck-matrix__ready-badge">Ready</span>
+                      ) : (
+                        <span class="deck-matrix__ready-badge is-not">Not ready</span>
+                      )}
+                    </div>
+                  </div>
+                </th>
+              );
+            })}
+            <th class="deck-matrix__drift-col" scope="col" title="Drift across this row">≠</th>
+          </tr>
+        </thead>
+        <tbody>
+          {rows.map((row) => (
+            <tr>
+              <td class="deck-matrix__slot-num">{row.slot}</td>
+              <td class="deck-matrix__row-title">{row.title}</td>
+              {variants.map((v) => {
+                const cell = row.cells[v.slug];
+                const isFocused = v.slug === focusVariant;
+                return (
+                  <td class:list={["deck-matrix__cell", { "is-focused": isFocused }]}>
+                    <span class="deck-matrix__cell-inner">
+                      <a
+                        class="deck-matrix__surface-link"
+                        href={cell.scrollHref ?? "#"}
+                        data-disabled={cell.scroll.kind === "missing-slot" ? "true" : "false"}
+                        title={`Scroll · ${cell.scroll.kind === "rated" ? cell.scroll.status : cell.scroll.kind}`}
+                      >
+                        <span class="deck-matrix__cell-icon"><ScrollIcon size="14px" /></span>
+                        <span
+                          class="deck-matrix__chip"
+                          data-status={cell.scroll.kind === "rated" ? cell.scroll.status : undefined}
+                          data-kind={cell.scroll.kind !== "rated" ? cell.scroll.kind : undefined}
+                        >
+                          {cell.scroll.kind === "rated"
+                            ? STATUS_LABEL[cell.scroll.status]
+                            : cell.scroll.kind === "missing-slot"
+                            ? "·"
+                            : "—"}
+                        </span>
+                      </a>
+                      <span class="deck-matrix__sep">·</span>
+                      <a
+                        class="deck-matrix__surface-link"
+                        href={cell.playHref ?? "#"}
+                        data-disabled={cell.play.kind === "missing-slot" || cell.play.kind === "missing-file" ? "true" : "false"}
+                        title={`Play · ${cell.play.kind === "rated" ? cell.play.status : cell.play.kind}`}
+                      >
+                        <span class="deck-matrix__cell-icon"><PlayIcon size="14px" /></span>
+                        <span
+                          class="deck-matrix__chip"
+                          data-status={cell.play.kind === "rated" ? cell.play.status : undefined}
+                          data-kind={cell.play.kind !== "rated" ? cell.play.kind : undefined}
+                        >
+                          {cell.play.kind === "rated"
+                            ? STATUS_LABEL[cell.play.status]
+                            : cell.play.kind === "missing-slot"
+                            ? "·"
+                            : cell.play.kind === "missing-file"
+                            ? "✕"
+                            : "—"}
+                        </span>
+                      </a>
+                    </span>
+                  </td>
+                );
+              })}
+              <td
+                class="deck-matrix__drift"
+                data-drift={row.drift ? "true" : "false"}
+                title={row.drift ? "Scroll and Play disagree on at least one variant" : ""}
+              >
+                {row.drift ? "≠" : ""}
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )}
+</section>
+
+<style>
+  /* Component-scoped palette; consumers can override any --ddd-matrix-* token
+     at a wrapping element. Defaults inherit chroma's TOC look. */
+  .deck-matrix {
+    --ddd-matrix-bg:        var(--ddd-matrix-bg-override, transparent);
+    --ddd-matrix-fg:        var(--ddd-matrix-fg-override, currentColor);
+    --ddd-matrix-muted:     var(--ddd-matrix-muted-override, color-mix(in srgb, currentColor 55%, transparent));
+    --ddd-matrix-line:      var(--ddd-matrix-line-override, color-mix(in srgb, currentColor 12%, transparent));
+    --ddd-matrix-panel:     var(--ddd-matrix-panel-override, color-mix(in srgb, currentColor 5%, transparent));
+    --ddd-matrix-pill-bg:   var(--ddd-matrix-pill-bg-override, color-mix(in srgb, currentColor 8%, transparent));
+    --ddd-matrix-accent:    var(--ddd-matrix-accent-override, #2b7fff);
+    --ddd-matrix-urgent:    #ff5e57;
+    --ddd-matrix-could:     #ffb84a;
+    --ddd-matrix-passable:  #66c0f4;
+    --ddd-matrix-perfect:   #4ade80;
+    --ddd-matrix-pending:   #6b7280;
+    --ddd-matrix-ready:     #4ade80;
+    --ddd-matrix-na:        color-mix(in srgb, currentColor 12%, transparent);
+    color: var(--ddd-matrix-fg);
+    background: var(--ddd-matrix-bg);
+  }
+  .deck-matrix__head { margin-bottom: 24px; border-bottom: 1px solid var(--ddd-matrix-line); padding-bottom: 16px; }
+  .deck-matrix__crumb { color: var(--ddd-matrix-muted); font-size: 13px; }
+  .deck-matrix__title { margin: 4px 0 6px; font-size: 22px; font-weight: 600; }
+  .deck-matrix__lede { color: var(--ddd-matrix-muted); margin: 0; font-size: 13px; max-width: 70ch; }
+
+  .deck-matrix__empty {
+    border: 1px dashed var(--ddd-matrix-line);
+    padding: 32px;
+    border-radius: 8px;
+    color: var(--ddd-matrix-muted);
+    text-align: center;
+  }
+
+  .deck-matrix__scroll { overflow-x: auto; }
+  .deck-matrix__table {
+    width: 100%;
+    min-width: 880px;
+    border-collapse: separate;
+    border-spacing: 0;
+    font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  }
+  .deck-matrix__table th,
+  .deck-matrix__table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--ddd-matrix-line);
+    vertical-align: middle;
+    font-size: 13px;
+  }
+  .deck-matrix__table thead th {
+    color: var(--ddd-matrix-muted);
+    font-weight: 500;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    padding-bottom: 14px;
+  }
+  .deck-matrix__slot-col { width: 48px; text-align: right; padding-right: 6px; }
+  .deck-matrix__title-col { width: 220px; }
+  .deck-matrix__slot-num {
+    color: var(--ddd-matrix-muted);
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    padding-right: 6px;
+  }
+  .deck-matrix__row-title { font-weight: 500; }
+
+  .deck-matrix__variant-head { display: flex; flex-direction: column; gap: 8px; }
+  .deck-matrix__variant-label {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 6px;
+  }
+  .deck-matrix__variant-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--ddd-matrix-fg);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .deck-matrix__variant-open {
+    font-size: 11px;
+    color: var(--ddd-matrix-accent);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .deck-matrix__variant-open:hover { text-decoration: underline; }
+
+  .deck-matrix__surface-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    flex-wrap: wrap;
+  }
+  .deck-matrix__surface-icon {
+    color: var(--ddd-matrix-muted);
+    display: inline-flex;
+    align-items: center;
+  }
+  .deck-matrix__count-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 7px;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 600;
+    font-variant-numeric: tabular-nums;
+    background: var(--ddd-matrix-pill-bg);
+    color: var(--ddd-matrix-muted);
+    border: 1px solid var(--ddd-matrix-line);
+  }
+  .deck-matrix__count-chip[data-status="perfect"]  { color: var(--ddd-matrix-perfect); }
+  .deck-matrix__count-chip[data-status="passable"] { color: var(--ddd-matrix-passable); }
+  .deck-matrix__count-chip[data-status="non-urgent-could-be-better"] { color: var(--ddd-matrix-could); }
+  .deck-matrix__count-chip[data-status="urgent-redo"] { color: var(--ddd-matrix-urgent); }
+  .deck-matrix__count-chip[data-status="pending"]  { color: var(--ddd-matrix-pending); }
+  .deck-matrix__count-chip[data-zero="true"] { opacity: 0.3; }
+
+  .deck-matrix__ready-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: color-mix(in srgb, var(--ddd-matrix-ready) 18%, transparent);
+    color: var(--ddd-matrix-ready);
+    border: 1px solid color-mix(in srgb, var(--ddd-matrix-ready) 50%, transparent);
+  }
+  .deck-matrix__ready-badge.is-not {
+    background: transparent;
+    color: var(--ddd-matrix-muted);
+    border-color: var(--ddd-matrix-line);
+    font-weight: 500;
+  }
+
+  .deck-matrix__variant-col.is-focused { box-shadow: inset 0 -2px 0 var(--ddd-matrix-accent); }
+  .deck-matrix__cell.is-focused { background: color-mix(in srgb, var(--ddd-matrix-accent) 6%, transparent); }
+
+  .deck-matrix__cell { padding: 6px 10px; }
+  .deck-matrix__cell-inner {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 6px;
+    border-radius: 6px;
+    border: 1px solid transparent;
+  }
+  .deck-matrix__cell-inner:hover {
+    border-color: var(--ddd-matrix-line);
+    background: var(--ddd-matrix-panel);
+  }
+  .deck-matrix__surface-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    text-decoration: none;
+    color: var(--ddd-matrix-muted);
+    padding: 2px 4px;
+    border-radius: 3px;
+  }
+  .deck-matrix__surface-link:hover { color: var(--ddd-matrix-fg); }
+  .deck-matrix__surface-link[data-disabled="true"] { opacity: 0.3; pointer-events: none; }
+  .deck-matrix__cell-icon { color: currentColor; display: inline-flex; }
+  .deck-matrix__chip {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 22px;
+    padding: 1px 6px;
+    border-radius: 3px;
+    font-size: 11px;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    background: var(--ddd-matrix-pill-bg);
+    color: var(--ddd-matrix-muted);
+    border: 1px solid var(--ddd-matrix-line);
+  }
+  .deck-matrix__chip[data-status="perfect"]  { background: var(--ddd-matrix-perfect); color: #06210c; border-color: transparent; }
+  .deck-matrix__chip[data-status="passable"] { background: var(--ddd-matrix-passable); color: #0b1a26; border-color: transparent; }
+  .deck-matrix__chip[data-status="non-urgent-could-be-better"] { background: var(--ddd-matrix-could); color: #1a1a1a; border-color: transparent; }
+  .deck-matrix__chip[data-status="urgent-redo"] { background: var(--ddd-matrix-urgent); color: #2b0606; border-color: transparent; }
+  .deck-matrix__chip[data-kind="missing-file"] {
+    background: transparent;
+    border-style: dashed;
+    color: var(--ddd-matrix-muted);
+  }
+  .deck-matrix__chip[data-kind="missing-slot"] {
+    background: var(--ddd-matrix-na);
+    color: var(--ddd-matrix-muted);
+    border-color: transparent;
+    opacity: 0.5;
+  }
+  .deck-matrix__sep {
+    color: var(--ddd-matrix-muted);
+    opacity: 0.4;
+    padding: 0 2px;
+  }
+
+  .deck-matrix__drift {
+    width: 36px;
+    text-align: center;
+    color: var(--ddd-matrix-could);
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .deck-matrix__drift[data-drift="false"] { color: transparent; }
+</style>

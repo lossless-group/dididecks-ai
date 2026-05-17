@@ -1,0 +1,610 @@
+---
+/**
+ * DeckFrame--Play-UI — calmstorm-style full-chrome frame for Play-UI.
+ *
+ * Renders top + bottom bars wrapping the slide canvas. Two intents:
+ *   - "workflow"     → operator/authoring chrome. Variant cycle pill, slot
+ *                      title, inline STATUS rating buttons, counter, audit
+ *                      link, keyboard hints, explicit variant switches.
+ *   - "presentation" → end-user/distribution chrome. Exit, section title,
+ *                      counter, clean keyboard hints. No variant switches,
+ *                      no status, no audit link.
+ *
+ * The two intents share the same DOM shape; presentation-only renders just
+ * omits the workflow elements. This keeps the keyboard-handler script
+ * footprint identical and avoids prop-driven CSS divergence.
+ *
+ * Surface mode: paired-suffix discipline — this is the `--Play-UI` half.
+ * A future `DeckFrame--Scroll-UI` could exist for a scroll-side analog;
+ * none is planned today (the scroll surface composes affordances inline).
+ *
+ * Coexistence with `DeckChrome`: `DeckChrome` is the floating bottom-right
+ * capsule from Phase A++. It still exists for splash / share-tier renders
+ * that want quiet chrome. `DeckFrame--Play-UI` is the new Play-UI default
+ * (calmstorm-faithful, calmstorm-tested). `DeckOverlay--Play-UI` selects
+ * between them via `chromeStyle` prop.
+ *
+ * Plan of record:
+ *   context-v/plans/Redesign-TOC-as-Deck-Level-Dual-Surface-Review-Matrix.md
+ *   (follow-up after Phase 6.5; the workflow/presentation intent split is
+ *   the new dimension introduced 2026-05-17 alongside the LP/operator
+ *   audience-tier distinction.)
+ */
+import { buildRankKey } from "../types/index.js";
+import type { Status, Surface } from "../types/index.js";
+import { loadAuditRegistry } from "../registry-loader.js";
+
+export type Intent = "workflow" | "presentation";
+
+interface Props {
+  /** Slot identity. */
+  deckSlug: string;
+  variantSlug: string;
+  slot: string;
+  slotTitle?: string;
+
+  /** Variant context. */
+  totalSlots: number;
+  variantLabel: string;
+  variantCounter?: string; /* "2/3" — position in the variant cycle */
+
+  /** Primary axis — slot prev/next/first/last + TOC. */
+  prevHref: string | null;
+  nextHref: string | null;
+  firstHref: string;
+  lastHref: string;
+  tocHref: string;
+
+  /** Secondary axis — variant cycle. */
+  prevVariantHref?: string | null;
+  nextVariantHref?: string | null;
+
+  /** Other-variant text-link list shown at bottom right (workflow only). */
+  otherVariants?: Array<{ slug: string; label: string; href: string }>;
+
+  /** Audit link target (workflow only). Default omits the link. */
+  auditHref?: string | null;
+
+  /** Audience intent. Default "workflow" — the operator / VC-firm view.
+   *  Pass "presentation" for the end-user view (no workflow controls). */
+  intent?: Intent;
+
+  /** Attach the document keydown listener. Default true. */
+  enableKeyboard?: boolean;
+}
+
+const {
+  deckSlug,
+  variantSlug,
+  slot,
+  slotTitle,
+  totalSlots,
+  variantLabel,
+  variantCounter,
+  prevHref,
+  nextHref,
+  firstHref,
+  lastHref,
+  tocHref,
+  prevVariantHref = null,
+  nextVariantHref = null,
+  otherVariants = [],
+  auditHref = null,
+  intent = "workflow",
+  enableKeyboard = true,
+} = Astro.props as Props;
+
+const slotPadded = String(slot).padStart(2, "0");
+const totalPadded = String(totalSlots).padStart(2, "0");
+const surface: Surface = "play";
+
+// Hydrate the current play-side status so the inline rating reflects truth
+// on the server-rendered page (avoids the click-then-flicker pattern the
+// floating SlideRankPill has on first paint).
+let currentStatus: Status = "pending";
+try {
+  const opts = globalThis.__dididecksShellOptions;
+  if (opts) {
+    const audit = await loadAuditRegistry(opts.absolute.audits);
+    const entry = audit.ranks[buildRankKey(deckSlug, variantSlug, slot)]?.[surface];
+    if (entry?.status) currentStatus = entry.status;
+  }
+} catch {
+  // Audit unavailable — keep pending; rating still works via POST.
+}
+
+const showWorkflow = intent === "workflow";
+---
+
+<div
+  class="ddd-frame"
+  data-ddd-frame
+  data-intent={intent}
+  data-deck-slug={deckSlug}
+  data-variant-slug={variantSlug}
+  data-slot={slot}
+>
+  <!-- ── Top bar ──────────────────────────────────────────────────── -->
+  <header class="ddd-frame__top" data-frame-bar="top">
+    <a
+      href={tocHref}
+      class="ddd-frame__exit"
+      aria-label="Exit to table of contents"
+      title="Exit (T)"
+    >
+      <span aria-hidden="true">✕</span>
+    </a>
+
+    {showWorkflow && (prevVariantHref || nextVariantHref) && (
+      <span class="ddd-frame__variant-cycle" aria-label="Switch design variant">
+        <a
+          href={prevVariantHref ?? "#"}
+          class:list={["ddd-frame__variant-arrow", !prevVariantHref && "is-disabled"]}
+          aria-label="Previous design variant"
+          aria-disabled={prevVariantHref ? "false" : "true"}
+        >‹</a>
+        <span class="ddd-frame__variant-label">
+          {variantLabel.toUpperCase()}
+          {variantCounter && (
+            <span class="ddd-frame__variant-counter">({variantCounter})</span>
+          )}
+        </span>
+        <a
+          href={nextVariantHref ?? "#"}
+          class:list={["ddd-frame__variant-arrow", !nextVariantHref && "is-disabled"]}
+          aria-label="Next design variant"
+          aria-disabled={nextVariantHref ? "false" : "true"}
+        >›</a>
+      </span>
+    )}
+
+    <span class="ddd-frame__mid">
+      <span class="ddd-frame__section">
+        <span class="ddd-frame__section-label">Section</span>
+        <span class="ddd-frame__section-title">
+          <strong>{slotPadded}</strong>
+          {slotTitle && <> · {slotTitle}</>}
+        </span>
+      </span>
+
+      {showWorkflow && (
+        <fieldset
+          class="ddd-frame__status"
+          data-status-bar
+          data-current-status={currentStatus}
+          aria-label="Set review status for this slot"
+        >
+          <legend class="ddd-frame__status-legend">Status</legend>
+          <button type="button" class="ddd-frame__status-btn" data-status="urgent-redo"               title="Urgent · redo (1)">Urgent</button>
+          <button type="button" class="ddd-frame__status-btn" data-status="non-urgent-could-be-better" title="Non-urgent · could be better (2)">Non-urgent</button>
+          <button type="button" class="ddd-frame__status-btn" data-status="passable"                   title="Passable (3)">Passable</button>
+          <button type="button" class="ddd-frame__status-btn" data-status="perfect"                    title="Perfect (4)">Perfect</button>
+          <button type="button" class="ddd-frame__status-btn ddd-frame__status-btn--clear" data-status="pending" title="Clear status (0)">Clear</button>
+        </fieldset>
+      )}
+    </span>
+
+    <span class="ddd-frame__counter">
+      <span data-counter-slot>{slotPadded}</span> / {totalPadded}
+    </span>
+  </header>
+
+  <!-- ── Stage (slot content) ─────────────────────────────────────── -->
+  <main class="ddd-frame__stage" data-frame-stage>
+    <slot />
+  </main>
+
+  <!-- ── Bottom bar ───────────────────────────────────────────────── -->
+  <nav class="ddd-frame__bottom" data-frame-bar="bottom" aria-label="Deck navigation">
+    {showWorkflow && auditHref && (
+      <a href={auditHref} class="ddd-frame__nav-link">← Audit</a>
+    )}
+    {!showWorkflow && <span class="ddd-frame__bottom-spacer" />}
+
+    <span class="ddd-frame__hint">
+      ← → sections · ↑ ↓ variants · F fullscreen · C toggle chrome
+      {showWorkflow && <> · 1-4 status</>}
+    </span>
+
+    {showWorkflow && otherVariants.length > 0 ? (
+      <span class="ddd-frame__variant-switches">
+        {otherVariants.map((v) => (
+          <a href={v.href} class="ddd-frame__nav-link">Switch to {v.label}</a>
+        ))}
+      </span>
+    ) : (
+      <span class="ddd-frame__bottom-spacer" />
+    )}
+  </nav>
+</div>
+
+<style>
+  .ddd-frame {
+    /* Layout the frame around the stage. Top/bottom bars fixed; stage fills
+       the remaining viewport. The body sets overflow:hidden so the bars
+       overlay safely. */
+    position: relative;
+    width: 100%;
+    min-height: 100vh;
+    min-height: 100dvh;
+    display: flex;
+    flex-direction: column;
+
+    /* Theming tokens — inherit defaults from --ddd-chrome-* (the calmstorm-
+       flavored palette established with DeckChrome). New --ddd-frame-* tokens
+       carry the bar-specific surfaces; consumers can override either tier. */
+    --frame-bg:           var(--ddd-frame-bg,           var(--ddd-chrome-bg,           #0a0f1a));
+    --frame-fg:           var(--ddd-frame-fg,           var(--ddd-chrome-fg-strong,    rgb(255 255 255 / 0.92)));
+    --frame-fg-muted:     var(--ddd-frame-fg-muted,     var(--ddd-chrome-fg-muted,     rgb(255 255 255 / 0.45)));
+    --frame-border:       var(--ddd-frame-border,       var(--ddd-chrome-border,       rgb(255 255 255 / 0.08)));
+    --frame-link-bg:      var(--ddd-frame-link-bg,      transparent);
+    --frame-link-bg-hover:var(--ddd-frame-link-bg-hover,rgb(255 255 255 / 0.06));
+    --frame-link-border:  var(--ddd-frame-link-border,  rgb(255 255 255 / 0.20));
+    --frame-link-border-hover: var(--ddd-frame-link-border-hover, rgb(255 255 255 / 0.50));
+    --frame-stage-bg:     var(--ddd-frame-stage-bg,     transparent);
+    --frame-radius:       var(--ddd-frame-radius,       3px);
+    --frame-font:         var(--ddd-frame-font,         ui-sans-serif, system-ui, sans-serif);
+    --frame-font-mono:    var(--ddd-frame-font-mono,    ui-monospace, "SFMono-Regular", Menlo, monospace);
+  }
+
+  /* ── Bars ──────────────────────────────────────────────────────── */
+
+  .ddd-frame__top,
+  .ddd-frame__bottom {
+    position: fixed;
+    left: 0;
+    right: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    padding: 0.65rem 1rem;
+    background: var(--frame-bg);
+    color: var(--frame-fg);
+    border: 1px solid transparent;
+    font-family: var(--frame-font);
+    font-size: 0.72rem;
+    transition: opacity 200ms ease, transform 200ms ease;
+  }
+  .ddd-frame__top    { top: 0;    border-bottom-color: var(--frame-border); }
+  .ddd-frame__bottom { bottom: 0; border-top-color:    var(--frame-border); justify-content: space-between; }
+
+  /* Stage padding so chrome never overlaps the canvas. Heights are
+     approximated; precise values follow from the bars' actual height once
+     fonts/typesetting settle. The route's body uses overflow:hidden so
+     this padding plus the canvas's own letterbox sizing fits inside the
+     viewport. */
+  .ddd-frame__stage {
+    flex: 1 1 auto;
+    display: grid;
+    place-items: center;
+    padding: 3.5rem 0;
+    background: var(--frame-stage-bg);
+  }
+
+  /* ── Chrome-off (C / F) ────────────────────────────────────────── */
+
+  /* DeckOverlay--Play-UI sets [data-chrome-hidden] on its root; we honor it
+     here so C / F still fade the bars symmetrically with the previous
+     DeckChrome behavior. */
+  [data-chrome-hidden="true"] .ddd-frame__top    { opacity: 0; transform: translateY(-100%); pointer-events: none; }
+  [data-chrome-hidden="true"] .ddd-frame__bottom { opacity: 0; transform: translateY(100%);  pointer-events: none; }
+
+  /* ── Top-bar contents ──────────────────────────────────────────── */
+
+  .ddd-frame__exit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 1.6rem;
+    height: 1.6rem;
+    border: 1px solid var(--frame-link-border);
+    border-radius: var(--frame-radius);
+    color: var(--frame-fg);
+    font-size: 0.95rem;
+    line-height: 1;
+    text-decoration: none;
+    flex-shrink: 0;
+    transition: color 150ms ease, border-color 150ms ease, background-color 150ms ease, transform 100ms ease;
+  }
+  .ddd-frame__exit:hover {
+    color: var(--frame-fg);
+    border-color: var(--frame-link-border-hover);
+    background: var(--frame-link-bg-hover);
+  }
+  .ddd-frame__exit:active { transform: scale(0.94); }
+
+  .ddd-frame__variant-cycle {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.25rem 0.5rem;
+    border: 1px solid var(--frame-link-border);
+    border-radius: 999px;
+    color: var(--frame-fg);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+  }
+  .ddd-frame__variant-arrow {
+    color: var(--frame-fg);
+    text-decoration: none;
+    padding: 0 0.35rem;
+    border-radius: 3px;
+    line-height: 1;
+  }
+  .ddd-frame__variant-arrow:hover { background: var(--frame-link-bg-hover); }
+  .ddd-frame__variant-arrow.is-disabled { opacity: 0.3; pointer-events: none; }
+  .ddd-frame__variant-counter { color: var(--frame-fg-muted); margin-left: 0.35rem; font-variant-numeric: tabular-nums; }
+
+  .ddd-frame__mid {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    flex: 1;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .ddd-frame__section {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.5rem;
+    font-size: 0.72rem;
+  }
+  .ddd-frame__section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--frame-fg-muted);
+  }
+  .ddd-frame__section-title { color: var(--frame-fg); font-weight: 500; }
+  .ddd-frame__section-title strong { font-weight: 700; }
+
+  /* ── Inline status (workflow only) ─────────────────────────────── */
+
+  .ddd-frame__status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+    padding: 0.2rem 0.4rem;
+    border: 1px solid var(--frame-link-border);
+    border-radius: var(--frame-radius);
+    background: transparent;
+    margin: 0;
+  }
+  .ddd-frame__status-legend {
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--frame-fg-muted);
+    padding: 0 0.4rem 0 0.2rem;
+    border-right: 1px solid var(--frame-border);
+    margin-right: 0.2rem;
+    float: left;
+  }
+  .ddd-frame__status-btn {
+    background: transparent;
+    border: 1px solid var(--frame-link-border);
+    border-radius: var(--frame-radius);
+    color: var(--frame-fg);
+    padding: 0.25rem 0.55rem;
+    font: inherit;
+    font-size: 0.68rem;
+    line-height: 1;
+    cursor: pointer;
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+  .ddd-frame__status-btn:hover {
+    background: var(--frame-link-bg-hover);
+    border-color: var(--frame-link-border-hover);
+  }
+  .ddd-frame__status-btn[data-active="true"][data-status="urgent-redo"]               { background: #ff5e57; color: #2b0606; border-color: transparent; }
+  .ddd-frame__status-btn[data-active="true"][data-status="non-urgent-could-be-better"] { background: #ffb84a; color: #1a1a1a; border-color: transparent; }
+  .ddd-frame__status-btn[data-active="true"][data-status="passable"]                   { background: #66c0f4; color: #0b1a26; border-color: transparent; }
+  .ddd-frame__status-btn[data-active="true"][data-status="perfect"]                    { background: #4ade80; color: #06210c; border-color: transparent; }
+  .ddd-frame__status-btn--clear { opacity: 0.7; }
+  .ddd-frame__status-btn--clear:hover { opacity: 1; }
+
+  /* ── Counter ───────────────────────────────────────────────────── */
+
+  .ddd-frame__counter {
+    font-family: var(--frame-font-mono);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+    flex-shrink: 0;
+    color: var(--frame-fg);
+  }
+
+  /* ── Bottom-bar contents ──────────────────────────────────────── */
+
+  .ddd-frame__hint {
+    margin: 0 auto;
+    font-size: 0.62rem;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .ddd-frame__nav-link {
+    color: var(--frame-fg);
+    text-decoration: none;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    padding: 0.35rem 0.85rem;
+    background: var(--frame-link-bg);
+    border: 1px solid var(--frame-link-border);
+    border-radius: var(--frame-radius);
+    transition: background 150ms ease, border-color 150ms ease;
+  }
+  .ddd-frame__nav-link:hover {
+    background: var(--frame-link-bg-hover);
+    border-color: var(--frame-link-border-hover);
+  }
+  .ddd-frame__variant-switches { display: inline-flex; gap: 0.5rem; flex-shrink: 0; }
+  .ddd-frame__bottom-spacer { display: inline-block; width: 1px; flex-shrink: 0; }
+</style>
+
+<script
+  is:inline
+  data-ddd-frame-script
+  data-deck-slug={deckSlug}
+  data-variant-slug={variantSlug}
+  data-slot={slot}
+  data-prev={prevHref ?? ""}
+  data-next={nextHref ?? ""}
+  data-first={firstHref}
+  data-last={lastHref}
+  data-toc={tocHref}
+  data-prev-variant={prevVariantHref ?? ""}
+  data-next-variant={nextVariantHref ?? ""}
+  data-intent={intent}
+  data-enable-keyboard={enableKeyboard ? "true" : "false"}
+>
+  (() => {
+    const cfg = document.currentScript;
+    if (!cfg) return;
+    const deckSlug = cfg.getAttribute("data-deck-slug");
+    const variantSlug = cfg.getAttribute("data-variant-slug");
+    const slot = cfg.getAttribute("data-slot");
+    const prev = cfg.getAttribute("data-prev") || null;
+    const next = cfg.getAttribute("data-next") || null;
+    const first = cfg.getAttribute("data-first");
+    const last = cfg.getAttribute("data-last");
+    const toc = cfg.getAttribute("data-toc");
+    const prevVariant = cfg.getAttribute("data-prev-variant") || null;
+    const nextVariant = cfg.getAttribute("data-next-variant") || null;
+    const intent = cfg.getAttribute("data-intent");
+    const keyboardEnabled = cfg.getAttribute("data-enable-keyboard") === "true";
+    const showWorkflow = intent === "workflow";
+
+    const playRoot =
+      document.querySelector("[data-play-root]") ?? document.documentElement;
+
+    function go(href) {
+      if (href && href !== "#") window.location.href = href;
+    }
+    function toggleChrome() {
+      const cur = playRoot.getAttribute("data-chrome-hidden") === "true";
+      playRoot.setAttribute("data-chrome-hidden", cur ? "false" : "true");
+    }
+    function toggleFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen?.().catch(() => {});
+      } else {
+        document.exitFullscreen?.();
+      }
+    }
+
+    // ── Inline status — render initial active + wire click POST ──
+    const statusBar = document.querySelector("[data-status-bar]");
+    function renderActive(status) {
+      if (!statusBar) return;
+      statusBar.setAttribute("data-current-status", status || "pending");
+      statusBar.querySelectorAll("[data-status]").forEach((b) => {
+        b.setAttribute("data-active", b.getAttribute("data-status") === status ? "true" : "false");
+      });
+    }
+    if (statusBar) {
+      renderActive(statusBar.getAttribute("data-current-status") || "pending");
+      statusBar.querySelectorAll("[data-status]").forEach((btn) => {
+        btn.addEventListener("click", async (ev) => {
+          ev.preventDefault();
+          const status = btn.getAttribute("data-status");
+          const prevStatus = statusBar.getAttribute("data-current-status");
+          renderActive(status === "pending" ? "pending" : status);
+          try {
+            const res = await fetch("/api/slide-rank", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                deckSlug,
+                variantSlug,
+                slot,
+                status,
+                surface: "play",
+              }),
+            });
+            if (!res.ok) throw new Error("rank POST failed: " + res.status);
+          } catch (err) {
+            console.warn("[ddd-frame] rank POST failed; reverting", err);
+            renderActive(prevStatus);
+          }
+        });
+      });
+    }
+
+    // ── Keyboard contract (parity with calmstorm + Phase A++ DeckChrome) ──
+    if (keyboardEnabled) {
+      document.addEventListener("keydown", (e) => {
+        const t = e.target;
+        if (t instanceof HTMLElement) {
+          const tag = t.tagName;
+          if (tag === "INPUT" || tag === "TEXTAREA" || t.isContentEditable) return;
+        }
+        switch (e.key) {
+          case "ArrowRight":
+          case "PageDown":
+            e.preventDefault(); go(next); break;
+          case " ":
+            e.preventDefault(); if (e.shiftKey) go(prev); else go(next); break;
+          case "ArrowLeft":
+          case "PageUp":
+            e.preventDefault(); go(prev); break;
+          case "ArrowDown":
+            if (showWorkflow && nextVariant) { e.preventDefault(); go(nextVariant); }
+            break;
+          case "ArrowUp":
+            if (showWorkflow && prevVariant) { e.preventDefault(); go(prevVariant); }
+            break;
+          case "Home":
+            e.preventDefault(); go(first); break;
+          case "End":
+            e.preventDefault(); go(last); break;
+          case "f":
+          case "F":
+            e.preventDefault(); toggleFullscreen(); break;
+          case "c":
+          case "C":
+            e.preventDefault(); toggleChrome(); break;
+          case "t":
+          case "T":
+            e.preventDefault(); go(toc); break;
+          case "Escape":
+            if (document.fullscreenElement) document.exitFullscreen?.();
+            playRoot.setAttribute("data-chrome-hidden", "false");
+            break;
+          case "1":
+            if (showWorkflow && statusBar) {
+              e.preventDefault();
+              statusBar.querySelector('[data-status="urgent-redo"]').click();
+            }
+            break;
+          case "2":
+            if (showWorkflow && statusBar) {
+              e.preventDefault();
+              statusBar.querySelector('[data-status="non-urgent-could-be-better"]').click();
+            }
+            break;
+          case "3":
+            if (showWorkflow && statusBar) {
+              e.preventDefault();
+              statusBar.querySelector('[data-status="passable"]').click();
+            }
+            break;
+          case "4":
+            if (showWorkflow && statusBar) {
+              e.preventDefault();
+              statusBar.querySelector('[data-status="perfect"]').click();
+            }
+            break;
+          case "0":
+            if (showWorkflow && statusBar) {
+              e.preventDefault();
+              statusBar.querySelector('[data-status="pending"]').click();
+            }
+            break;
+        }
+      });
+    }
+  })();
+</script>

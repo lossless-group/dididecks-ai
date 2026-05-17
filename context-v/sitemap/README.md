@@ -54,7 +54,8 @@ context-v/sitemap/
 │   ├── play-index.md
 │   ├── play-slot.md
 │   ├── api-slide-rank.md
-│   └── api-slide-decompose.md
+│   ├── api-slide-decompose.md
+│   └── dev-icons.md           ← design-review workbench (kept by deliberate discipline)
 └── components/                ← shell-exported components
     ├── DeckOverlay--Scroll-UI.md
     ├── DeckOverlay--Play-UI.md

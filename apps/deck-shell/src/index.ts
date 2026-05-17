@@ -42,6 +42,11 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
         });
 
         injectRoute({
+          pattern: "/toc/[deckSlug]",
+          entrypoint: new URL("./routes/toc-deck.astro", import.meta.url).href,
+        });
+
+        injectRoute({
           pattern: "/toc/[deckSlug]/[variantSlug]",
           entrypoint: new URL("./routes/toc.astro", import.meta.url).href,
         });
@@ -69,6 +74,13 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
         injectRoute({
           pattern: "/play/[deckSlug]/[variantSlug]/print",
           entrypoint: new URL("./routes/play/[deckSlug]/[variantSlug]/print.astro", import.meta.url).href,
+        });
+
+        // Dev-only icon-pair review page (Phase 4 of TOC redesign). Removed
+        // once the founder picks a pair; do not link to it from any other route.
+        injectRoute({
+          pattern: "/dev/icons",
+          entrypoint: new URL("./routes/dev/icons.astro", import.meta.url).href,
         });
       },
       "astro:config:done": ({ config, logger }) => {

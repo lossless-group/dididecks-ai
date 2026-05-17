@@ -1,11 +1,12 @@
 ---
-import type { Deck, SlotRef, RankEntry } from "../types/index.js";
+import type { Deck, SlotRef, SurfaceRankEntry } from "../types/index.js";
 import { buildRankKey } from "../types/index.js";
 import {
   loadDecksRegistry,
   loadSlotsRegistry,
   loadAuditRegistry,
   perSlideFileExists,
+  preferredSurfaceEntry,
 } from "../registry-loader.js";
 import DididecksNav from "../components/DididecksNav.astro";
 
@@ -37,7 +38,10 @@ const audit = await loadAuditRegistry(opts.absolute.audits);
 const rows = await Promise.all(
   slots.map(async (s) => {
     const key = buildRankKey(deckSlug, variantSlug, s.slot);
-    const rank: RankEntry | undefined = audit.ranks[key];
+    // Phase 1 of TOC redesign: this single-variant TOC will deprecate to a
+    // redirect in Phase 6. Until then, fall back to the most-recent surface
+    // rating for backwards-compatible display.
+    const rank: SurfaceRankEntry | undefined = preferredSurfaceEntry(audit.ranks[key]);
     const hasFile = await perSlideFileExists(
       opts.absolute.slidesComponentsRoot,
       variantSlug,

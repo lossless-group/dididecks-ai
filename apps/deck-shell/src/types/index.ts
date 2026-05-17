@@ -66,16 +66,36 @@ export interface SlotRef {
 /** Map of variantSlug → ordered slot list. The client-site exports this from src/data/slides.ts (or wherever slotsRegistryPath points). */
 export type SlotsByVariant = Record<string, SlotRef[]>;
 
-export interface RankEntry {
+/** The two surfaces a slide is rated on. See dididecks-ai/CLAUDE.md
+ *  "Naming is fuzzy here — Scroll-UI vs. Play-UI" for the framing. */
+export type Surface = "scroll" | "play";
+
+export const SURFACES: readonly Surface[] = ["scroll", "play"] as const;
+
+/** One surface's rating of one slot. */
+export interface SurfaceRankEntry {
   status: Exclude<Status, "pending">;
   rankedAt: string;
   rankedBy: string;
   notes: string | null;
 }
 
+/** Per-(deck, variant, slot) rating — up to two surface entries. */
+export type RankEntryV2 = Partial<Record<Surface, SurfaceRankEntry>>;
+
+/** Transitional alias — pre-v2 callsites that don't yet care about
+ *  surfaces continue to work against the inner shape. */
+export type RankEntry = SurfaceRankEntry;
+
 export interface AuditRegistry {
+  schema: 2;
+  ranks: Record<string, RankEntryV2>;
+}
+
+/** Schema v1 shape, retained for the migration reader only. */
+export interface AuditRegistryV1 {
   schema: 1;
-  ranks: Record<string, RankEntry>;
+  ranks: Record<string, SurfaceRankEntry>;
 }
 
 export function buildRankKey(deckSlug: string, variantSlug: string, slot: string): string {

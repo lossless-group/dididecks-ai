@@ -1,0 +1,28 @@
+---
+/**
+ * PlayIcon-C — filled circle with punched-out triangle.
+ * Classic "play button" badge. Even-odd fill punches the triangle
+ * transparently. Paired with ScrollIcon-C.
+ */
+interface Props {
+  size?: number | string;
+  title?: string;
+}
+const { size = "1em", title = "Play review" } = Astro.props as Props;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="currentColor"
+  fill-rule="evenodd"
+  role="img"
+  aria-label={title}
+>
+  <title>{title}</title>
+  <path
+    d="M12 1.5 a10.5 10.5 0 1 1 0 21 a10.5 10.5 0 0 1 0 -21 z
+       M9.5 7.5 v9 l7.5 -4.5 z"
+  />
+</svg>

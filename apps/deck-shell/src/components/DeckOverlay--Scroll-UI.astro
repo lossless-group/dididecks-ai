@@ -50,7 +50,7 @@ const { deckSlug, variantSlug, hideClassifier = false } = Astro.props as Props;
 
   {!hideClassifier && (
     <slot name="classify">
-      <SlideRankPill deckSlug={deckSlug} variantSlug={variantSlug} />
+      <SlideRankPill deckSlug={deckSlug} variantSlug={variantSlug} surface="scroll" />
     </slot>
   )}
 

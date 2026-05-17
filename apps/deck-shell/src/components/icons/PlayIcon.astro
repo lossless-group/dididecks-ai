@@ -1,0 +1,31 @@
+---
+/**
+ * PlayIcon — canonical "Play-UI review" icon for the deck-level TOC.
+ *
+ * Frameless glyph: classic standalone ▶ triangle, centered and filled in
+ * currentColor. Paired with ScrollIcon for the matrix's dual-surface cells.
+ * Picked from a 3-pair review on 2026-05-17 — alternates preserved at
+ * `components/icons/alternates/` and the dev review route lives at
+ * `routes/dev/icons.astro`.
+ *
+ * Plan of record:
+ *   context-v/plans/Redesign-TOC-as-Deck-Level-Dual-Surface-Review-Matrix.md (§D, Phase 4)
+ */
+interface Props {
+  size?: number | string;
+  title?: string;
+}
+const { size = "1em", title = "Play review" } = Astro.props as Props;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="currentColor"
+  role="img"
+  aria-label={title}
+>
+  <title>{title}</title>
+  <polygon points="7 4 20 12 7 20" />
+</svg>

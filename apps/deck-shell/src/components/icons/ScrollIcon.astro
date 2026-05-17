@@ -1,0 +1,38 @@
+---
+/**
+ * ScrollIcon — canonical "Scroll-UI review" icon for the deck-level TOC.
+ *
+ * Frameless glyph: three content lines stacked over a downward chevron. Reads
+ * as "scroll down through the content." Paired with PlayIcon for the matrix's
+ * dual-surface cells. Picked from a 3-pair review on 2026-05-17 — alternates
+ * preserved at `components/icons/alternates/` and the dev review route lives
+ * at `routes/dev/icons.astro`.
+ *
+ * Plan of record:
+ *   context-v/plans/Redesign-TOC-as-Deck-Level-Dual-Surface-Review-Matrix.md (§D, Phase 4)
+ */
+interface Props {
+  size?: number | string;
+  title?: string;
+}
+const { size = "1em", title = "Scroll review" } = Astro.props as Props;
+---
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  viewBox="0 0 24 24"
+  width={size}
+  height={size}
+  fill="none"
+  stroke="currentColor"
+  stroke-width="2"
+  stroke-linecap="round"
+  stroke-linejoin="round"
+  role="img"
+  aria-label={title}
+>
+  <title>{title}</title>
+  <line x1="6" y1="5" x2="18" y2="5" />
+  <line x1="6" y1="9" x2="18" y2="9" />
+  <line x1="6" y1="13" x2="14" y2="13" />
+  <polyline points="8 17 12 21 16 17" />
+</svg>

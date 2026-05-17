@@ -23,6 +23,14 @@ interface Props {
   deckSlug: string;
   variantSlug: string;
   /**
+   * Which surface this pill is rating — `"scroll"` when mounted inside a
+   * Scroll-UI page; `"play"` when composed by `<DeckOverlay--Play-UI>`. Drives
+   * both the hydration read (`audit.ranks[k][surface].status`) and the POST
+   * write. Transitional: omitting the prop logs a one-time console warning
+   * and defaults to `"scroll"`; the default is removed in a later release.
+   */
+  surface?: "scroll" | "play";
+  /**
    * Corner placement. Default `bottom-right` matches the Scroll-UI behavior
    * shipped in Phase A+. Pass `top-right` when composing inside
    * `DeckOverlay--Play-UI` to avoid stacking on top of `DeckChrome`, which
@@ -31,7 +39,14 @@ interface Props {
   position?: "bottom-right" | "top-right";
 }
 
-const { deckSlug, variantSlug, position = "bottom-right" } = Astro.props as Props;
+const rawProps = Astro.props as Props;
+const surfaceProvided = rawProps.surface !== undefined;
+const {
+  deckSlug,
+  variantSlug,
+  surface = "scroll",
+  position = "bottom-right",
+} = rawProps;
 
 const opts = globalThis.__dididecksShellOptions;
 let slots: SlotRef[] = [];
@@ -52,6 +67,8 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
   class:list={["dididecks-slide-rank-pill", `dididecks-slide-rank-pill--${position}`]}
   data-slide-rank-pill
   data-position={position}
+  data-surface={surface}
+  data-surface-provided={surfaceProvided ? "true" : "false"}
   data-deck-slug={deckSlug}
   data-variant-slug={variantSlug}
   data-titles={JSON.stringify(titleBySlot)}
@@ -161,6 +178,14 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
 
     const deckSlug = root.dataset.deckSlug;
     const variantSlug = root.dataset.variantSlug;
+    const surface = root.dataset.surface === "play" ? "play" : "scroll";
+    const surfaceProvided = root.dataset.surfaceProvided === "true";
+    if (!surfaceProvided) {
+      console.warn(
+        "[@dididecks/shell] <SlideRankPill> rendered without a 'surface' prop. " +
+          "Defaulting to 'scroll' for backcompat. Pass surface=\"scroll\" or surface=\"play\" explicitly.",
+      );
+    }
     let titles = {};
     try { titles = JSON.parse(root.dataset.titles || "{}"); } catch {}
 
@@ -194,10 +219,13 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
       .then((r) => (r.ok ? r.json() : null))
       .then((audit) => {
         if (!audit || !audit.ranks) return;
+        // Hydrate from the surface this pill rates against. Schema v2 stores
+        // up to two surfaces per row; we read only ours so a play-side rating
+        // doesn't accidentally show as the scroll-side state (or vice versa).
         for (const [k, v] of Object.entries(audit.ranks)) {
-          if (k.startsWith(`${deckSlug}/${variantSlug}/`) && v && v.status) {
-            ranks.set(k, v.status);
-          }
+          if (!k.startsWith(`${deckSlug}/${variantSlug}/`) || !v) continue;
+          const surfaceEntry = v[surface];
+          if (surfaceEntry && surfaceEntry.status) ranks.set(k, surfaceEntry.status);
         }
         renderActive();
       })
@@ -245,7 +273,7 @@ const titleBySlot: Record<string, string> = Object.fromEntries(
           const res = await fetch("/api/slide-rank", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ deckSlug, variantSlug, slot: activeSlot, status }),
+            body: JSON.stringify({ deckSlug, variantSlug, slot: activeSlot, status, surface }),
           });
           if (!res.ok) throw new Error(`POST /api/slide-rank failed: ${res.status}`);
         } catch (err) {
