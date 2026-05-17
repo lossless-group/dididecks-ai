@@ -1,6 +1,6 @@
 ---
 title: "Redesign TOC as a Deck-Level Dual-Surface Review Matrix"
-lede: "Today's `/toc/[deck]/[variant]/` answers a build-system question ('which slot has a Play-UI file?') when the deck-iteration-workflow centers on a workflow question ('where am I in the review cycle, and which variant is closest to shippable?'). The calmstorm-decks `/index` shows the right shape: variants as columns, slides as rows, a review-status chip per cell. We go one step further than calmstorm: each cell carries TWO chips, one per surface — scroll-review and play-review — because the workflow reviews each slide twice (once during scroll-iteration, once after porting to Play-UI). The goal the matrix should make obvious at a glance: find a single column where every slide is ≥ passable on both surfaces, with as many ★s as possible. Drift between scroll-rating and play-rating is itself a workflow signal (the port may have lost fidelity). This redesign migrates the audits schema from one rating per (slot, variant) to two ratings, makes the SlideRankPill surface-aware, builds a new `/toc/[deck]/` deck-level matrix route, and folds today's per-variant TOC into a redirect."
+lede: "Today's `/toc/[deck]/[variant]/` answers a build-system question ('which slot has a Play-UI file?') when the deck-iteration-workflow centers on a workflow question ('where am I in the review cycle, and which variant is closest to shippable?'). The calmstorm-decks `/index` shows the right shape: variants as columns, slides as rows, a review-status chip per cell. We go one step further than calmstorm: each cell carries TWO chips, one per surface — scroll-review and play-review — because the workflow reviews each slide twice (once during scroll-iteration, once after porting to Play-UI). The goal the matrix should make obvious at a glance: find a single column where every slide is ≥ passable on both surfaces, with as many ★s as possible. Drift between scroll-rating and play-rating is itself a workflow signal (the port may have lost fidelity). This redesign migrates the audits schema from one rating per (slot, variant) to two ratings, makes the SlideRankPill surface-aware, builds a new `/toc/[deck]/` deck-level matrix route, and keeps the per-variant `/toc/[deck]/[variant]/` route alive as the variant landing/index — distinct purpose from the matrix. [Original lede said \"folds the per-variant TOC into a redirect\"; revised 2026-05-17 in-flight when in-browser review made clear the two surfaces serve different workflow needs.]"
 date_authored_initial_draft: 2026-05-17
 date_authored_current_draft: 2026-05-17
 date_authored_final_draft:
@@ -60,7 +60,7 @@ The TOC is the answer to *"where am I in this loop, right now?"*
 - **SlideRankPill surface-aware.** New `surface` prop (`"scroll" | "play"`). The pill writes to that surface's branch. Default behavior matches mount context — scroll routes pass `surface="scroll"`; `DeckOverlay--Play-UI` passes `surface="play"` to the pill it composes.
 - **New `/toc/[deck]/` matrix route.** Variants × slots grid. Per-cell paired chips. Per-column shippability rollup (dominant). Per-row drift indicator (subtle, right-edge).
 - **Two SVG icons.** Scroll-glyph and play-glyph, balanced as a pair. Tooltips spell out "Scroll review" / "Play review". The chip itself is rating-only.
-- **`/toc/[deck]/[variant]/` redirect.** Old per-variant route 302s to `/toc/[deck]/?variant={slug}` (or anchors / focus-highlights that column). Deprecated, not deleted — links from elsewhere keep working.
+- **`/toc/[deck]/[variant]/` stays alive as a variant landing.** ~~Deprecate to redirect.~~ REVISED 2026-05-17: per-variant TOC is the "land in one variant" surface; the deck-level matrix is the cross-variant-comparison surface. Both have a place. Variant-name in matrix → per-variant TOC.
 - **Cell click behavior — whole-half navigates, no inline editing.** Scroll half → `/scroll/{deck}/{variant}/#slot-NN`. Play half → `/play/{deck}/{variant}/{slot}/`. Rating editing happens via the SlideRankPill on the surface itself (one source of truth for the rate action).
 - **Port-status folds into the cell.** No separate "ADAPTED" column. If the per-slide Play-UI file is missing, the play half renders dimmed/disabled — the absence IS the port-status signal.
 
@@ -258,15 +258,24 @@ Goal: the new deck-level matrix.
 
 **Stop-and-show point:** founder opens `/toc/pitch/`, confirms the matrix answers "which variant is closest to ready" at a glance.
 
-## Phase 6 — Deprecate `/toc/[deck]/[variant]/`
+## Phase 6 — Keep `/toc/[deck]/[variant]/` as the variant landing (REVISED 2026-05-17)
 
-Goal: old per-variant TOC route stops being a maintenance burden, without breaking inbound links.
+Goal: the per-variant TOC stays alive as the **variant landing/index** — distinct from the deck-level matrix.
 
-1. Replace `apps/deck-shell/src/routes/toc.astro` body with a 302 redirect to `/toc/{deckSlug}?variant={variantSlug}`.
-2. Run chroma build; verify no internal links from `DididecksNav`, `/scroll/`, or `/play/` point at the old shape. Update any that do.
-3. Add a changelog entry noting the redirect.
+The original Phase 6 ("deprecate to a redirect") was a wrong call surfaced during in-flight review. The two surfaces serve different needs:
 
-**Acceptance:** old TOC URLs still resolve to a useful page (the new matrix, focused on the right column); no broken links anywhere in chroma's build output.
+- **`/toc/[deck]/` matrix** — cross-variant comparison. "Which variant is closest to ready? Where's the drift between scroll and play?"
+- **`/toc/[deck]/[variant]/` per-variant TOC** — land in one variant. "What slots are in this variant? What's each one's status? What's available for me to open?"
+
+Both have a place. Folding the per-variant TOC into a redirect would lose the "land in one variant" surface — exactly the affordance the founder reaches for when clicking a variant name in the matrix header. Confirmed during 2026-05-17 in-flight review: variant-name in matrix → per-variant TOC.
+
+Revised Phase 6 scope (smaller, more sensible):
+
+1. **Keep `apps/deck-shell/src/routes/toc.astro`** as-is functionally. It already reads via `preferredSurfaceEntry` for dual-surface awareness. No deprecation.
+2. **Audit internal links** to verify the per-variant URL is reachable as a landing target (matrix variant name → it; chroma's variant cards → it). No regressions.
+3. **Polish pass** if needed — make the page feel like a variant landing, not just a slot list. Could include: variant lede above the table, a "Now showing in matrix view ↗" link back to `/toc/[deck]/?variant={v}`, scroll/play surface launch buttons paralleling the matrix's per-column rows. This is judgment-pass work, not load-bearing.
+
+**Acceptance:** clicking a variant name in the matrix header lands at `/toc/[deck]/[variant]/` and shows that variant's slot list. No broken links anywhere in chroma's build output. Per-variant TOC has a clear identity distinct from the deck-level matrix.
 
 ## Phase 7 — Cross-cutting verification + version bump
 

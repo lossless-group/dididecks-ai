@@ -94,7 +94,52 @@ function compareSlot(a: string, b: string): number {
   return (ra?.[2] ?? "").localeCompare(rb?.[2] ?? "");
 }
 
-const variants = deck?.variants ?? [];
+const allVariants = deck?.variants ?? [];
+
+// Visible-variant filter. Max 3 columns at a time keeps the header readable.
+// Default: the last 3 variants in registry order (typically the most-refined
+// iterations; the baseline lives at index 0). URL-param override:
+// ?variants=slug1,slug2,slug3 — invalid slugs are dropped; if the param is
+// present but no valid slugs match, fall back to the default.
+const MAX_VISIBLE_VARIANTS = 3;
+const variantsParam = Astro.url.searchParams.get("variants");
+const requestedSlugs: string[] = variantsParam
+  ? variantsParam.split(",").map((s) => s.trim()).filter(Boolean)
+  : [];
+const validRequested = requestedSlugs.filter((s) =>
+  allVariants.some((v) => v.slug === s),
+);
+const visibleSlugs: string[] = validRequested.length > 0
+  ? validRequested.slice(0, MAX_VISIBLE_VARIANTS)
+  : allVariants.slice(-MAX_VISIBLE_VARIANTS).map((v) => v.slug);
+const visibleSet = new Set(visibleSlugs);
+
+const variants = allVariants.filter((v) => visibleSet.has(v.slug));
+
+// Compute each chip's "what set would clicking this produce" — drives the
+// chip-strip hrefs so the toggle is pure-server navigation (no JS state).
+function chipHrefFor(slug: string): string {
+  const isSelected = visibleSet.has(slug);
+  let nextSlugs: string[];
+  if (isSelected) {
+    // Toggle off — but don't allow the empty state. If clicking would leave
+    // zero visible, drop the request entirely (revert to default).
+    nextSlugs = visibleSlugs.filter((s) => s !== slug);
+  } else if (visibleSlugs.length < MAX_VISIBLE_VARIANTS) {
+    nextSlugs = [...visibleSlugs, slug];
+  } else {
+    // 3 selected, adding a 4th — FIFO drop oldest.
+    nextSlugs = [...visibleSlugs.slice(1), slug];
+  }
+  const params = new URLSearchParams(Astro.url.search);
+  if (nextSlugs.length === 0) {
+    params.delete("variants");
+  } else {
+    params.set("variants", nextSlugs.join(","));
+  }
+  const qs = params.toString();
+  return `${Astro.url.pathname}${qs ? `?${qs}` : ""}`;
+}
 
 const slotSet = new Set<string>();
 const titleBySlot: Record<string, string> = {};
@@ -159,7 +204,20 @@ const emptyPlay = (): Rollup["play"] => ({
 });
 
 const rollups: Record<string, Rollup> = {};
-for (const v of variants) rollups[v.slug] = { scroll: emptyScroll(), play: emptyPlay(), totalRated: 0, ready: true };
+for (const v of variants) {
+  // A variant is structurally eligible for Ready only if it has at least one
+  // slot in its registry. Zero-slot variants (e.g. chroma's enhanced-v1
+  // before any SLOTS entries land) are vacuously "no blockers found", which
+  // is technically true but reads as a false positive in the UI. Initialize
+  // ready=false for empty variants so the badge reflects reality.
+  const variantSlotCount = (slotsByVariant[v.slug] ?? []).length;
+  rollups[v.slug] = {
+    scroll: emptyScroll(),
+    play: emptyPlay(),
+    totalRated: 0,
+    ready: variantSlotCount > 0,
+  };
+}
 
 interface Row {
   slot: string;
@@ -239,6 +297,38 @@ const resolvedLede =
       <div class="deck-matrix__crumb">@dididecks/shell · TOC matrix</div>
       {resolvedTitle && <h2 class="deck-matrix__title">{resolvedTitle}</h2>}
       {resolvedLede && <p class="deck-matrix__lede">{resolvedLede}</p>}
+
+      {allVariants.length > 1 && (
+        <div class="deck-matrix__variant-filter" role="group" aria-label="Filter visible variants">
+          <span class="deck-matrix__variant-filter-label">
+            Variants <span class="deck-matrix__variant-filter-count">({visibleSlugs.length} of {allVariants.length})</span>
+          </span>
+          <ul class="deck-matrix__variant-filter-chips">
+            {allVariants.map((v) => {
+              const selected = visibleSet.has(v.slug);
+              return (
+                <li>
+                  <a
+                    href={chipHrefFor(v.slug)}
+                    class="deck-matrix__variant-chip"
+                    data-selected={selected ? "true" : "false"}
+                    aria-pressed={selected ? "true" : "false"}
+                    title={
+                      selected
+                        ? `Hide ${v.label}`
+                        : visibleSlugs.length >= MAX_VISIBLE_VARIANTS
+                        ? `Show ${v.label} — will drop the oldest selected to keep ${MAX_VISIBLE_VARIANTS} max`
+                        : `Show ${v.label}`
+                    }
+                  >
+                    {v.label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+      )}
     </header>
   )}
 
@@ -256,7 +346,17 @@ const resolvedLede =
             {variants.map((v) => {
               const r = rollups[v.slug];
               const isFocused = v.slug === focusVariant;
-              const scrollAllHref = `/scroll/${deckSlug}/${v.slug}/`;
+              const scrollHref = `/scroll/${deckSlug}/${v.slug}/`;
+              // /play/[deck]/[variant]/ is a redirect to the first playable
+              // slot. If the variant has zero playable slots (every cell is
+              // missing-file or n/a), the link would 404 — gate it.
+              const playCount =
+                r.play.perfect +
+                r.play.passable +
+                r.play["non-urgent-could-be-better"] +
+                r.play["urgent-redo"] +
+                r.play.pending;
+              const playHref = playCount > 0 ? `/play/${deckSlug}/${v.slug}/` : null;
               return (
                 <th
                   class:list={["deck-matrix__variant-col", { "is-focused": isFocused }]}
@@ -264,30 +364,61 @@ const resolvedLede =
                 >
                   <div class="deck-matrix__variant-head">
                     <div class="deck-matrix__variant-label">
-                      <span class="deck-matrix__variant-name">{v.label}</span>
-                      <a class="deck-matrix__variant-open" href={scrollAllHref}>open ↗</a>
+                      <a
+                        class="deck-matrix__variant-name"
+                        href={`/toc/${deckSlug}/${v.slug}/`}
+                        title={`Open ${v.label} landing — per-variant slot list with ranks`}
+                      >{v.label}</a>
                     </div>
 
-                    <div class="deck-matrix__surface-row" title="Scroll-UI ratings">
+                    <a
+                      class="deck-matrix__surface-row deck-matrix__surface-row--link"
+                      href={scrollHref}
+                      title={`Open scroll deck for ${v.label}`}
+                    >
                       <span class="deck-matrix__surface-icon"><ScrollIcon size="14px" /></span>
-                      <span class="deck-matrix__count-chip" data-status="perfect" data-zero={r.scroll.perfect === 0 ? "true" : "false"}>★ {r.scroll.perfect}</span>
-                      <span class="deck-matrix__count-chip" data-status="passable" data-zero={r.scroll.passable === 0 ? "true" : "false"}>P {r.scroll.passable}</span>
-                      <span class="deck-matrix__count-chip" data-status="non-urgent-could-be-better" data-zero={r.scroll["non-urgent-could-be-better"] === 0 ? "true" : "false"}>C {r.scroll["non-urgent-could-be-better"]}</span>
-                      <span class="deck-matrix__count-chip" data-status="urgent-redo" data-zero={r.scroll["urgent-redo"] === 0 ? "true" : "false"}>U {r.scroll["urgent-redo"]}</span>
-                      <span class="deck-matrix__count-chip" data-status="pending" data-zero={r.scroll.pending === 0 ? "true" : "false"}>— {r.scroll.pending}</span>
-                    </div>
+                      <span class="deck-matrix__rollup-pill" aria-label="Scroll-UI rollup">
+                        <span class="deck-matrix__rollup-seg" data-status="perfect"                     data-zero={r.scroll.perfect === 0 ? "true" : "false"}><span class="g">★</span>{r.scroll.perfect}</span>
+                        <span class="deck-matrix__rollup-seg" data-status="passable"                    data-zero={r.scroll.passable === 0 ? "true" : "false"}><span class="g">P</span>{r.scroll.passable}</span>
+                        <span class="deck-matrix__rollup-seg" data-status="non-urgent-could-be-better"  data-zero={r.scroll["non-urgent-could-be-better"] === 0 ? "true" : "false"}><span class="g">C</span>{r.scroll["non-urgent-could-be-better"]}</span>
+                        <span class="deck-matrix__rollup-seg" data-status="urgent-redo"                 data-zero={r.scroll["urgent-redo"] === 0 ? "true" : "false"}><span class="g">U</span>{r.scroll["urgent-redo"]}</span>
+                        <span class="deck-matrix__rollup-seg" data-status="pending"                     data-zero={r.scroll.pending === 0 ? "true" : "false"}><span class="g">—</span>{r.scroll.pending}</span>
+                      </span>
+                    </a>
 
-                    <div class="deck-matrix__surface-row" title="Play-UI ratings">
-                      <span class="deck-matrix__surface-icon"><PlayIcon size="14px" /></span>
-                      <span class="deck-matrix__count-chip" data-status="perfect" data-zero={r.play.perfect === 0 ? "true" : "false"}>★ {r.play.perfect}</span>
-                      <span class="deck-matrix__count-chip" data-status="passable" data-zero={r.play.passable === 0 ? "true" : "false"}>P {r.play.passable}</span>
-                      <span class="deck-matrix__count-chip" data-status="non-urgent-could-be-better" data-zero={r.play["non-urgent-could-be-better"] === 0 ? "true" : "false"}>C {r.play["non-urgent-could-be-better"]}</span>
-                      <span class="deck-matrix__count-chip" data-status="urgent-redo" data-zero={r.play["urgent-redo"] === 0 ? "true" : "false"}>U {r.play["urgent-redo"]}</span>
-                      <span class="deck-matrix__count-chip" data-status="pending" data-zero={r.play.pending === 0 ? "true" : "false"}>— {r.play.pending}</span>
-                      {r.play["missing-file"] > 0 && (
-                        <span class="deck-matrix__count-chip" data-kind="missing-file">✕ {r.play["missing-file"]}</span>
-                      )}
-                    </div>
+                    {playHref ? (
+                      <a
+                        class="deck-matrix__surface-row deck-matrix__surface-row--link"
+                        href={playHref}
+                        title={`Open play deck for ${v.label}`}
+                      >
+                        <span class="deck-matrix__surface-icon"><PlayIcon size="14px" /></span>
+                        <span class="deck-matrix__rollup-pill" aria-label="Play-UI rollup">
+                          <span class="deck-matrix__rollup-seg" data-status="perfect"                     data-zero={r.play.perfect === 0 ? "true" : "false"}><span class="g">★</span>{r.play.perfect}</span>
+                          <span class="deck-matrix__rollup-seg" data-status="passable"                    data-zero={r.play.passable === 0 ? "true" : "false"}><span class="g">P</span>{r.play.passable}</span>
+                          <span class="deck-matrix__rollup-seg" data-status="non-urgent-could-be-better"  data-zero={r.play["non-urgent-could-be-better"] === 0 ? "true" : "false"}><span class="g">C</span>{r.play["non-urgent-could-be-better"]}</span>
+                          <span class="deck-matrix__rollup-seg" data-status="urgent-redo"                 data-zero={r.play["urgent-redo"] === 0 ? "true" : "false"}><span class="g">U</span>{r.play["urgent-redo"]}</span>
+                          <span class="deck-matrix__rollup-seg" data-status="pending"                     data-zero={r.play.pending === 0 ? "true" : "false"}><span class="g">—</span>{r.play.pending}</span>
+                          {r.play["missing-file"] > 0 && (
+                            <span class="deck-matrix__rollup-seg" data-kind="missing-file"><span class="g">✕</span>{r.play["missing-file"]}</span>
+                          )}
+                        </span>
+                      </a>
+                    ) : (
+                      <div
+                        class="deck-matrix__surface-row deck-matrix__surface-row--disabled"
+                        title="No play deck available — no per-slide Play-UI files exist for this variant yet"
+                      >
+                        <span class="deck-matrix__surface-icon"><PlayIcon size="14px" /></span>
+                        <span class="deck-matrix__rollup-pill" aria-label="Play-UI rollup (no playable slots)">
+                          {r.play["missing-file"] > 0 ? (
+                            <span class="deck-matrix__rollup-seg" data-kind="missing-file"><span class="g">✕</span>{r.play["missing-file"]}</span>
+                          ) : (
+                            <span class="deck-matrix__rollup-seg" data-kind="missing-file"><span class="g">—</span>no slots</span>
+                          )}
+                        </span>
+                      </div>
+                    )}
 
                     <div>
                       {r.ready ? (
@@ -400,6 +531,59 @@ const resolvedLede =
   .deck-matrix__title { margin: 4px 0 6px; font-size: 22px; font-weight: 600; }
   .deck-matrix__lede { color: var(--ddd-matrix-muted); margin: 0; font-size: 13px; max-width: 70ch; }
 
+  /* Variant filter — chip strip above the matrix. */
+  .deck-matrix__variant-filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+  .deck-matrix__variant-filter-label {
+    font-size: 10px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--ddd-matrix-muted);
+  }
+  .deck-matrix__variant-filter-count {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    text-transform: none;
+    margin-left: 4px;
+    opacity: 0.75;
+  }
+  .deck-matrix__variant-filter-chips {
+    display: inline-flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .deck-matrix__variant-chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    border: 1px solid var(--ddd-matrix-line);
+    background: var(--ddd-matrix-pill-bg);
+    color: var(--ddd-matrix-muted);
+    transition: background 120ms ease, color 120ms ease, border-color 120ms ease;
+  }
+  .deck-matrix__variant-chip:hover {
+    background: var(--ddd-matrix-panel);
+    color: var(--ddd-matrix-fg);
+  }
+  .deck-matrix__variant-chip[data-selected="true"] {
+    background: color-mix(in srgb, var(--ddd-matrix-accent) 16%, transparent);
+    color: var(--ddd-matrix-fg);
+    border-color: color-mix(in srgb, var(--ddd-matrix-accent) 55%, transparent);
+  }
+
   .deck-matrix__empty {
     border: 1px dashed var(--ddd-matrix-line);
     padding: 32px;
@@ -446,7 +630,6 @@ const resolvedLede =
   .deck-matrix__variant-label {
     display: flex;
     align-items: baseline;
-    justify-content: space-between;
     gap: 6px;
   }
   .deck-matrix__variant-name {
@@ -455,14 +638,12 @@ const resolvedLede =
     color: var(--ddd-matrix-fg);
     letter-spacing: 0.04em;
     text-transform: uppercase;
-  }
-  .deck-matrix__variant-open {
-    font-size: 11px;
-    color: var(--ddd-matrix-accent);
     text-decoration: none;
-    white-space: nowrap;
+    transition: color 120ms ease;
   }
-  .deck-matrix__variant-open:hover { text-decoration: underline; }
+  a.deck-matrix__variant-name:hover {
+    color: var(--ddd-matrix-accent);
+  }
 
   .deck-matrix__surface-row {
     display: flex;
@@ -470,31 +651,79 @@ const resolvedLede =
     gap: 6px;
     font-size: 11px;
     flex-wrap: wrap;
+    /* Surface rows are now clickable links — give them link affordance. */
+    text-decoration: none;
+    color: inherit;
+    padding: 4px 6px;
+    margin: 0 -6px; /* visually align hover bg with surrounding content */
+    border-radius: 6px;
+    border: 1px solid transparent;
+    transition: background 120ms ease, border-color 120ms ease;
+  }
+  a.deck-matrix__surface-row--link:hover,
+  a.deck-matrix__surface-row--link:focus-visible {
+    background: var(--ddd-matrix-panel);
+    border-color: var(--ddd-matrix-line);
+    outline: none;
+  }
+  .deck-matrix__surface-row--disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
   }
   .deck-matrix__surface-icon {
     color: var(--ddd-matrix-muted);
     display: inline-flex;
     align-items: center;
   }
-  .deck-matrix__count-chip {
+  /* Merged rollup pill — single capsule with all five status counts inline.
+     Each segment carries its own color via data-status; non-zero counts
+     pop, zero counts dim to keep the column tight. */
+  .deck-matrix__rollup-pill {
     display: inline-flex;
     align-items: center;
-    gap: 3px;
-    padding: 2px 7px;
+    padding: 2px 8px;
     border-radius: 999px;
+    background: var(--ddd-matrix-pill-bg);
+    border: 1px solid var(--ddd-matrix-line);
     font-size: 10px;
     font-weight: 600;
     font-variant-numeric: tabular-nums;
-    background: var(--ddd-matrix-pill-bg);
     color: var(--ddd-matrix-muted);
-    border: 1px solid var(--ddd-matrix-line);
+    line-height: 1;
+    gap: 8px;
   }
-  .deck-matrix__count-chip[data-status="perfect"]  { color: var(--ddd-matrix-perfect); }
-  .deck-matrix__count-chip[data-status="passable"] { color: var(--ddd-matrix-passable); }
-  .deck-matrix__count-chip[data-status="non-urgent-could-be-better"] { color: var(--ddd-matrix-could); }
-  .deck-matrix__count-chip[data-status="urgent-redo"] { color: var(--ddd-matrix-urgent); }
-  .deck-matrix__count-chip[data-status="pending"]  { color: var(--ddd-matrix-pending); }
-  .deck-matrix__count-chip[data-zero="true"] { opacity: 0.3; }
+  .deck-matrix__rollup-seg {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    position: relative;
+  }
+  .deck-matrix__rollup-seg + .deck-matrix__rollup-seg::before {
+    content: "";
+    position: absolute;
+    left: -5px;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--ddd-matrix-line);
+    opacity: 0.6;
+  }
+  .deck-matrix__rollup-seg > .g {
+    font-weight: 700;
+    opacity: 0.85;
+  }
+  .deck-matrix__rollup-seg[data-status="perfect"]  { color: var(--ddd-matrix-perfect); }
+  .deck-matrix__rollup-seg[data-status="passable"] { color: var(--ddd-matrix-passable); }
+  .deck-matrix__rollup-seg[data-status="non-urgent-could-be-better"] { color: var(--ddd-matrix-could); }
+  .deck-matrix__rollup-seg[data-status="urgent-redo"] { color: var(--ddd-matrix-urgent); }
+  .deck-matrix__rollup-seg[data-status="pending"]  { color: var(--ddd-matrix-pending); }
+  .deck-matrix__rollup-seg[data-kind="missing-file"] {
+    color: var(--ddd-matrix-muted);
+  }
+  .deck-matrix__rollup-seg[data-kind="missing-file"] > .g {
+    color: var(--ddd-matrix-urgent);
+  }
+  .deck-matrix__rollup-seg[data-zero="true"] { opacity: 0.3; }
 
   .deck-matrix__ready-badge {
     display: inline-block;
