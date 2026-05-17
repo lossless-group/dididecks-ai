@@ -218,8 +218,11 @@ const tip = {
     opacity: 1;
   }
 
-  /* When the surrounding play context hides chrome (C / F key) */
-  [data-chrome-hidden="true"] .ddd-chrome {
+  /* When the surrounding play context hides chrome (C / F key).
+     DeckOverlay--Play-UI sets the attribute on its root; wrap the parent
+     selector in :global() so Astro's scoped-CSS compiler doesn't require
+     it to carry DeckChrome's own scope marker. */
+  :global([data-chrome-hidden="true"]) .ddd-chrome {
     opacity: 0;
     pointer-events: none;
   }

@@ -284,11 +284,13 @@ const showWorkflow = intent === "workflow";
 
   /* ── Chrome-off (C / F) ────────────────────────────────────────── */
 
-  /* DeckOverlay--Play-UI sets [data-chrome-hidden] on its root; we honor it
-     here so C / F still fade the bars symmetrically with the previous
-     DeckChrome behavior. */
-  [data-chrome-hidden="true"] .ddd-frame__top    { opacity: 0; transform: translateY(-100%); pointer-events: none; }
-  [data-chrome-hidden="true"] .ddd-frame__bottom { opacity: 0; transform: translateY(100%);  pointer-events: none; }
+  /* DeckOverlay--Play-UI sets [data-chrome-hidden] on its root. Wrap the
+     parent selector in :global() so Astro's scoped-CSS compiler doesn't
+     require it to carry DeckFrame's own scope marker — the attribute is
+     emitted by a sibling component. The trailing .ddd-frame__* selectors
+     stay scoped (they're DeckFrame's own elements). */
+  :global([data-chrome-hidden="true"]) .ddd-frame__top    { opacity: 0; transform: translateY(-100%); pointer-events: none; }
+  :global([data-chrome-hidden="true"]) .ddd-frame__bottom { opacity: 0; transform: translateY(100%);  pointer-events: none; }
 
   /* ── Top-bar contents ──────────────────────────────────────────── */
 
