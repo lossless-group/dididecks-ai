@@ -1,0 +1,414 @@
+---
+/**
+ * /data-assets/people — reviewer audit page (shell-injected).
+ *
+ * One row per person .md found by the glob. "Person" = any .md under
+ * data/(any path)/team or data/(any path)/portfolio that carries a
+ * `role_class` frontmatter field. (Portfolio .md files for companies have
+ * no role_class; portfolio .md files for portco-CEOs do — calmstorm's
+ * pattern. Chroma puts everyone in a flat data/team regardless of role.)
+ *
+ * Grouped by role_class so reviewers can scan "all advisors", "all VC team",
+ * etc. at a glance.
+ *
+ * Lifted from calmstorm-decks' equivalent page (2026-05-17), generalized for
+ * the shell. Companion to /data-assets/companies.
+ */
+import DididecksNav from "../../components/DididecksNav.astro";
+
+export const prerender = true;
+
+const mdGlob = import.meta.glob<string>(
+  "/data/**/{team,portfolio}/*.md",
+  { eager: true, query: "?raw", import: "default" },
+);
+
+// URL-imports rather than ImageMetadata; see companies.astro for rationale —
+// keeps a malformed image in the consumer's data tree from killing the build.
+const imageGlob = import.meta.glob<string>(
+  "/data/**/{team,portfolio}/*.{png,jpg,jpeg,webp,avif,svg}",
+  { eager: true, query: "?url", import: "default" },
+);
+
+type Frontmatter = Record<string, string | boolean | null>;
+
+function parseFrontmatter(text: string): Frontmatter {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return {};
+  const out: Frontmatter = {};
+  for (const line of m[1].split("\n")) {
+    if (!line || line.startsWith("#")) continue;
+    if (line.startsWith(" ") || line.startsWith("\t") || line.startsWith("-")) continue;
+    const i = line.indexOf(":");
+    if (i < 0) continue;
+    const k = line.slice(0, i).trim();
+    let v: string | boolean | null = line.slice(i + 1).trim();
+    if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+    else if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1, -1);
+    if (v === "null" || v === "") v = null;
+    else if (v === "true") v = true;
+    else if (v === "false") v = false;
+    out[k] = v;
+  }
+  return out;
+}
+
+function stripDotSlash(v: string | boolean | null | undefined): string | null {
+  if (typeof v !== "string" || !v) return null;
+  return v.startsWith("./") ? v.slice(2) : v;
+}
+
+function dirname(p: string): string {
+  return p.replace(/\/[^/]+$/, "");
+}
+
+interface PersonEntry {
+  slug: string;
+  name: string;
+  roleClass: string;
+  title: string | null;
+  org: string | null;
+  deckRoleLabel: string | null;
+  linkedin: string | null;
+  twitter: string | null;
+  github: string | null;
+  website: string | null;
+  headshotFile: string | null;
+  headshotSourceUrl: string | null;
+  firmSlug: string | null;
+  companySlug: string | null;
+  bioShort: string | null;
+  status: string | null;
+  confidence: string | null;
+  mdPath: string;
+  mdDir: string;
+}
+
+const allPeople: PersonEntry[] = Object.entries(mdGlob)
+  .map(([mdPath, raw]) => {
+    const fm = parseFrontmatter(raw as unknown as string);
+    return { mdPath, fm };
+  })
+  .filter(({ fm }) => typeof fm.role_class === "string" && fm.role_class)
+  .map(({ mdPath, fm }) => {
+    const slug = String(fm.slug ?? mdPath.split("/").pop()?.replace(/\.md$/, "") ?? "");
+    return {
+      slug,
+      name: typeof fm.name === "string" ? fm.name : slug,
+      roleClass: String(fm.role_class),
+      title: typeof fm.title === "string" ? fm.title : null,
+      org: typeof fm.org === "string" ? fm.org : null,
+      deckRoleLabel: typeof fm.deck_role_label === "string" ? fm.deck_role_label : null,
+      linkedin: typeof fm.linkedin === "string" ? fm.linkedin : null,
+      twitter: typeof fm.twitter === "string" ? fm.twitter : null,
+      github: typeof fm.github === "string" ? fm.github : null,
+      website: typeof fm.website === "string" ? fm.website : null,
+      headshotFile: stripDotSlash(fm.headshot),
+      headshotSourceUrl:
+        (typeof fm.headshot_source_url === "string" && fm.headshot_source_url) ||
+        (typeof fm.headshot_source === "string" ? fm.headshot_source : null),
+      firmSlug: typeof fm.firm_slug === "string" ? fm.firm_slug : null,
+      companySlug: typeof fm.company_slug === "string" ? fm.company_slug : null,
+      bioShort: typeof fm.bio_short === "string" ? fm.bio_short : null,
+      status: typeof fm.status === "string" ? fm.status : null,
+      confidence: typeof fm.confidence === "string" ? fm.confidence : null,
+      mdPath,
+      mdDir: dirname(mdPath),
+    } as PersonEntry;
+  })
+  .sort((a, b) => {
+    if (a.roleClass !== b.roleClass) return a.roleClass.localeCompare(b.roleClass);
+    return a.name.localeCompare(b.name);
+  });
+
+function getAsset(mdDir: string, filename: string | null | undefined): string | null {
+  if (!filename) return null;
+  return imageGlob[`${mdDir}/${filename}`] ?? null;
+}
+
+// Group by role_class.
+interface RoleGroup { roleClass: string; rows: PersonEntry[]; }
+const roleGroups: RoleGroup[] = [];
+{
+  const byRole = new Map<string, PersonEntry[]>();
+  for (const p of allPeople) {
+    if (!byRole.has(p.roleClass)) byRole.set(p.roleClass, []);
+    byRole.get(p.roleClass)!.push(p);
+  }
+  // Stable, predictable role order: known classes first, then the rest alpha.
+  const KNOWN_ORDER = [
+    "vc-team",
+    "supporting-partner",
+    "advisor",
+    "lpac",
+    "portco-ceo",
+    "portco-cpo",
+    "founder",
+    "investor",
+    "operator",
+    "team",
+  ];
+  const knownSet = new Set(KNOWN_ORDER);
+  const known = KNOWN_ORDER.filter((k) => byRole.has(k));
+  const rest = Array.from(byRole.keys()).filter((k) => !knownSet.has(k)).sort();
+  for (const k of [...known, ...rest]) {
+    roleGroups.push({ roleClass: k, rows: byRole.get(k)! });
+  }
+}
+
+const total = allPeople.length;
+const roleCount = roleGroups.length;
+const withHeadshot = allPeople.filter((p) => p.headshotFile && getAsset(p.mdDir, p.headshotFile)).length;
+const withLinkedIn = allPeople.filter((p) => p.linkedin).length;
+
+function roleLabel(rc: string): string {
+  const m: Record<string, string> = {
+    "vc-team": "VC Team",
+    "supporting-partner": "Supporting Partners",
+    "advisor": "Advisors",
+    "lpac": "LPAC",
+    "portco-ceo": "Portfolio CEOs",
+    "portco-cpo": "Portfolio CPOs",
+    "founder": "Founders",
+    "investor": "Investors",
+    "operator": "Operators",
+    "team": "Team",
+  };
+  return m[rc] ?? rc;
+}
+
+function hostOnly(url: string): string {
+  return url.replace(/^https?:\/\//, "").replace(/\/$/, "");
+}
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>People · Assets & Data Audit</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --bg-soft: #f8fafc;
+        --fg: #0f172a;
+        --fg-muted: #64748b;
+        --fg-strong: #020617;
+        --line: rgb(15 23 42 / 0.1);
+        --line-soft: rgb(15 23 42 / 0.06);
+        --accent: #2b7fff;
+        --missing: rgb(15 23 42 / 0.3);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b0f17;
+          --bg-soft: #11171f;
+          --fg: #e2e8f0;
+          --fg-muted: #94a3b8;
+          --fg-strong: #f8fafc;
+          --line: rgb(226 232 240 / 0.1);
+          --line-soft: rgb(226 232 240 / 0.06);
+          --missing: rgb(226 232 240 / 0.25);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+      .crumb { color: var(--fg-muted); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+      h1 { font-size: 28px; margin: 8px 0 12px; font-weight: 300; color: var(--fg-strong); }
+      .lede { color: var(--fg-muted); max-width: 70ch; margin: 0; font-size: 14px; }
+      .lede code { background: var(--bg-soft); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+      .stats {
+        display: flex; flex-wrap: wrap; gap: 24px;
+        list-style: none; padding: 0;
+        margin: 20px 0 0;
+        font-size: 12px; color: var(--fg-muted);
+      }
+      .stats li strong { color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+
+      .links { margin: 16px 0 0; font-size: 12px; color: var(--fg-muted); }
+      .links a { color: var(--fg); text-decoration: none; }
+      .links a:hover { text-decoration: underline; }
+
+      .role-section { margin-top: 40px; }
+      .role-head {
+        position: sticky; top: 0;
+        background: var(--bg);
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+        z-index: 5;
+        display: flex; align-items: baseline; gap: 12px;
+      }
+      .role-name {
+        font-size: 14px; font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg-strong);
+      }
+      .role-count { color: var(--fg-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+      .table-wrap { overflow-x: auto; }
+      table {
+        width: 100%; min-width: 1100px;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      th {
+        text-align: left; font-weight: 600;
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+        color: var(--fg-muted);
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: var(--bg);
+        position: sticky; top: 53px; z-index: 4;
+      }
+      td { padding: 12px 8px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+
+      .avatar {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px;
+        background: var(--bg-soft); border: 1px solid var(--line-soft);
+        border-radius: 50%; overflow: hidden;
+      }
+      .avatar img { width: 100%; height: 100%; object-fit: cover; }
+
+      .missing { color: var(--missing); font-variant-numeric: tabular-nums; }
+      .name-cell { color: var(--fg-strong); font-weight: 600; }
+      .name-cell .slug { display: block; color: var(--fg-muted); font-weight: 400; font-size: 10px; margin-top: 2px; letter-spacing: 0.04em; }
+
+      .links-cell { display: flex; gap: 6px; flex-wrap: wrap; }
+      .link-pill {
+        display: inline-flex; align-items: center;
+        padding: 2px 7px; border-radius: 3px;
+        background: var(--bg-soft); border: 1px solid var(--line-soft);
+        color: var(--fg); text-decoration: none;
+        font-size: 10px; letter-spacing: 0.04em; text-transform: uppercase;
+      }
+      .link-pill:hover { border-color: var(--accent); color: var(--accent); }
+
+      .pill {
+        display: inline-block; padding: 1px 7px; border-radius: 999px;
+        background: var(--bg-soft); border: 1px solid var(--line-soft);
+        font-size: 10px; color: var(--fg-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .pill[data-status="complete"]  { color: #10b981; border-color: rgb(16 185 129 / 0.4); }
+      .pill[data-status="resolved"]  { color: #10b981; border-color: rgb(16 185 129 / 0.4); }
+      .pill[data-status="pending"]   { color: #d97706; border-color: rgb(217 119 6 / 0.4); }
+      .pill[data-status="unresolved"]{ color: #ef4444; border-color: rgb(239 68 68 / 0.4); }
+
+      .text-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 24rem; }
+      .meta { color: var(--fg-muted); font-size: 11px; }
+    </style>
+  </head>
+  <body>
+    <DididecksNav />
+    <div class="wrap">
+      <header>
+        <div class="crumb">@dididecks/shell · audit</div>
+        <h1>People</h1>
+        <p class="lede">
+          Every person .md under <code>data/**/{`{team,portfolio}`}/</code> with a
+          <code>role_class</code> frontmatter field, grouped by role. Headshot
+          missing? Row shows <span class="missing">—</span>.
+        </p>
+
+        <ul class="stats">
+          <li><strong>{total}</strong> people across <strong>{roleCount}</strong> {roleCount === 1 ? "role" : "roles"}</li>
+          <li><strong>{withHeadshot}</strong> with headshot</li>
+          <li><strong>{withLinkedIn}</strong> with LinkedIn</li>
+        </ul>
+
+        <p class="links">
+          <a href="/data-assets/companies">See Companies audit →</a>
+        </p>
+      </header>
+
+      {roleGroups.map((g) => (
+        <section class="role-section">
+          <div class="role-head">
+            <span class="role-name">{roleLabel(g.roleClass)}</span>
+            <span class="role-count">{g.rows.length}</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Photo</th>
+                  <th>Name</th>
+                  <th>Title / Org</th>
+                  <th>Links</th>
+                  <th>Affiliation</th>
+                  <th>Bio</th>
+                  <th>Confidence</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.rows.map((p) => {
+                  const photo = getAsset(p.mdDir, p.headshotFile);
+                  return (
+                    <tr>
+                      <td title={p.headshotFile ?? "no headshot"}>
+                        {photo ? (
+                          <span class="avatar">
+                            <img src={photo} alt={`${p.name} headshot`} loading="lazy" />
+                          </span>
+                        ) : (
+                          <span class="missing">—</span>
+                        )}
+                      </td>
+                      <td class="name-cell">
+                        {p.name}
+                        <span class="slug">{p.slug}</span>
+                      </td>
+                      <td>
+                        {p.title ?? <span class="missing">—</span>}
+                        {p.org && <div class="meta">{p.org}</div>}
+                        {p.deckRoleLabel && <div class="meta"><em>{p.deckRoleLabel}</em></div>}
+                      </td>
+                      <td>
+                        <div class="links-cell">
+                          {p.linkedin && <a class="link-pill" href={p.linkedin} target="_blank" rel="noopener">in</a>}
+                          {p.twitter && <a class="link-pill" href={p.twitter} target="_blank" rel="noopener">tw</a>}
+                          {p.github && <a class="link-pill" href={p.github} target="_blank" rel="noopener">gh</a>}
+                          {p.website && <a class="link-pill" href={p.website} target="_blank" rel="noopener">{hostOnly(p.website)}</a>}
+                          {!p.linkedin && !p.twitter && !p.github && !p.website && <span class="missing">—</span>}
+                        </div>
+                      </td>
+                      <td class="meta">
+                        {p.firmSlug && <div>firm: {p.firmSlug}</div>}
+                        {p.companySlug && <div>company: {p.companySlug}</div>}
+                        {!p.firmSlug && !p.companySlug && <span class="missing">—</span>}
+                      </td>
+                      <td>
+                        {p.bioShort ? <span class="text-clamp">{p.bioShort}</span> : <span class="missing">—</span>}
+                      </td>
+                      <td>
+                        {p.confidence ? <span class="pill" data-status={p.confidence === "high" ? "resolved" : p.confidence === "low" ? "unresolved" : "pending"}>{p.confidence}</span> : <span class="missing">—</span>}
+                      </td>
+                      <td>
+                        {p.status && <span class="pill" data-status={p.status}>{p.status}</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ))}
+    </div>
+  </body>
+</html>

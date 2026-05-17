@@ -82,6 +82,20 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
           pattern: "/dev/icons",
           entrypoint: new URL("./routes/dev/icons.astro", import.meta.url).href,
         });
+
+        // /data-assets/* — reviewer audit pages. Read consumer's data/ tree
+        // via Vite globs (consumer-root-relative); handle calmstorm's
+        // single-firm layout (data/firms/{firm}/portfolio|team/) and chroma's
+        // multi-investor layout (data/investors/{firm}/portfolio/, flat
+        // data/team/) with the same glob patterns.
+        injectRoute({
+          pattern: "/data-assets/companies",
+          entrypoint: new URL("./routes/data-assets/companies.astro", import.meta.url).href,
+        });
+        injectRoute({
+          pattern: "/data-assets/people",
+          entrypoint: new URL("./routes/data-assets/people.astro", import.meta.url).href,
+        });
       },
       "astro:config:done": ({ config, logger }) => {
         const projectRoot = fileURLToPath(config.root);

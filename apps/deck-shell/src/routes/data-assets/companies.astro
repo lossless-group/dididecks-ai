@@ -1,0 +1,416 @@
+---
+/**
+ * /data-assets/companies — reviewer audit page (shell-injected).
+ *
+ * One row per portfolio company .md found by the glob below. Rows are grouped
+ * by firm slug (extracted from the .md's path: data/firms/{firm}/portfolio/...
+ * for single-firm consumers, data/investors/{firm}/portfolio/... for
+ * multi-investor consumers like chroma). Each row shows the assets we hold
+ * (logo, favicon, og:image link) and the data fields populated. Designed to
+ * make inconsistencies visible at a glance.
+ *
+ * Lifted from calmstorm-decks' equivalent page (2026-05-17), generalized for
+ * the shell:
+ *   - Globs are consumer-root-relative so the same hard-coded patterns catch
+ *     both `data/firms/.../portfolio/*` (calmstorm) and
+ *     `data/investors/.../portfolio/*` (chroma).
+ *   - Firm grouping renders a sticky section header per firm slug.
+ *
+ * Plan of record:
+ *   inline; this route exists to match parity with calmstorm's audit pages.
+ */
+import DididecksNav from "../../components/DididecksNav.astro";
+
+export const prerender = true;
+
+// Markdown files for every portfolio entry. ?raw + import: "default" gives
+// us the source string per file so we can parse frontmatter in-component.
+const mdGlob = import.meta.glob<string>(
+  "/data/**/portfolio/*.md",
+  { eager: true, query: "?raw", import: "default" },
+);
+
+// Image assets co-located with the .md files. URL-imports (rather than
+// ImageMetadata) so a malformed SVG in the data tree doesn't blow the
+// whole build — Astro's <Image> component runs metadata parsing on every
+// asset and corrupt files take the page down. The audit page is reviewer
+// chrome, not an end-user surface; plain <img src> resilience > optimization.
+const imageGlob = import.meta.glob<string>(
+  "/data/**/portfolio/*.{png,jpg,jpeg,webp,avif,svg}",
+  { eager: true, query: "?url", import: "default" },
+);
+
+type Frontmatter = Record<string, string | boolean | null>;
+
+function parseFrontmatter(text: string): Frontmatter {
+  const m = text.match(/^---\n([\s\S]*?)\n---/);
+  if (!m) return {};
+  const out: Frontmatter = {};
+  for (const line of m[1].split("\n")) {
+    if (!line || line.startsWith("#")) continue;
+    if (line.startsWith(" ") || line.startsWith("\t") || line.startsWith("-")) continue;
+    const i = line.indexOf(":");
+    if (i < 0) continue;
+    const k = line.slice(0, i).trim();
+    let v: string | boolean | null = line.slice(i + 1).trim();
+    if (v.startsWith('"') && v.endsWith('"')) v = v.slice(1, -1);
+    else if (v.startsWith("'") && v.endsWith("'")) v = v.slice(1, -1);
+    if (v === "null" || v === "") v = null;
+    else if (v === "true") v = true;
+    else if (v === "false") v = false;
+    out[k] = v;
+  }
+  return out;
+}
+
+function stripDotSlash(v: string | boolean | null | undefined): string | null {
+  if (typeof v !== "string" || !v) return null;
+  return v.startsWith("./") ? v.slice(2) : v;
+}
+
+function dirname(p: string): string {
+  return p.replace(/\/[^/]+$/, "");
+}
+
+interface CompanyEntry {
+  slug: string;
+  name: string;
+  firmSlug: string;
+  homepage: string | null;
+  description: string | null;
+  sector: string | null;
+  logoFile: string | null;
+  logoFormat: string | null;
+  logoStrategy: string | null;
+  faviconFile: string | null;
+  faviconFormat: string | null;
+  faviconStrategy: string | null;
+  ogImageUrl: string | null;
+  ceoSlug: string | null;
+  status: string | null;
+  confidence: string | null;
+  reviewStatus: string | null;
+  flagged: boolean;
+  mdPath: string;     /** full glob key like /data/investors/.../anduril.md */
+  mdDir: string;      /** glob key dir, used to resolve image lookups */
+}
+
+/** Extract firm slug from a portfolio .md path.
+ *  Handles:
+ *    /data/firms/{firmSlug}/portfolio/x.md         (calmstorm)
+ *    /data/investors/{firmSlug}/portfolio/x.md     (chroma)
+ *  Falls back to "(unknown)" if the path doesn't match either pattern.
+ */
+function firmSlugFromPath(p: string): string {
+  const m =
+    p.match(/^\/data\/(?:firms|investors)\/([^/]+)\/portfolio\//) ??
+    p.match(/^\/data\/([^/]+)\/portfolio\//);
+  return m ? m[1] : "(unknown)";
+}
+
+const companies: CompanyEntry[] = Object.entries(mdGlob)
+  .map(([mdPath, raw]) => {
+    const fm = parseFrontmatter(raw as unknown as string);
+    const slug = String(fm.slug ?? mdPath.split("/").pop()?.replace(/\.md$/, "") ?? "");
+    const name = String(fm.name ?? slug);
+    const firmSlug = (typeof fm.firm_slug === "string" && fm.firm_slug) || firmSlugFromPath(mdPath);
+    return {
+      slug,
+      name,
+      firmSlug,
+      homepage: typeof fm.homepage === "string" ? fm.homepage : null,
+      description: typeof fm.description === "string" ? fm.description : null,
+      sector: typeof fm.sector === "string" ? fm.sector : null,
+      logoFile: stripDotSlash(fm.logo),
+      logoFormat: typeof fm.logo_format === "string" ? fm.logo_format : null,
+      logoStrategy: typeof fm.logo_asset_strategy === "string" ? fm.logo_asset_strategy : null,
+      faviconFile: stripDotSlash(fm.favicon),
+      faviconFormat: typeof fm.favicon_format === "string" ? fm.favicon_format : null,
+      faviconStrategy: typeof fm.favicon_strategy === "string" ? fm.favicon_strategy : null,
+      ogImageUrl: typeof fm.og_image_url === "string" ? fm.og_image_url : null,
+      ceoSlug: typeof fm.ceo_slug === "string" ? fm.ceo_slug : null,
+      status: typeof fm.status === "string" ? fm.status : null,
+      confidence: typeof fm.confidence === "string" ? fm.confidence : null,
+      reviewStatus: typeof fm.review_status === "string" ? fm.review_status : null,
+      flagged: fm.flagged === true,
+      mdPath,
+      mdDir: dirname(mdPath),
+    };
+  })
+  .sort((a, b) => {
+    if (a.firmSlug !== b.firmSlug) return a.firmSlug.localeCompare(b.firmSlug);
+    return a.name.localeCompare(b.name);
+  });
+
+function getAsset(mdDir: string, filename: string | null | undefined): string | null {
+  if (!filename) return null;
+  return imageGlob[`${mdDir}/${filename}`] ?? null;
+}
+
+// Group by firm for sectioned rendering.
+interface FirmGroup { firmSlug: string; rows: CompanyEntry[]; }
+const firmGroups: FirmGroup[] = [];
+{
+  const byFirm = new Map<string, CompanyEntry[]>();
+  for (const c of companies) {
+    if (!byFirm.has(c.firmSlug)) byFirm.set(c.firmSlug, []);
+    byFirm.get(c.firmSlug)!.push(c);
+  }
+  for (const [firmSlug, rows] of Array.from(byFirm.entries()).sort(([a], [b]) => a.localeCompare(b))) {
+    firmGroups.push({ firmSlug, rows });
+  }
+}
+
+const total = companies.length;
+const firmCount = firmGroups.length;
+const withLogo = companies.filter((c) => c.logoFile && getAsset(c.mdDir, c.logoFile)).length;
+const withFavicon = companies.filter((c) => c.faviconFile && getAsset(c.mdDir, c.faviconFile)).length;
+const withOgImage = companies.filter((c) => c.ogImageUrl).length;
+const withCeo = companies.filter((c) => c.ceoSlug).length;
+const flagged = companies.filter((c) => c.flagged).length;
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex,nofollow" />
+    <title>Companies · Assets & Data Audit</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        --bg: #ffffff;
+        --bg-soft: #f8fafc;
+        --fg: #0f172a;
+        --fg-muted: #64748b;
+        --fg-strong: #020617;
+        --line: rgb(15 23 42 / 0.1);
+        --line-soft: rgb(15 23 42 / 0.06);
+        --accent: #2b7fff;
+        --flag-bg: #fef3c7;
+        --flag-fg: #92400e;
+        --missing: rgb(15 23 42 / 0.3);
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --bg: #0b0f17;
+          --bg-soft: #11171f;
+          --fg: #e2e8f0;
+          --fg-muted: #94a3b8;
+          --fg-strong: #f8fafc;
+          --line: rgb(226 232 240 / 0.1);
+          --line-soft: rgb(226 232 240 / 0.06);
+          --flag-bg: rgb(252 211 77 / 0.15);
+          --flag-fg: #fbbf24;
+          --missing: rgb(226 232 240 / 0.25);
+        }
+      }
+      * { box-sizing: border-box; }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font: 13px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 96px; }
+      .crumb { color: var(--fg-muted); font-size: 11px; letter-spacing: 0.18em; text-transform: uppercase; }
+      h1 { font-size: 28px; margin: 8px 0 12px; font-weight: 300; color: var(--fg-strong); }
+      .lede { color: var(--fg-muted); max-width: 70ch; margin: 0; font-size: 14px; }
+      .lede code { background: var(--bg-soft); padding: 1px 6px; border-radius: 3px; font-size: 12px; }
+
+      .stats {
+        display: flex; flex-wrap: wrap; gap: 24px;
+        list-style: none; padding: 0;
+        margin: 20px 0 0;
+        font-size: 12px; color: var(--fg-muted);
+      }
+      .stats li strong { color: var(--fg-strong); font-variant-numeric: tabular-nums; }
+      .stats li.flagged { color: var(--flag-fg); }
+
+      .links { margin: 16px 0 0; font-size: 12px; color: var(--fg-muted); }
+      .links a { color: var(--fg); text-decoration: none; }
+      .links a:hover { text-decoration: underline; }
+
+      .firm-section { margin-top: 40px; }
+      .firm-head {
+        position: sticky;
+        top: 0;
+        background: var(--bg);
+        padding: 12px 0;
+        border-bottom: 1px solid var(--line);
+        z-index: 5;
+        display: flex; align-items: baseline; gap: 12px;
+      }
+      .firm-name {
+        font-size: 14px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--fg-strong);
+      }
+      .firm-count { color: var(--fg-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
+
+      .table-wrap { overflow-x: auto; }
+      table {
+        width: 100%; min-width: 1100px;
+        border-collapse: collapse;
+        font-size: 12px;
+      }
+      th {
+        text-align: left; font-weight: 600;
+        padding: 8px;
+        border-bottom: 1px solid var(--line);
+        color: var(--fg-muted);
+        font-size: 11px;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        background: var(--bg);
+        position: sticky; top: 53px; z-index: 4;
+      }
+      td {
+        padding: 12px 8px;
+        border-bottom: 1px solid var(--line-soft);
+        vertical-align: top;
+      }
+      tr.is-flagged td { background: var(--flag-bg); }
+
+      .thumb {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 64px; height: 32px;
+        background: var(--bg-soft); border: 1px solid var(--line-soft);
+        border-radius: 4px; overflow: hidden;
+      }
+      .thumb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+      .thumb--favicon { width: 32px; height: 32px; }
+
+      .missing { color: var(--missing); font-variant-numeric: tabular-nums; }
+      .name-cell { color: var(--fg-strong); font-weight: 600; white-space: nowrap; }
+      .flag-tag {
+        display: inline-block; margin-left: 6px;
+        padding: 1px 6px; border-radius: 2px;
+        background: var(--flag-bg); color: var(--flag-fg);
+        font-size: 10px; text-transform: uppercase; letter-spacing: 0.08em; font-weight: 700;
+      }
+      .url-cell { max-width: 14rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+      .url-cell a { color: var(--accent); text-decoration: none; }
+      .url-cell a:hover { text-decoration: underline; }
+      .text-clamp { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; max-width: 24rem; }
+      .pill {
+        display: inline-block; padding: 1px 6px; border-radius: 999px;
+        background: var(--bg-soft); border: 1px solid var(--line-soft);
+        font-size: 10px; color: var(--fg-muted);
+        font-variant-numeric: tabular-nums;
+      }
+      .pill[data-status="complete"]  { color: #10b981; border-color: rgb(16 185 129 / 0.4); }
+      .pill[data-status="resolved"]  { color: #10b981; border-color: rgb(16 185 129 / 0.4); }
+      .pill[data-status="pending"]   { color: var(--flag-fg); border-color: rgb(217 119 6 / 0.4); }
+      .pill[data-status="unresolved"]{ color: #ef4444; border-color: rgb(239 68 68 / 0.4); }
+    </style>
+  </head>
+  <body>
+    <DididecksNav />
+    <div class="wrap">
+      <header>
+        <div class="crumb">@dididecks/shell · audit</div>
+        <h1>Companies</h1>
+        <p class="lede">
+          Every portfolio company .md file under <code>data/**/portfolio/</code>,
+          grouped by firm. Hover a thumbnail for the source filename. Flagged
+          rows are unresolved entries; missing assets show as <span class="missing">—</span>.
+        </p>
+
+        <ul class="stats">
+          <li><strong>{total}</strong> entries across <strong>{firmCount}</strong> {firmCount === 1 ? "firm" : "firms"}</li>
+          <li><strong>{withLogo}</strong> with trademark logo</li>
+          <li><strong>{withFavicon}</strong> with favicon</li>
+          <li><strong>{withOgImage}</strong> with og:image url</li>
+          <li><strong>{withCeo}</strong> with linked CEO</li>
+          {flagged > 0 && <li class="flagged"><strong>{flagged}</strong> flagged unresolved</li>}
+        </ul>
+
+        <p class="links">
+          <a href="/data-assets/people">See People audit →</a>
+        </p>
+      </header>
+
+      {firmGroups.map((g) => (
+        <section class="firm-section">
+          <div class="firm-head">
+            <span class="firm-name">{g.firmSlug}</span>
+            <span class="firm-count">{g.rows.length} {g.rows.length === 1 ? "company" : "companies"}</span>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Logo</th>
+                  <th>Favicon</th>
+                  <th>Name</th>
+                  <th>Homepage</th>
+                  <th>Sector</th>
+                  <th>Description</th>
+                  <th>og:image</th>
+                  <th>Strategy</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                {g.rows.map((c) => {
+                  const logo = getAsset(c.mdDir, c.logoFile);
+                  const favicon = getAsset(c.mdDir, c.faviconFile);
+                  return (
+                    <tr class:list={{ "is-flagged": c.flagged }}>
+                      <td title={c.logoFile ?? "no logo"}>
+                        {logo ? (
+                          <span class="thumb">
+                            <img src={logo} alt={`${c.name} logo`} loading="lazy" />
+                          </span>
+                        ) : (
+                          <span class="missing">—</span>
+                        )}
+                      </td>
+                      <td title={c.faviconFile ?? "no favicon"}>
+                        {favicon ? (
+                          <span class="thumb thumb--favicon">
+                            <img src={favicon} alt={`${c.name} favicon`} loading="lazy" />
+                          </span>
+                        ) : (
+                          <span class="missing">—</span>
+                        )}
+                      </td>
+                      <td class="name-cell">
+                        {c.name}
+                        {c.flagged && <span class="flag-tag">flagged</span>}
+                      </td>
+                      <td class="url-cell">
+                        {c.homepage ? (
+                          <a href={c.homepage} target="_blank" rel="noopener">
+                            {c.homepage.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                          </a>
+                        ) : <span class="missing">—</span>}
+                      </td>
+                      <td>{c.sector ?? <span class="missing">—</span>}</td>
+                      <td>{c.description ? <span class="text-clamp">{c.description}</span> : <span class="missing">—</span>}</td>
+                      <td class="url-cell">
+                        {c.ogImageUrl ? (
+                          <a href={c.ogImageUrl} target="_blank" rel="noopener">og ↗</a>
+                        ) : <span class="missing">—</span>}
+                      </td>
+                      <td>
+                        {c.logoStrategy && <span class="pill" title="logo strategy">{c.logoStrategy}</span>}
+                      </td>
+                      <td>
+                        {c.status && <span class="pill" data-status={c.status}>{c.status}</span>}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      ))}
+    </div>
+  </body>
+</html>
