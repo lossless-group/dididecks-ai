@@ -3,11 +3,16 @@ title: "Refactor scroll-ported slides into true static play-format slides (per-c
 lede: "Operational plan, reusable across every dididecks client engagement, for converting per-slide files that were COPIED from scroll-deck sections (and therefore still carry scroll-mode idioms — vw/vh/clamp viewport units, IntersectionObserver-driven reveals, marquees, transitions, breakpoint media queries) into the static-only HTML/CSS/Tailwind form @dididecks/shell's /play and /print routes require. The calmstorm-decks `src/slides/by-title/` fileset is the reference implementation; this plan extracts its discipline so any client deck (chroma-decks today, future engagements tomorrow) can be ported the same way. Includes the rationale, the checklist, the per-slide procedure, the verification loop, and the anti-patterns to flag during code review."
 date_authored_initial_draft: 2026-05-14
 date_authored_current_draft: 2026-05-14
-date_authored_final_draft:
-date_first_published:
-date_last_updated: 2026-05-14
+date_authored_final_draft: 2026-05-14
+date_first_published: 2026-05-14
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Shipped
+post_ship_note: |
+  Discipline applied to chroma-decks enhanced-v2 (17 slides) on 2026-05-14.
+  Reusable for future client engagements — file stays "Shipped" because
+  the per-client repeat-application is part of normal use, not an
+  outstanding deliverable.
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:

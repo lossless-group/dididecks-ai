@@ -2,7 +2,8 @@
 title: "Init Chroma Decks Client-Site"
 lede: "Stand up `client-sites/chroma-decks` for an early-growth-stage portfolio company raising a round — radically improve the founder's existing materials, marry them with MemoPop-generated investment memos and market research, and use the engagement to harden the calmstorm-decks template into a reusable client-site baseline."
 date_created: 2026-05-11
-date_modified: 2026-05-11
+date_modified: 2026-05-16
+date_first_published: 2026-05-11
 authors:
   - Michael Staton
 augmented_with:
@@ -16,7 +17,12 @@ tags:
   - MemoPop-Integration
   - Calmstorm-Decks-Derivative
   - Three-Modes-Discipline
-status: Draft
+status: Shipped
+post_ship_note: |
+  The `/play` deferral noted inside this plan was lifted by Phase A+
+  (DidiDecks shell `/play/[deckSlug]/[variantSlug]/[slot]/` runtime).
+  Chroma now has Play-UI for proto, enhanced-v2, and enhanced-v3
+  variants via per-slide files under `src/components/slides/`.
 ---
 
 # Init Chroma Decks Client-Site

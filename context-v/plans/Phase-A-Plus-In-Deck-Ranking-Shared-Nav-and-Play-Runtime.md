@@ -3,11 +3,18 @@ title: "Phase A+ — In-Deck Ranking, Shared Nav Chrome, and a Working /play Run
 lede: "After Phase A landed `@dididecks/shell` with a working TOC + slide-ranking API + decomposition-stub generator, three concrete gaps surfaced on first founder smoke-test: no global navigation chrome connecting Scroll · TOC · Play, no way to rank a slide *from within* the scroll deck (you have to leave for a separate route), and nothing to verify the /play runtime works because the shell injects no /play route yet and chroma has no per-slide files for one to render. Phase A+ closes all three together — shell-injected global nav, a shell-exported `<SlideRankPill>` floating overlay the founder drops into the scroll deck via data-attrs, a minimum-viable `/play/[deckSlug]/[variantSlug]/[slot]?` route with ← / → keyboard nav, and two seeded per-slide files in chroma so the whole loop (rank → decompose → recreate → present) is provable end-to-end. All in workspace-link mode; Phase A.7's publish step is orthogonal."
 date_authored_initial_draft: 2026-05-12
 date_authored_current_draft: 2026-05-12
-date_authored_final_draft:
-date_first_published:
-date_last_updated: 2026-05-12
+date_authored_final_draft: 2026-05-12
+date_first_published: 2026-05-12
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Shipped
+post_ship_note: |
+  All A+ deliverables shipped 2026-05-12 (verified in the A++ doc + the
+  2026-05-12_02 changelog). This plan's framing of TOC + Scroll + Play
+  as "same content viewed three ways" was later sharpened — Scroll-UI
+  and Play-UI are two coordinated implementations with different
+  constraints, not two views of the same content. See CLAUDE.md
+  "Naming is fuzzy here" for the corrected framing.
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:

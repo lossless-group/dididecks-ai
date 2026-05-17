@@ -10,3 +10,6 @@ dist
 .vercel
 .pnpm-store
 .claude/
+
+output/
+exports/

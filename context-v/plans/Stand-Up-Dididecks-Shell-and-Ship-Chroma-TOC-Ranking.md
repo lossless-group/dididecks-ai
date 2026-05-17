@@ -4,10 +4,10 @@ lede: "Phase A of the exploration that landed on `@dididecks/shell` as the path 
 date_authored_initial_draft: 2026-05-12
 date_authored_current_draft: 2026-05-12
 date_authored_final_draft:
-date_first_published:
-date_last_updated: 2026-05-12
+date_first_published: 2026-05-12
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Partially-Shipped
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
@@ -412,3 +412,13 @@ Each gets its own plan in `context-v/plans/` when its turn comes.
 3. End of Phase A.6 — chroma is consuming the shell via workspace-link. The full dev loop is exercisable end-to-end.
 4. End of Phase A.7 — chroma is consuming the *published* shell. The architecture is real.
 5. End of Phase A.8 — Vercel preview build is green. Phase A done.
+
+## Remaining work (as of 2026-05-16)
+
+- **Phase A.7 — publish `@dididecks/shell@0.1.0` to a private registry.** Still blocked on the GitHub-org-name decision. Three branches remain:
+  1. Create a `dididecks` GitHub org (~2 minutes user-side).
+  2. Rename the package to `@lossless-group/dididecks-shell`.
+  3. Use a non-GitHub registry (npm-private paid, self-hosted Verdaccio).
+- **Phase A.8 — Vercel preview build verification post-publish.** Trivially follows once A.7 resolves.
+
+All other Phase A milestones (A.1–A.6) are shipped — `apps/deck-shell/` exists, TOC + `/api/slide-rank` + `/api/slide-decompose` work, chroma consumes via `workspace:*`. The shell is at `0.1.0-rc.0`; A.7 graduates it to `0.1.0`.

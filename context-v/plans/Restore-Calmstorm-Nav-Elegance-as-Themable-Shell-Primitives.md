@@ -4,10 +4,10 @@ lede: "@dididecks/shell v0.1's PlayChrome solved the navigation contract but dis
 date_authored_initial_draft: 2026-05-14
 date_authored_current_draft: 2026-05-14
 date_authored_final_draft:
-date_first_published:
-date_last_updated: 2026-05-14
+date_first_published: 2026-05-14
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Partially-Shipped
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
@@ -356,3 +356,25 @@ Steps 1–11 above. Lands `<DeckChrome>` + `<DeckHeader>` + `<ModeToggleScrollPl
 - [[context-v/plans/Phase-A-Plus-In-Deck-Ranking-Shared-Nav-and-Play-Runtime.md]] — Phase A+ plan that produced the v0.1 `PlayChrome` being replaced
 - [[context-v/plans/Stand-Up-Dididecks-Shell-and-Ship-Chroma-TOC-Ranking.md]] — original shell scaffolding plan
 - [[~/.claude/skills/context-vigilance]] — the skill governing this document's frontmatter + directory placement
+
+## Remaining work (as of 2026-05-16)
+
+This plan is partially shipped. The themable-chrome skeleton is in place; the sibling primitives and the chroma override aren't yet.
+
+### Shipped
+- **Step 1 — theming contract.** `apps/deck-shell/src/styles/chrome-tokens.css` exists with the `--ddd-chrome-*` namespace.
+- **Step 2 — `<DeckChrome>`.** `apps/deck-shell/src/components/DeckChrome.astro` (470 LOC) replaces v0.1's `PlayChrome`. Idle-fade, floating capsule, two-axis nav, custom tooltips, tabular-num counter, keyboard contract preserved verbatim. See [[../sitemap/components/DeckChrome]].
+- **Step 5 — event contract.** Defined in the DeckChrome header comment; listeners + reserved dispatchers wired (`ddd:section-changed`, `ddd:section-prev/next`).
+- **Step 6 — neutral default theme.** `apps/deck-shell/src/styles/themes/neutral.css` exists.
+- **Step 8 — `PlayChrome` backwards-compat shim.** Now a 79-LOC `@deprecated` wrapper around `DeckChrome`.
+- **Step 9 — `/play/[slot]` consumes DeckChrome** (via the shim; direct migration pending).
+
+### Not yet shipped
+- **Step 3 — `<DeckHeader>`.** Not built. Brand slot + counter + mode-toggle slot, transparent default. Sitemap stub queued at [[../sitemap/components/DeckHeader]] (not yet authored).
+- **Step 4 — `<ModeToggleScrollPlay>`.** Not built. Port of calmstorm's `nav/SlideshowMode__Scroll-or-Play.astro`. Sitemap stub queued at [[../sitemap/components/ModeToggleScrollPlay]] (not yet authored).
+- **Step 7 — chroma override sheet.** `client-sites/chroma-decks/src/styles/dididecks-chrome.css` does not exist. Proof-of-concept for the theming contract — without it, we haven't actually verified that overriding `--ddd-chrome-*` at `:root[data-deck-skin="chroma"]` works end-to-end. Authoring this is the single highest-value remaining item.
+- **Step 10 — smoke test against chroma's enhanced-v2 play deck.** Not yet run with override applied.
+- **Step 11 — `apps/deck-shell/README.md` Theming section + Migrating-from-v0.1 + event-contract docs.** Not yet authored.
+
+### Side artifacts this plan produced
+- **`<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>`** landed 2026-05-15 as composition wrappers around `DeckChrome` + `SlideRankPill`. They live in the same "themable chrome via `--ddd-chrome-*`" family as the primitives this plan calls for. See [[../sitemap/components/DeckOverlay--Scroll-UI]] and [[../sitemap/components/DeckOverlay--Play-UI]].

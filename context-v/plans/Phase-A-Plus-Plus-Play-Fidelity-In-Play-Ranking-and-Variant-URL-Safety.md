@@ -5,9 +5,9 @@ date_authored_initial_draft: 2026-05-12
 date_authored_current_draft: 2026-05-12
 date_authored_final_draft:
 date_first_published:
-date_last_updated: 2026-05-12
+date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Draft
+status: Partially-Shipped
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
@@ -294,3 +294,21 @@ These are *separate* plans Phase A++ makes possible:
 **Total estimated effort:** A++.1 + A++.2 are small (under an hour each). A++.3 is the calmstorm-read + copy-and-strip — half a day if `SlideCanvas` and `ContentFit` are well-isolated in calmstorm, longer if they have deep dependencies that also need to come over. A++.4 is the integration — half a day with the founder's eye on visual fidelity. A++.5 is verification — under an hour. Total: roughly one focused day of agent-augmented work.
 
 **Required from the user during execution:** (a) confirm the no-slots empty-state copy after A++.1; (b) confirm the in-play pill position after A++.2; (c) the *big* one — confirm the visual fidelity after A++.4. The founder is the only one who can sign off on "this looks like calmstorm now."
+
+## Remaining work (as of 2026-05-16)
+
+This plan is partially shipped. What's done and what's left:
+
+### Shipped
+- **A++.3 — SlideCanvas lift (partial).** `apps/deck-shell/src/components/SlideCanvas.astro` exists (pure-CSS 16:9 wrapper using container queries). Composed by `/play/[slot]` route today and slot files self-wrap inside it.
+- **A++.4 — `/play/[slot]` consumes SlideCanvas.** Wired and rendering for chroma's three playable variants (proto, enhanced-v2, enhanced-v3).
+- **A++.5 — version + verification.** Shell bumped to `0.1.0-rc.0`; `pnpm build` green; chroma builds + Vercel-previews cleanly.
+
+### Not yet shipped
+- **A++.1 — variant URL safety.** `/play/[deck]/[variant]/` index.astro still redirects unconditionally. Variants without per-slide files still 404 after the redirect. *Side-effect mitigation:* the new `/play/` chooser (chroma-side, 2026-05-16) AND-intersects file × `SLOTS` so it can no longer *link* to those routes — but typed URLs still 404.
+- **A++.2 — in-play classifier mount.** `SlideRankPill` is reachable in Play-UI structurally via `<DeckOverlay--Play-UI>` (new, 2026-05-16), but `/play/[slot].astro` has not been refactored to consume the overlay. So the pill renders in Scroll-UI only today.
+- **A++.3 — ContentFit lift (the other half).** `SlideCanvas` shipped without its calmstorm sibling `ContentFit`. Slides whose natural size exceeds the canvas don't scale-fit; they clip. Lift `ContentFit.astro` from calmstorm into the shell and wire `SlideCanvas` to compose it.
+
+### Other notes
+- The `SlideRankPill` position prop (`bottom-right` | `top-right`) added 2026-05-15 was the structural prerequisite for A++.2. The remaining work is the route refactor.
+- The DeckOverlay components landed 2026-05-15 expose the right shape for A++.2 (composes DeckChrome + SlideRankPill with section-wrap adapter); see [[../sitemap/components/DeckOverlay--Play-UI]].

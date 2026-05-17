@@ -218,6 +218,98 @@ components:
   link-hover:
     textColor: "{colors.accent-strong}"
     borderBottom: "1px solid {colors.accent-strong}"
+
+# ─── Imagery — Ideogram API recipe ─────────────────────────────────────
+# Custom token group (outside the Stitch spec's standard groups).
+# Spec-compliant consumers preserve unknown top-level keys, so this is
+# safe to keep here as the single source of truth for image-generation.
+#
+# The contract: every Ideogram request for a DidiDecks-AI splash asset
+# uses the values below for ALL fields. The only per-request variables:
+#   - `prompt`        — subject + composition
+#   - `aspect_ratio`  — one of imagery.aspect_ratios
+# Anything else is locked. This produces a coherent visual family across
+# banners, portraits, squares, and tall WhatsApp/iMessage previews.
+imagery:
+  provider: ideogram
+  endpoint: POST https://api.ideogram.ai/v1/ideogram-v3/generate
+  content_type: multipart/form-data
+
+  # ── Locked defaults — DO NOT vary per request ───────────────────────
+  defaults:
+    style_type: AUTO              # REQUIRED when style_reference_images is set.
+                                  # The v3 API rejects DESIGN/REALISTIC/FICTION
+                                  # whenever a reference image is uploaded —
+                                  # the reference image carries the aesthetic.
+    magic_prompt: OFF             # disables Ideogram's prompt-rewriter;
+                                  # rewriting is the #1 source of drift across
+                                  # "identical" requests
+    rendering_speed: QUALITY      # use TURBO only when iterating prompts
+    seed: 1948                    # canonical DidiDecks seed; bump only when
+                                  # the visual canon itself shifts
+
+  # ── Locked negative prompt — exclude this from every generation ────
+  # Short on purpose. Each token competes with the positive prompt for
+  # attention; long negatives dilute hard composition asks. Last block
+  # (saturated/rainbow/vibrant/oversized subject/subject in top half) is
+  # anti-failure-mode — "subject in top half" defends the SVG overlay
+  # zone in tall aspect ratios.
+  negative_prompt: >-
+    text, typography, lettering, logos, watermarks, central subject
+    filling frame, photorealistic human faces, saturated, rainbow,
+    vibrant, oversized subject, subject in top half
+
+  # ── Locked color palette — DidiDecks ink+brass+ember+paper+mist ────
+  # Maps from the `colors:` tokens above. Sum need not equal 1; weights
+  # are relative emphasis. Ink dominates so the dark canvas is default
+  # ground; brass + ember carry the editorial accent; paper is reserved
+  # as the warm cream "subject" tone (bound paper, ledger leaves).
+  color_palette:
+    members:
+      - { color_hex: "#0b0d12", color_weight: 0.45 }    # ink (surface base / void)
+      - { color_hex: "#c9a25c", color_weight: 0.20 }    # brass (primary accent)
+      - { color_hex: "#f6f3ec", color_weight: 0.15 }    # paper (warm cream subject)
+      - { color_hex: "#d97757", color_weight: 0.10 }    # ember (secondary accent)
+      - { color_hex: "#8a93a3", color_weight: 0.10 }    # mist (cool neutral atmosphere)
+
+  # ── Locked style reference — uploaded as style_reference_images ────
+  # Strongest consistency signal in the v3 API. Every request uploads
+  # this file; texture, lighting, atmosphere are inherited.
+  # NOTE: This file does not exist yet. The first generation pass uses
+  # only color_palette + style_type=AUTO (no style_reference_images) to
+  # produce the canonical reference; subsequent runs upload it.
+  style_reference:
+    path: public/ogimage__DidiDecks-AI--Default.png
+    mime: image/png
+
+  # ── Aspect ratio enum — pick one per request ────────────────────────
+  # Names are cross-project canon; values match Ideogram's v3 enum.
+  # Lossless ships WhatsApp / iMessage first — banner_tall is a
+  # first-class deliverable, not a secondary variant.
+  aspect_ratios:
+    banner: 16x9                  # OG / Twitter / Slack / generalized share
+    portrait: 4x5                 # LinkedIn portrait, Instagram feed
+    portrait_tall: 9x16           # Stories, Reels, TikTok
+    square: 1x1                   # avatars, square unfurls, fallbacks
+    banner_tall: 3x4              # WhatsApp / iMessage previews (Lossless default tall)
+    banner_tall_max: 2x3          # dramatic-tall variant
+
+  # ── Prompt convention — the ONLY free-text per request ─────────────
+  # Two-clause structure (subject-first prompts let the subject grow
+  # into the overlay zone). Empty region declared as first-class subject
+  # with concrete content ("dark gradient sky"); subject in second clause.
+  # Use explicit numeric proportions, never soft terms ("lower portion").
+  prompt:
+    pattern: "Top 1/3 of frame is empty negative space, {empty_region_content}. Bottom 2/3 contains {subject}."
+    max_chars_recommended: 220    # empirical ceiling for hard-ask survival
+    forbid:
+      # Vocabulary that belongs in tokens, NOT in the prompt:
+      - brand names ("DidiDecks", "Lossless", "Due Diligence")
+      - color names ("brass", "ember", "ink", "warm cream")
+      - aesthetic adjectives ("editorial", "Due-Diligence-grade")
+      - texture descriptors ("paper-cut", "isometric", "atmospheric")
+      # All locked via style_reference_images + color_palette + style_type.
+      # Repeating them only dilutes attention budget for the subject.
 ---
 
 # DidiDecks-AI Splash — Design System
@@ -358,6 +450,53 @@ A one-line mono brass statement, typically at the foot of a section. 0.85rem wit
 ### Footer (`.footer`)
 
 `border-top: 1px solid var(--stroke)`, padding `3rem 0 4rem`, color `--fg-dim`. Inline `<a>` elements inside the footer get `color: --fg` (foreground brightening, the inverse of the body convention where links are brass). This is deliberate: the footer is a list of *credits*, not actions, so brass would over-signal.
+
+## Imagery
+
+All DidiDecks-AI splash imagery is generated via Ideogram's v3 generate endpoint. The frontmatter's `imagery:` block is the **complete, locked recipe**: every field there is constant across every request. The only two things that vary per call are the `prompt` (the subject and its composition) and the `aspect_ratio` (one entry from the `imagery.aspect_ratios` enum).
+
+This is on purpose. The single biggest cause of "why don't these four banners look like they belong together" is per-request drift in brand vocabulary, palette wording, and style adjectives smuggled into the prompt. Ideogram's v3 schema gives us structured channels for all of that — `style_reference_images`, `color_palette`, `style_type`, `magic_prompt` — and using them is strictly more reliable than typing the same adjectives into every prompt and hoping the model interprets them the same way twice.
+
+**Subject vocabulary.** The splash's editorial-DD register favors imagery in the *bound document* family: a wax-sealed dossier, a brass-clasped portfolio, a stack of leather-bound prospectuses, sheaves of paper-cut card stock arranged on a desk, an open ledger with cards laid across its page. Any of these read as "this is a serious document" without leaving the warm-ink palette. Avoid generic tech metaphors (cubes, abstract grids, mesh) — those belong to other Lossless properties.
+
+### The locked channels (don't touch per request)
+
+- **`style_reference_images`** — `public/ogimage__DidiDecks-AI--Default.png` uploaded with every request once it exists. This is the canonical aesthetic anchor: warm cream subject on a dark ink canvas, brass-and-ember atmospheric depth, editorial texture. **Until the canonical reference is generated**, the first pass uses only `color_palette` + `style_type: AUTO` (no style reference) to produce it; that one becomes the locked reference for everything after.
+- **`color_palette.members`** — the five-token weighted palette in the frontmatter. Ink dominates (0.45) so the dark canvas is the default ground; brass + ember carry the editorial accent; paper is reserved for the subject pass-through; mist provides cool atmospheric neutral.
+- **`style_type: AUTO`** — required whenever `style_reference_images` is uploaded. The v3 API enforces mutual exclusion: `DESIGN` / `REALISTIC` / `FICTION` are rejected when a style reference is present. `AUTO` lets the reference image drive style. Until the reference exists, the first pass *still* uses `AUTO` (the project's color tokens carry the palette consistency on their own).
+- **`magic_prompt: OFF`** — non-negotiable. With magic_prompt on, Ideogram rewrites your prompt before generation, which produces visible drift across "identical" runs.
+- **`negative_prompt`** — short on purpose. The current set excludes `text, typography, lettering, logos, watermarks, central subject filling frame, photorealistic human faces, saturated, rainbow, vibrant, oversized subject, subject in top half`. The last clause (`subject in top half`) defends the SVG overlay zone in tall aspect ratios.
+- **`seed: 1948`** — fixed canonical seed. With every other parameter locked, the seed carries the last fraction of consistency between requests. Bump only when the visual canon itself shifts (rebrand, new reference image).
+- **`rendering_speed: QUALITY`** — for production assets. Use `TURBO` or `FLASH` only during prompt iteration to keep costs sane.
+
+### The variable channels (the only things you change)
+
+- **`prompt`** — one sentence. Two clauses, separated by a period. **Lead with the empty region** as a first-class rendered subject; put the actual subject in the second clause. Use explicit numeric proportions (`top 1/3`, `bottom 2/3`), never soft terms.
+
+  **Good (empty-region-first):** *"Top 1/3 of frame is empty negative space, dark gradient sky. Bottom 2/3 contains an isometric stack of paper-cut card slides resting on a wax-sealed leather dossier."*
+
+  **Bad (subject-first):** *"…in the lower third of the frame, top two-thirds open."* The model focuses on the subject and treats the empty region as residue; the subject balloons to ~85% canvas height.
+
+  Target ≤220 characters. Past that, hard composition asks start losing to subject elaboration.
+
+- **`aspect_ratio`** — pick from `imagery.aspect_ratios`:
+
+  | Format key | Ideogram value | Use for |
+  |---|---|---|
+  | `banner` | `16x9` | Default share — OpenGraph, Twitter Cards, Slack unfurls |
+  | `portrait` | `4x5` | LinkedIn portrait, Instagram feed post |
+  | `portrait_tall` | `9x16` | Instagram Stories, Reels, TikTok |
+  | `square` | `1x1` | Avatars, square OG fallbacks, Discord embed |
+  | `banner_tall` | `3x4` | **WhatsApp & iMessage chat-preview cards (the Lossless default tall)** |
+  | `banner_tall_max` | `2x3` | Dramatic-tall variant |
+
+### Anti-patterns
+
+- **Putting brand or palette words in the prompt.** "DidiDecks, Due Diligence, brass, ember, editorial…" — every word here competes with the actual subject. The locked channels already encode this; repeating it costs accuracy on the composition ask.
+- **Long negative prompts.** Each token in `negative_prompt` is also a competitor for attention. Stay close to the locked twelve-token list.
+- **Varying `magic_prompt` or the seed across requests in a set.** Both produce visible drift. If you change one for one request, the rest of the set will look like a different brand.
+- **Subject-first framing for overlay-bearing imagery.** Lead with the empty region as a first-class rendered subject ("Top 1/3 of frame is empty negative space, dark gradient sky."); put the actual subject in the second clause. Reinforce in `negative_prompt` with `subject in top half`. Empty space won't be left as residue; it has to be declared, named, and given content.
+- **Generic tech metaphors.** Cubes, abstract grids, mesh gradients, holographic shapes — these belong to other Lossless properties (Content Farm leans there). DidiDecks-AI's vocabulary is *bound documents*, *sealed dossiers*, *paper-cut card stacks*, *ledger leaves*. If you reach for a cube, you're in the wrong project.
 
 ## Do's and Don'ts
 

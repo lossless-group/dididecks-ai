@@ -2,7 +2,7 @@
 title: "Componentize Slides and Establish Component Library"
 lede: "Walk the calmstorm-decks slide deck page-by-page, extracting raw inline HTML+CSS into a properly-taxonomized Astro component library while simultaneously building the design system that backs it. The end state: every slide variant composes from named, reusable parts; `components/basics/` stops being a dumping ground; and the work doubles as the first concrete proof of the sibling Visual-and-Diagram-Component-Library spec."
 date_created: 2026-05-11
-date_modified: 2026-05-11
+date_modified: 2026-05-16
 authors:
   - Michael Staton
 augmented_with:
@@ -19,7 +19,17 @@ tags:
   - Non-Destructive-Refactor
   - Distribution-Tier-Awareness
   - Privacy-Paradigm
-status: Draft
+status: Deferred
+deferral_note: |
+  Destination retargets per the Chroma-Parity exploration's Open Question
+  #4: from `client-sites/calmstorm-decks/src/components/` to
+  `apps/deck-shell/components/`. The one-paragraph in-body edit reflecting
+  that retarget has not been applied. Drift to watch: DeckOverlay--Scroll-UI
+  and DeckOverlay--Play-UI (landed 2026-05-15) are the FIRST instances of
+  this componentization living in the shell; future componentization should
+  follow that pattern — paired --Scroll-UI / --Play-UI suffix discipline
+  where the UI mode matters, mode-agnostic naming where it doesn't.
+  The substance of this plan remains valid; only its execution venue moved.
 ---
 
 # Componentize Slides and Establish Component Library
