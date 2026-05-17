@@ -59,7 +59,7 @@ interface Props {
 
   /* DeckFrame-only extras. */
   auditHref?: string | null;
-  otherVariants?: Array<{ slug: string; label: string; href: string }>;
+  allVariants?: Array<{ slug: string; label: string; href: string | null; isCurrent: boolean }>;
 
   /* Audience intent — drives whether workflow chrome (status, audit,
      variant switches) renders. Default "workflow" to preserve operator
@@ -97,7 +97,7 @@ const {
   showHelp,
   enableKeyboard,
   auditHref = null,
-  otherVariants = [],
+  allVariants = [],
   intent = "workflow",
   chromeStyle = "frame",
   hideClassifier = false,
@@ -149,7 +149,7 @@ const renderClassifier =
         tocHref={tocHref}
         prevVariantHref={prevVariantHref}
         nextVariantHref={nextVariantHref}
-        otherVariants={otherVariants}
+        allVariants={allVariants}
         auditHref={auditHref}
         intent={intent}
         enableKeyboard={enableKeyboard}

@@ -112,13 +112,15 @@ const nextVariant = nextVariantIdx >= 0 ? deckVariants[nextVariantIdx] : null;
 const prevVariantHref = prevVariant ? `/play/${deckSlug}/${prevVariant.slug}/${slot}/` : null;
 const nextVariantHref = nextVariant ? `/play/${deckSlug}/${nextVariant.slug}/${slot}/` : null;
 const variantCounter = totalVariants > 1 ? `${variantIdx + 1}/${totalVariants}` : undefined;
-const otherVariants = deckVariants
-  .filter((v) => v.slug !== variantSlug)
-  .map((v) => ({
-    slug: v.slug,
-    label: v.label,
-    href: `/play/${deckSlug}/${v.slug}/${slot}/`,
-  }));
+// All variants for the bottom-bar "Switch Variant ▾" menu, in registry
+// order, current included (marked + non-clickable). The component renders
+// the menu when this list has more than one entry.
+const allVariants = deckVariants.map((v) => ({
+  slug: v.slug,
+  label: v.label,
+  href: v.slug === variantSlug ? null : `/play/${deckSlug}/${v.slug}/${slot}/`,
+  isCurrent: v.slug === variantSlug,
+}));
 
 // Audience intent — URL-param toggle per the redesign plan. Default "workflow"
 // preserves the operator/VC-firm view that's been the only mode shipped so
@@ -156,7 +158,7 @@ const Slide = slideLoader ? ((await slideLoader()).default as unknown) : null;
       tocHref={tocHref}
       prevVariantHref={prevVariantHref}
       nextVariantHref={nextVariantHref}
-      otherVariants={otherVariants}
+      allVariants={allVariants}
       auditHref={auditHref}
       intent={intent}
     >
