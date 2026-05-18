@@ -58,6 +58,24 @@ Do not push directly to `main` or `master` without a deliberate ship reason.
 Both are independent repos on GitHub. The `branch =` line in `.gitmodules` is
 required per the pseudomonorepos branch-alignment discipline.
 
+## Auth surface conventions
+
+The deck client-sites (calmstorm-decks, chroma-decks, future) install a
+shared auth pattern: middleware-gated routes, `Identity` + `Session` +
+`MintedToken` tables in astro:db, OAuth via `arctic`, magic-link redemption,
+passcode tier-3 fallback. Plan files live in each client-site's
+`context-v/plans/Install-Auth-Surface-from-Calmstorm-Pattern.md`.
+
+**Organization naming convention — domain-as-id.** `Organization.id` is the
+org's canonical email domain (e.g. `lossless.group`, `trychroma.com`,
+`calmstormvc.com`). `Organization.slug` carries the human-readable handle.
+Every deck seeds **`lossless.group`** (operating-team org) plus
+**`{client-domain}`** (the client this deck represents). Personal-email
+signups bucket as `id = "personal"`. Full rationale + edge-case handling
+in the parent ai-labs Shared-Auth exploration:
+`../context-v/explorations/Shared-Auth-for-Applied-AI-Labs.md` → section
+"Organization naming convention — domain-as-id."
+
 ## Local RAG over the Lossless corpus (ChromaDB)
 
 A local Chroma database is wired into Claude Code via the `chroma` MCP server. Four collections aggregate prior Lossless work across the whole tree:
