@@ -21,7 +21,13 @@
  */
 import DididecksNav from "../../components/DididecksNav.astro";
 
-export const prerender = true;
+// SSR'd (not prerendered) so the consumer's auth middleware actually gates
+// the route. Prerendered audit pages get CDN-served on Vercel and bypass
+// middleware in prod — exposing the deck's portfolio/people graph to anyone
+// who guesses the URL. The page is reviewer chrome (low traffic, slow loads
+// fine); per-request SSR cost is irrelevant here. The audit page also uses
+// `Astro.request.headers`, which is only valid under SSR.
+export const prerender = false;
 
 // Markdown files for every portfolio entry. ?raw + import: "default" gives
 // us the source string per file so we can parse frontmatter in-component.
