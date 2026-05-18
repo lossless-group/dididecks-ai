@@ -256,7 +256,14 @@ const flagged = companies.filter((c) => c.flagged).length;
       }
       .firm-count { color: var(--fg-muted); font-size: 12px; font-variant-numeric: tabular-nums; }
 
-      .table-wrap { overflow-x: auto; }
+      /* No overflow on the wrapper — overflow-x:auto would establish a
+         scroll container that traps the sticky `<th>` (sticky finds its
+         nearest scrolling ancestor, and `.table-wrap` with overflow-x:auto
+         becomes that ancestor even with no vertical scroll, killing the
+         sticky-thead behavior). The table's min-width:1100px will overflow
+         the page horizontally on narrow viewports — page-level scroll is
+         fine for an audit page. */
+      .table-wrap { /* intentionally no overflow */ }
       table {
         width: 100%; min-width: 1100px;
         border-collapse: collapse;
