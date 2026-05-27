@@ -27,6 +27,10 @@ import "../../../../styles/themes/neutral.css";
 // Globbed lazily; Vite resolves against the consumer's project root at build.
 const slideModules = import.meta.glob("/src/components/slides/**/*.astro");
 
+// Path enumeration for static builds. SSR consumers (output:"server" + no
+// prerender, e.g. chroma-decks where prerender would defeat the auth gate)
+// don't call this — they match by URL pattern and run the frontmatter at
+// request time, so the per-request data load below has to stand alone.
 export async function getStaticPaths() {
   const opts = globalThis.__dididecksShellOptions;
   if (!opts) {
@@ -38,33 +42,13 @@ export async function getStaticPaths() {
 
   const paths: Array<{
     params: { deckSlug: string; variantSlug: string; slot: string };
-    props: {
-      slug: string;
-      title: string;
-      slotIdx: number;
-      slots: SlotRef[];
-      variantLabel: string;
-      deckVariants: Array<{ slug: string; label: string }>;
-      variantIdx: number;
-    };
   }> = [];
-
   for (const deck of DECKS as Deck[]) {
-    const deckVariants = deck.variants.map((v) => ({ slug: v.slug, label: v.label }));
-    deck.variants.forEach((variant, variantIdx) => {
+    deck.variants.forEach((variant) => {
       const slots = slotsByVariant[variant.slug] ?? [];
-      slots.forEach((slot, idx) => {
+      slots.forEach((s) => {
         paths.push({
-          params: { deckSlug: deck.slug, variantSlug: variant.slug, slot: slot.slot },
-          props: {
-            slug: slot.slug,
-            title: slot.title,
-            slotIdx: idx,
-            slots,
-            variantLabel: variant.label,
-            deckVariants,
-            variantIdx,
-          },
+          params: { deckSlug: deck.slug, variantSlug: variant.slug, slot: s.slot },
         });
       });
     });
@@ -77,15 +61,36 @@ const { deckSlug, variantSlug, slot } = Astro.params as {
   variantSlug: string;
   slot: string;
 };
-const { slug, title, slotIdx, slots, variantLabel, deckVariants, variantIdx } = Astro.props as {
-  slug: string;
-  title: string;
-  slotIdx: number;
-  slots: SlotRef[];
-  variantLabel: string;
-  deckVariants: Array<{ slug: string; label: string }>;
-  variantIdx: number;
-};
+
+// Resolve everything from params + the registry at runtime. Works the same in
+// static (prerendered) builds and SSR — Astro.props is unused on purpose, so
+// SSR consumers without prerender don't crash on undefined props.
+const opts = globalThis.__dididecksShellOptions;
+if (!opts) {
+  throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+}
+const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slotsByVariant = slotsMod?.SLOTS ?? {};
+
+const deck = (DECKS as Deck[]).find((d) => d.slug === deckSlug);
+if (!deck) {
+  return new Response(`Deck not found: ${deckSlug}`, { status: 404 });
+}
+const variantIdx = deck.variants.findIndex((v) => v.slug === variantSlug);
+if (variantIdx === -1) {
+  return new Response(`Variant not found: ${variantSlug}`, { status: 404 });
+}
+const slots: SlotRef[] = slotsByVariant[variantSlug] ?? [];
+const slotIdx = slots.findIndex((s) => s.slot === slot);
+if (slotIdx === -1) {
+  return new Response(`Slot not found: ${slot}`, { status: 404 });
+}
+const slotEntry = slots[slotIdx];
+const slug = slotEntry.slug;
+const title = slotEntry.title;
+const variantLabel = deck.variants[variantIdx].label;
+const deckVariants = deck.variants.map((v) => ({ slug: v.slug, label: v.label }));
 
 const totalSlots = slots.length;
 const prevSlot = slotIdx > 0 ? slots[slotIdx - 1] : null;

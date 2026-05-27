@@ -15,33 +15,45 @@ import SlideCanvas from "../../../../components/SlideCanvas.astro";
 
 const slideModules = import.meta.glob("/src/components/slides/**/*.astro");
 
+// Path enumeration for static builds. SSR consumers (output:"server" + no
+// prerender) match by URL pattern and skip this; the inline load below is the
+// SSR-safe path.
 export async function getStaticPaths() {
   const opts = globalThis.__dididecksShellOptions;
   if (!opts) {
     throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
   }
   const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
-  const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
-  const slotsByVariant = slotsMod?.SLOTS ?? {};
-
   return (DECKS as Deck[]).flatMap((deck) =>
     deck.variants.map((variant) => ({
       params: { deckSlug: deck.slug, variantSlug: variant.slug },
-      props: {
-        slots: slotsByVariant[variant.slug] ?? [],
-        variantLabel: variant.label,
-        deckTitle: deck.title,
-      },
     })),
   );
 }
 
 const { deckSlug, variantSlug } = Astro.params as { deckSlug: string; variantSlug: string };
-const { slots, variantLabel, deckTitle } = Astro.props as {
-  slots: SlotRef[];
-  variantLabel: string;
-  deckTitle: string;
-};
+
+// Load registry inline so SSR-mode (no Astro.props) doesn't crash on
+// `slots.map`. See [slot].astro for the same pattern + rationale.
+const opts = globalThis.__dididecksShellOptions;
+if (!opts) {
+  throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
+}
+const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slotsByVariant = slotsMod?.SLOTS ?? {};
+
+const deck = (DECKS as Deck[]).find((d) => d.slug === deckSlug);
+if (!deck) {
+  return new Response(`Deck not found: ${deckSlug}`, { status: 404 });
+}
+const variant = deck.variants.find((v) => v.slug === variantSlug);
+if (!variant) {
+  return new Response(`Variant not found: ${variantSlug}`, { status: 404 });
+}
+const slots: SlotRef[] = slotsByVariant[variantSlug] ?? [];
+const variantLabel = variant.label;
+const deckTitle = deck.title;
 
 type SlideLoader = () => Promise<{ default: unknown }>;
 
