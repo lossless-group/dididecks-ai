@@ -102,7 +102,7 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
         const resolved = resolveOptions(options, projectRoot);
         globalThis.__dididecksShellOptions = resolved;
         logger.info(
-          `paths resolved · decks=${resolved.decksRegistryPath} · slots=${resolved.slotsRegistryPath} · audits=${resolved.auditsPath}`,
+          `paths resolved · decks=${resolved.decksRegistryPath} · slots=${resolved.slotsRegistryPath} · scroll=${resolved.scrollPagesRoot} · audits=${resolved.auditsPath}`,
         );
       },
     },

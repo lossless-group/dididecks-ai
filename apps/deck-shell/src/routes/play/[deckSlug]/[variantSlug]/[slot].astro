@@ -37,7 +37,7 @@ export async function getStaticPaths() {
     throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
   }
   const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
-  const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+  const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry, opts.absolute.scrollPagesRoot);
   const slotsByVariant = slotsMod?.SLOTS ?? {};
 
   const paths: Array<{
@@ -70,7 +70,7 @@ if (!opts) {
   throw new Error("@dididecks/shell: options not resolved. Did astro:config:done run?");
 }
 const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
-const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry, opts.absolute.scrollPagesRoot);
 const slotsByVariant = slotsMod?.SLOTS ?? {};
 
 const deck = (DECKS as Deck[]).find((d) => d.slug === deckSlug);

@@ -6,6 +6,7 @@ const DEFAULTS = {
   slotsRegistryPath: "./src/data/slides.ts",
   auditsPath: "./data/audits/slides.json",
   slidesComponentsRoot: "./src/components/slides",
+  scrollPagesRoot: "./src/pages/scroll",
   distributionTier: "private" as const,
 };
 
@@ -19,6 +20,7 @@ export function resolveOptions(
     slotsRegistryPath: options.slotsRegistryPath ?? DEFAULTS.slotsRegistryPath,
     auditsPath: options.auditsPath ?? DEFAULTS.auditsPath,
     slidesComponentsRoot: options.slidesComponentsRoot ?? DEFAULTS.slidesComponentsRoot,
+    scrollPagesRoot: options.scrollPagesRoot ?? DEFAULTS.scrollPagesRoot,
     distributionTier: options.distributionTier ?? DEFAULTS.distributionTier,
   };
 
@@ -29,6 +31,7 @@ export function resolveOptions(
       slotsRegistry: path.resolve(projectRoot, merged.slotsRegistryPath),
       audits: path.resolve(projectRoot, merged.auditsPath),
       slidesComponentsRoot: path.resolve(projectRoot, merged.slidesComponentsRoot),
+      scrollPagesRoot: path.resolve(projectRoot, merged.scrollPagesRoot),
     },
   };
 }
@@ -38,4 +41,5 @@ export interface ResolvedAbsolutePaths {
   slotsRegistry: string;
   audits: string;
   slidesComponentsRoot: string;
+  scrollPagesRoot: string;
 }

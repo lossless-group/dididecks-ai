@@ -30,7 +30,7 @@ const { DECKS } = await loadDecksRegistry(opts.absolute.decksRegistry);
 const deck = DECKS.find((d: Deck) => d.slug === deckSlug);
 const variant = deck?.variants.find((v) => v.slug === variantSlug);
 
-const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+const slotsMod = await loadSlotsRegistry(opts.absolute.slotsRegistry, opts.absolute.scrollPagesRoot);
 const slots: SlotRef[] = slotsMod?.SLOTS?.[variantSlug] ?? [];
 
 const audit = await loadAuditRegistry(opts.absolute.audits);

@@ -29,6 +29,20 @@ export interface DididecksShellOptions {
   /** Where decomposition stubs land, relative to the client-site root. Default: "./src/components/slides". */
   slidesComponentsRoot?: string;
 
+  /**
+   * Where scroll-UI deck pages live, relative to the client-site root.
+   * Default: "./src/pages/scroll".
+   *
+   * The shell scans every .astro file under this root for
+   * `<section data-slot="…" data-variant="…">` tags and merges the
+   * discovered slots into the slot registry. This makes the scroll deck
+   * the source of truth for "which slots exist" — adding a new section
+   * automatically surfaces it in the TOC matrix. The hand-authored map
+   * at slotsRegistryPath becomes a title/slug supplement (not the
+   * existence authority).
+   */
+  scrollPagesRoot?: string;
+
   /** Default tier resolver fallback for unmapped routes. Default: "private". Phase B fills this in. */
   distributionTier?: "private" | "shared" | "public";
 }

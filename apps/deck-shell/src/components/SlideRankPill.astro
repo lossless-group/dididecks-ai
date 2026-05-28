@@ -52,7 +52,7 @@ const opts = globalThis.__dididecksShellOptions;
 let slots: SlotRef[] = [];
 if (opts) {
   try {
-    const mod = await loadSlotsRegistry(opts.absolute.slotsRegistry);
+    const mod = await loadSlotsRegistry(opts.absolute.slotsRegistry, opts.absolute.scrollPagesRoot);
     slots = mod?.SLOTS?.[variantSlug] ?? [];
   } catch {
     // registry not loadable — pill will degrade to slot-number only
