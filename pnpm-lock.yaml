@@ -60,6 +60,31 @@ importers:
         specifier: ^5.6.0
         version: 5.9.3
 
+  client-sites/humain-vc-decks:
+    dependencies:
+      '@astrojs/vercel':
+        specifier: ^10.0.5
+        version: 10.0.6(astro@6.3.1(@types/node@20.19.41)(@vercel/functions@3.5.1)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.22.1))(rollup@4.60.3)
+      '@dididecks/shell':
+        specifier: workspace:*
+        version: link:../../apps/deck-shell
+      astro:
+        specifier: ^6.1.7
+        version: 6.3.1(@types/node@20.19.41)(@vercel/functions@3.5.1)(jiti@2.7.0)(lightningcss@1.32.0)(rollup@4.60.3)(tsx@4.22.1)
+    devDependencies:
+      '@tailwindcss/vite':
+        specifier: ^4.2.2
+        version: 4.3.0(vite@7.3.3(@types/node@20.19.41)(jiti@2.7.0)(lightningcss@1.32.0)(tsx@4.22.1))
+      '@types/node':
+        specifier: ^20.14.0
+        version: 20.19.41
+      tailwindcss:
+        specifier: ^4.2.2
+        version: 4.3.0
+      typescript:
+        specifier: ^5.6.0
+        version: 5.9.3
+
 packages:
 
   '@astrojs/compiler@4.0.0':
