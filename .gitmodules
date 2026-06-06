@@ -10,3 +10,7 @@
 	path = client-sites/chroma-decks
 	url = git@github.com:lossless-group/chroma-decks.git
 	branch = development
+[submodule "client-sites/humain-vc-decks"]
+	path = client-sites/humain-vc-decks
+	url = https://github.com/lossless-group/humain-vc-decks.git
+	branch = development
