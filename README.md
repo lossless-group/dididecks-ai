@@ -18,6 +18,7 @@ recurring VC/Private Markets/Philanthropy work that single-deck tools don't addr
 - **Splash (GitHub Pages target):** [`splash/`](./splash/)
 - **Client engagements driving the pattern:** [`client-sites/`](./client-sites/) (submodules)
 - **Agent skills (shared snapshot):** [`context-v/agent-skills/`](./context-v/agent-skills/)
+- **Living filemap (auto-generated, hand-curated preface):** [`FILEMAP.md`](./FILEMAP.md) — new collaborators open this first; maintained by the [`maintain-filemap`](./context-v/loops/maintain-filemap/SKILL.md) loop.
 
 ## Collaborating across machines — agent skills
 
