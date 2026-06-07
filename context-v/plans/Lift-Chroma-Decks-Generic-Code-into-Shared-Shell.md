@@ -6,8 +6,8 @@ date_authored_current_draft: 2026-06-06
 date_authored_final_draft:
 date_first_published: 2026-06-06
 date_last_updated: 2026-06-06
-at_semantic_version: 0.0.1.0
-status: In-Progress
+at_semantic_version: 0.0.2.0
+status: Mostly-Shipped   # Phases 1, 2, 3, 5 shipped 2026-06-06; Phase 4 (deck-overview) held — see Phase 4 deferral note below
 augmented_with: Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
@@ -133,6 +133,18 @@ Snapshot of chroma-decks' source tree as of 2026-06-06, with verdicts:
 
 **Acceptance:** Chroma's enhanced-v3 deck renders identically to before this plan started. No local-copy fallback paths remain.
 
+**Status (2026-06-06): Shipped via shim re-exports.** Commit `0eef7fe` in chroma-decks. Five files were rewritten as thin shim re-exports of the shell versions:
+
+- `src/layouts/PageAsDeckWrapper.astro` → `@dididecks/shell/components/PageAsDeckWrapper.astro`
+- `src/layouts/SlideShell.astro` → `@dididecks/shell/components/SlideShell.astro` (ChromaMark plugged into `<slot name="mark">` when `showMark` is true; preserves original on-screen result)
+- `src/utils/mode-switcher.js` → `@dididecks/shell/runtime/mode-switcher.ts` (singleton installed at module top-level via `createModeSwitcher({ client: "chroma-decks", defaultMode: "light", respectSystemPreference: true })`)
+- `src/components/basics/ModeToggle.astro` → `@dididecks/shell/components/ModeToggle.astro` (pre-configured with chroma defaults)
+- `src/components/basics/SlideStatusMatrix.astro` → `@dididecks/shell/components/SlideStatusMatrix.astro`
+
+The plan called for full local-copy deletion after parity verification. We chose shim re-exports instead because chroma has ~25 downstream importers (proto + enhanced scroll pages, per-slide play files, landing page, scroll gallery) that all use the original local paths. Shim re-exports preserve those import paths transparently; only the implementation behind them swaps to the shell version. Net effect — 781 lines deleted in chroma, 119 lines added (the shim files), one source of truth for the implementation.
+
+The "delete local copies and update all importers" cleanup is now a smaller follow-up that can happen any time without rush; deleting a shim file means updating ~5–10 importers per file. Held for a separate, deliberate pass when chroma is otherwise quiet.
+
 ## Phase 4 — `deck-overview.ts`
 
 **Risk:** Low. Pure data derivation.
@@ -148,6 +160,15 @@ Snapshot of chroma-decks' source tree as of 2026-06-06, with verdicts:
 4. Chroma's local copy stays until tested, then deletes in a follow-up commit.
 
 **Acceptance:** Humain's landing page renders a Chroma-style summary (variant cards with `Scroll` / `TOC` / `Play` links, slot counts, status pills) without copying any code from chroma.
+
+**Status (2026-06-06): Partial — humain consumes; chroma migration held.** The shell version exists at `apps/deck-shell/src/lib/deck-overview.ts` (commit `07802d1`) and humain consumes it via `import { loadDeckOverview } from "@dididecks/shell/lib/deck-overview"` (commit `2b7b14a`).
+
+Chroma's local copy at `src/lib/deck-overview.ts` was NOT migrated in Phase 3 — two reasons:
+
+1. **Sync→async API drift.** The shell version is `async` because it `await`s `loadDecksRegistry(opts.absolute.decksRegistry)` (esbuild-evaluates the consumer's TS registry). Chroma's local version is sync (it imports `DECKS`/`SLOTS` directly). Chroma's landing page calls `loadDeckOverview("pitch")` synchronously, so a drop-in replacement would break.
+2. **Substantiation-counts dependency.** Chroma's `DeckOverview.totals` carries `peopleCount`, `headshotCount`, `investorFirmCount`, `portfolioCompanyCount` from walking `data/team`, `data/investors`, `public/people`. The shell version intentionally dropped these as per-client concerns. The chroma landing page reads them, so a drop-in replacement would null them out.
+
+Migrating later means either: (a) updating chroma's landing-page callsites to `await` AND extending chroma's local `deck-overview.ts` as a thin wrapper that adds the substantiation counts on top of `await loadShellOverview(deckSlug)`, or (b) leaving the sync chroma copy in place and documenting that new code uses the shell's async version. Decision deferred; chroma keeps working off its local copy until then.
 
 ## Phase 5 — `SlideStatusMatrix` ↔ `DeckMatrix` reconciliation
 
