@@ -10,7 +10,17 @@
 
 | Path | What it is |
 |---|---|
-| _(fill in by hand — what does each top-level dir contain and why?)_ | |
+| **`apps/deck-shell/`** | The shared shell — `@dididecks/shell` workspace package. Routes (`/scroll/`, `/play/`, `/toc/`, `/data-assets/`), components (SlideCanvas, DeckMatrix, DeckOverlay, ScrollDeckPage, …), runtime, lib, and the Astro integration that injects them into every client-site. The single source of truth for deck UI behavior. |
+| **`changelog/`** | Dated ship notes per the [`changelog-conventions`](./context-v/agent-skills/changelog-conventions/SKILL.md) discipline. `YYYY-MM-DD_NN.md`. Authored at the conclusion of coherent flows of work, not every commit. |
+| **`client-sites/`** | Per-client deck workspaces, each a separate Git repo mounted as a submodule. Four live: `calmstorm-decks`, `chroma-decks`, `humain-vc-decks`, `reach-edu-hub`. Each has its own `data/`, `db/`, `src/`, `corpus/`, `DESIGN.md`. Branch-tier alignment with parent per the [`pseudomonorepos`](./context-v/agent-skills/pseudomonorepos/SKILL.md) discipline. |
+| **`context-v/`** | Living documentation. Eight categories: `agent-skills/` (in-repo snapshot of upstream skills for collaborators), `explorations/`, `loops/` (recurring maintenance disciplines — this filemap is maintained from here), `models/` (filesystem-as-data-store schemas for the future remote DB), `narratives/`, `plans/`, `reminders/`, `sitemap/` (living map of every shell artifact), `specs/`. |
+| **`corpus/`** | Newly-mounted submodule (`https://github.com/lossless-group/dddecks-corpus`, private). Team-visible home for substantiation material — founder PDFs, intake bursts, brand-asset libraries — that's too large or sensitive for the parent. Per-client `<client>/corpus/` directories remain gitignored for one-operator scratch. |
+| **`splash/`** | GitHub Pages target. Public-facing splash for the project per the [`maintain-splash-pages`](./context-v/agent-skills/maintain-splash-pages/SKILL.md) discipline. Renders curated marketing copy + selected changelog entries. |
+| **`CLAUDE.md`** | Agent instructions checked into the codebase. Loaded into every Claude Code session opened anywhere under this tree. Carries the relocation HARD STOP rules, branch-tier model, RAG-over-Lossless-corpus backstop, and auth surface conventions. |
+| **`README.md`** | Human-facing repo intro — spec pointers, status, parentage, branch model, collaboration discipline (agent skills). |
+| **`.gitmodules`** | Five submodule mounts: `calmstorm-decks`, `reach-edu-hub`, `chroma-decks`, `humain-vc-decks` (under `client-sites/`) + `corpus`. Each pins a `branch =` per the branch-alignment discipline. |
+| **`pnpm-workspace.yaml`** | pnpm workspace declaration. Includes `apps/*`, `client-sites/chroma-decks`, `client-sites/humain-vc-decks`. Other client-sites have their own pnpm setup. |
+| **`package.json`** | Parent package manifest. Mostly meta; the real package work happens in `apps/deck-shell/` + each client-site. |
 
 ## Tree (depth 3, auto-generated)
 
