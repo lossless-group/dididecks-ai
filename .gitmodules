@@ -14,3 +14,7 @@
 	path = client-sites/humain-vc-decks
 	url = https://github.com/lossless-group/humain-vc-decks.git
 	branch = development
+[submodule "corpus"]
+	path = corpus
+	url = https://github.com/lossless-group/dddecks-corpus.git
+	branch = development
