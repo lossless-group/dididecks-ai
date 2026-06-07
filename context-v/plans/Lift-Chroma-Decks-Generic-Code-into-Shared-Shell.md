@@ -183,6 +183,13 @@ Migrating later means either: (a) updating chroma's landing-page callsites to `a
 
 **Acceptance:** No ambiguous duplication remains; the shell's matrix vocabulary is clear about what each component does.
 
+**Status (2026-06-06): Revised verdict — `SlideStatusMatrix` deleted from both the shell and chroma's shim.** The initial Phase 5 verdict treated `DeckMatrix` (rich, audit-rated, dual-surface) and `SlideStatusMatrix` (lightweight, file-existence glyphs) as distinct siblings and promoted both into the shell. After humain landed on the lightweight one — which then got swapped to the rich `DeckMatrix` to match chroma's landing — a grep across all three trees (`apps/deck-shell/`, `client-sites/chroma-decks/src/`, `client-sites/humain-vc-decks/src/`) for `SlideStatusMatrix` importers returned **zero hits** outside the component files themselves. Neither client uses it; "keep it for a hypothetical future client" wasn't a strong enough rationale to carry ~250 lines of well-documented dead code in the shell. Deleted in the same session:
+
+- `apps/deck-shell/src/components/SlideStatusMatrix.astro`
+- `client-sites/chroma-decks/src/components/basics/SlideStatusMatrix.astro` (Phase-3 shim from earlier in the session)
+
+`DeckMatrix` is the canonical landing matrix from now on. If a future client genuinely wants a smaller widget, the pattern can be lifted back — but until then, one source of truth, less drift.
+
 ## Audit discipline for future onboardings
 
 A separate feedback memory was saved (`feedback_audit-prior-client-for-shell-lift`) that codifies the audit step for every new client-site onboarding: *"Before authoring this new client's first scroll page, audit the most recent client's `src/layouts/`, `src/utils/`, `src/lib/`, `src/components/basics/` for shell-worthy code and lift it first."*
