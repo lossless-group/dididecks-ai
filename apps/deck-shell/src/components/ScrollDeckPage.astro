@@ -1,0 +1,95 @@
+---
+/**
+ * ScrollDeckPage — the canonical wrapper for any scroll-deck variant page.
+ *
+ * One import gives the consumer the full Scroll-UI contract:
+ *   - Pagination (scroll-snap + keyboard arrows + double-click step + section
+ *     counter top-right + #s-N hash navigation), via PageAsDeckWrapper
+ *   - Per-slot rating pill bottom-right with four-state classifier + IntersectionObserver
+ *     tracking which slot is centered, via DeckOverlay--Scroll-UI (which hosts SlideRankPill)
+ *   - Three-mode color toggle top-right, via ModeToggle
+ *
+ * Consumer authors only the <section data-slot data-variant> blocks; the
+ * shell handles all the wiring. The `client` value (per-deployment
+ * localStorage namespace for ModeToggle) is read from the shell options
+ * resolved at astro:config:setup — no need to pass it explicitly.
+ *
+ * Before / after at the consumer site:
+ *
+ *   BEFORE — three shell imports + three mount sites per variant page:
+ *     import PageAsDeckWrapper from "@dididecks/shell/components/PageAsDeckWrapper.astro";
+ *     import DeckOverlayScrollUI from "@dididecks/shell/components/DeckOverlay--Scroll-UI.astro";
+ *     import ModeToggle from "@dididecks/shell/components/ModeToggle.astro";
+ *     ...
+ *     <ModeToggle client="my-client" />
+ *     <PageAsDeckWrapper>
+ *       <section data-slot="01" data-variant="proto" ...>...</section>
+ *       ...
+ *     </PageAsDeckWrapper>
+ *     <DeckOverlayScrollUI deckSlug="pitch" variantSlug="proto" />
+ *
+ *   AFTER — one shell import, one mount site:
+ *     import ScrollDeckPage from "@dididecks/shell/components/ScrollDeckPage.astro";
+ *     ...
+ *     <ScrollDeckPage deckSlug="pitch" variantSlug="proto">
+ *       <section data-slot="01" data-variant="proto" ...>...</section>
+ *       ...
+ *     </ScrollDeckPage>
+ *
+ * Props are escape hatches, not requirements. The defaults match the
+ * canonical scroll-deck contract; only override when a specific page
+ * needs to opt out of one of the bundled affordances (e.g. a page that
+ * already mounts ModeToggle in a global layout would pass
+ * hideModeToggle={true} to avoid double-mounting).
+ */
+import ModeToggle from "./ModeToggle.astro";
+import PageAsDeckWrapper from "./PageAsDeckWrapper.astro";
+import DeckOverlayScrollUI from "./DeckOverlay--Scroll-UI.astro";
+import type { Mode } from "../runtime/mode-switcher.ts";
+
+interface Props {
+  deckSlug: string;
+  variantSlug: string;
+  /** Hide the SlideRankPill classifier. Default false. */
+  hideClassifier?: boolean;
+  /** Hide the ModeToggle (e.g. when a parent layout already mounts one). Default false. */
+  hideModeToggle?: boolean;
+  /** Default color mode when nothing is stored in localStorage. Default "light". */
+  defaultMode?: Mode;
+  /** Whether to honor prefers-color-scheme on first visit. Default false. */
+  respectSystemPreference?: boolean;
+}
+
+const {
+  deckSlug,
+  variantSlug,
+  hideClassifier = false,
+  hideModeToggle = false,
+  defaultMode = "light",
+  respectSystemPreference = false,
+} = Astro.props as Props;
+
+// The client name comes from the shell integration options, resolved at
+// astro:config:setup. Each consumer's astro.config.mjs passes its own
+// client value; ScrollDeckPage reads it from globalThis so consumers
+// don't need to re-pass it on every scroll-deck page.
+const opts = globalThis.__dididecksShellOptions;
+const client = opts?.client ?? "dididecks";
+---
+{!hideModeToggle && (
+  <ModeToggle
+    client={client}
+    defaultMode={defaultMode}
+    respectSystemPreference={respectSystemPreference}
+  />
+)}
+
+<PageAsDeckWrapper>
+  <slot />
+</PageAsDeckWrapper>
+
+<DeckOverlayScrollUI
+  deckSlug={deckSlug}
+  variantSlug={variantSlug}
+  hideClassifier={hideClassifier}
+/>
