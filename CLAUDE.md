@@ -45,6 +45,23 @@ Claude (and modern LLMs in general) are good at responsive section-based design 
 - `maintain-splash-pages` — splash conventions when working under `splash/`.
 - `deck-iteration-workflow` — slide-iteration rhythm aligned with the calmstorm-decks pattern.
 
+### Where the canonical snapshot of these skills lives in-repo
+
+A checked-in snapshot of every skill load-bearing for dididecks-ai work
+lives at `context-v/agent-skills/`. Each agent reads skills from
+*its own* install location (Claude Code from `~/.claude/skills/`,
+Pi from `~/.pi/skills/`, etc.), so the in-repo copy is **not** what
+agents actually load at runtime.
+
+**Each collaborator will have their own system for managing
+agent-skills on their machine. Collaborators should make sure their
+skills are current with `dididecks-ai`'s `agent-skills` in
+`context-v`. Alternately, if they iterate on or create agent-skills,
+they should update them in the `dididecks-ai` repo as best they can.**
+
+See `context-v/agent-skills/README.md` for the full list, the
+authoring discipline, and what's deliberately not included.
+
 ## Branch discipline
 
 Three tiers: `development` → `main` → `master`. Default branch is `development`.

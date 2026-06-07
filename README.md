@@ -17,6 +17,28 @@ recurring VC/Private Markets/Philanthropy work that single-deck tools don't addr
 - **Business-model exploration:** [`context-v/explorations/Dididecks-AI-Business-Model.md`](./context-v/explorations/Dididecks-AI-Business-Model.md)
 - **Splash (GitHub Pages target):** [`splash/`](./splash/)
 - **Client engagements driving the pattern:** [`client-sites/`](./client-sites/) (submodules)
+- **Agent skills (shared snapshot):** [`context-v/agent-skills/`](./context-v/agent-skills/)
+
+## Collaborating across machines — agent skills
+
+Each collaborator runs Claude Code (or Pi / Cursor / etc.) with skills
+installed at their *own* path (`~/.claude/skills/`, `~/.pi/skills/`,
+…). Skills wire the same conventions into every collaborator's agent
+so the team's discipline is consistent across hands.
+
+The canonical snapshot of every skill load-bearing for `dididecks-ai`
+work lives at [`context-v/agent-skills/`](./context-v/agent-skills/).
+
+> **Each collaborator will have their own system for managing
+> agent-skills on their machine. Collaborators should make sure their
+> skills are current with `dididecks-ai`'s `agent-skills` in
+> `context-v`. Alternately, if they iterate on or create
+> agent-skills, they should update them in the `dididecks-ai` repo as
+> best they can.**
+
+See [`context-v/agent-skills/README.md`](./context-v/agent-skills/README.md)
+for the full skill list, the discipline, and what's deliberately not
+included in the snapshot.
 
 ## Status
 
