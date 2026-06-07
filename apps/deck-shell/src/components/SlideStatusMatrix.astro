@@ -1,0 +1,185 @@
+---
+/**
+ * SlideStatusMatrix — slot × variant build-status matrix.
+ *
+ * Sibling to (not duplicate of) DeckMatrix:
+ *   - DeckMatrix       — production review surface; reads audit registry,
+ *                        dual-surface (Scroll + Play) ratings per cell,
+ *                        per-variant shippability rollups, TOC integration.
+ *   - SlideStatusMatrix — lightweight build-status rollup; reads
+ *                        DeckOverview, renders glyphs for static-port
+ *                        readiness. Used on landing dashboards as a
+ *                        quick "where are we" rollup.
+ *
+ * Rows: every slot number known across any variant (union).
+ * Cols: each design variant in the deck.
+ * Cells: status of the per-slide play file for that (slot, variant) cell.
+ *
+ *   ●  static-port ready (file imports SlideCanvas, no <script>)
+ *   ◐  file exists but NOT in true static play format (legacy port)
+ *   ◯  registered in slides.ts but no file yet
+ *   ·  not applicable (slot doesn't exist in this variant)
+ *
+ * Each cell with a file links into /play/[deck]/[variant]/[slot]/.
+ *
+ * Promoted from chroma-decks/src/components/basics/SlideStatusMatrix.astro
+ * on 2026-06-06 (plan: Lift-Chroma-Decks-Generic-Code-into-Shared-Shell.md,
+ * Phase 5). CSS classes prefixed `ddd-ssm-*` to avoid collisions.
+ *
+ * Consumer integration:
+ *
+ *   import SlideStatusMatrix from "@dididecks/shell/components/SlideStatusMatrix.astro";
+ *   import { loadDeckOverview }   from "@dididecks/shell/lib/deck-overview";
+ *   const overview = await loadDeckOverview("pitch");
+ *   <SlideStatusMatrix overview={overview} />
+ */
+import type { DeckOverview, SlotPortStatus } from "../lib/deck-overview.js";
+
+interface Props { overview: DeckOverview; }
+const { overview } = Astro.props as Props;
+
+function cellFor(variantSlug: string, slot: string): SlotPortStatus | null {
+  const v = overview.variants.find((v) => v.slug === variantSlug);
+  return v?.slots.find((s) => s.slot === slot) ?? null;
+}
+
+function cellState(c: SlotPortStatus | null): "static" | "legacy" | "registered" | "absent" {
+  if (!c) return "absent";
+  if (c.fileExists && c.isStaticPort) return "static";
+  if (c.fileExists) return "legacy";
+  if (c.isRegistered) return "registered";
+  return "absent";
+}
+
+const glyph = {
+  static:     "●",
+  legacy:     "◐",
+  registered: "◯",
+  absent:     "·",
+} as const;
+
+const stateLabel = {
+  static:     "Static play-port ready",
+  legacy:     "Authored but not in static play format",
+  registered: "Registered, file missing",
+  absent:     "n/a for this variant",
+} as const;
+---
+<section class="ddd-ssm-wrap" aria-label="Slide status by variant">
+  <header class="ddd-ssm-head">
+    <p class="ddd-ssm-eyebrow">Slide status · all variants</p>
+    <p class="ddd-ssm-deck">
+      Per-slide port status across the deck's design variants. Click any cell
+      with a file to open the slide in /play.
+    </p>
+    <ul class="ddd-ssm-legend">
+      {(["static", "legacy", "registered", "absent"] as const).map((s) => (
+        <li>
+          <span class={`ddd-ssm-glyph ddd-ssm-glyph--${s}`}>{glyph[s]}</span>
+          <span class="ddd-ssm-glyph-label">{stateLabel[s]}</span>
+        </li>
+      ))}
+    </ul>
+  </header>
+
+  <div class="ddd-ssm-table-wrap">
+    <table class="ddd-ssm-table">
+      <thead>
+        <tr>
+          <th class="ddd-ssm-slot-col">Slot</th>
+          <th class="ddd-ssm-title-col">Title</th>
+          {overview.variants.map((v) => (
+            <th class="ddd-ssm-var-col">
+              <span class="ddd-ssm-var-label">{v.label}</span>
+              <span class="ddd-ssm-var-stat">
+                {v.staticPortCount}<span class="ddd-ssm-var-stat-sep">/</span>{v.registeredSlotCount || v.authoredSlotCount}
+              </span>
+            </th>
+          ))}
+        </tr>
+      </thead>
+      <tbody>
+        {overview.unionOfSlotNumbers.map((slot) => {
+          const titled = overview.variants
+            .map((v) => v.slots.find((s) => s.slot === slot && s.title))
+            .find(Boolean);
+          return (
+            <tr>
+              <td class="ddd-ssm-slot-col">{slot}</td>
+              <td class="ddd-ssm-title-col">{titled?.title ?? "—"}</td>
+              {overview.variants.map((v) => {
+                const c = cellFor(v.slug, slot);
+                const state = cellState(c);
+                const href = c?.fileExists
+                  ? `/play/${overview.deckSlug}/${v.slug}/${slot}/`
+                  : null;
+                return (
+                  <td class={`ddd-ssm-cell ddd-ssm-cell--${state}`} title={stateLabel[state]}>
+                    {href ? (
+                      <a href={href} class="ddd-ssm-cell-link" aria-label={`${slot} · ${v.label} · ${stateLabel[state]}`}>
+                        {glyph[state]}
+                      </a>
+                    ) : (
+                      <span class="ddd-ssm-cell-glyph" aria-label={stateLabel[state]}>{glyph[state]}</span>
+                    )}
+                  </td>
+                );
+              })}
+            </tr>
+          );
+        })}
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<style>
+  .ddd-ssm-wrap { margin-top: 1rem; }
+  .ddd-ssm-head { margin-bottom: 1rem; }
+  .ddd-ssm-eyebrow {
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--color-text-muted, #6b7280);
+    margin: 0 0 0.5rem 0;
+  }
+  .ddd-ssm-deck {
+    font-size: 0.85rem;
+    line-height: 1.55;
+    color: var(--color-text, #4b5563);
+    margin: 0 0 0.75rem 0;
+  }
+  .ddd-ssm-legend { list-style: none; padding: 0; margin: 0; display: flex; flex-wrap: wrap; gap: 1rem 1.25rem; font-size: 0.75rem; color: var(--color-text-muted, #475569); }
+  .ddd-ssm-legend li { display: inline-flex; align-items: center; gap: 0.4rem; }
+  .ddd-ssm-glyph { display: inline-flex; align-items: center; justify-content: center; width: 1.1rem; height: 1.1rem; font-size: 0.95rem; line-height: 1; font-variant-numeric: tabular-nums; }
+  .ddd-ssm-glyph--static     { color: #047857; }
+  .ddd-ssm-glyph--legacy     { color: #b45309; }
+  .ddd-ssm-glyph--registered { color: #6b7280; }
+  .ddd-ssm-glyph--absent     { color: #cbd5e1; }
+
+  .ddd-ssm-table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--color-border, #e5e7eb);
+    border-radius: var(--radius, 4px);
+  }
+  .ddd-ssm-table { width: 100%; border-collapse: collapse; font-family: var(--font-mono, ui-monospace, SFMono-Regular, Menlo, monospace); font-size: 0.8rem; }
+  .ddd-ssm-table thead th { background: var(--color-surface, #f9fafb); border-bottom: 1px solid var(--color-border, #e5e7eb); padding: 0.6rem 0.75rem; text-align: left; font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase; color: var(--color-text-muted, #475569); font-weight: 600; white-space: nowrap; }
+  .ddd-ssm-table tbody td { border-bottom: 1px solid var(--color-border, #f1f5f9); padding: 0.5rem 0.75rem; vertical-align: middle; }
+  .ddd-ssm-table tbody tr:last-child td { border-bottom: 0; }
+  .ddd-ssm-table tbody tr:hover { background: var(--color-surface, #f9fafb); }
+
+  .ddd-ssm-slot-col { width: 4ch; font-weight: 700; color: var(--color-text, #0f172a); }
+  .ddd-ssm-title-col { width: 100%; font-family: var(--font-body, ui-sans-serif, system-ui, sans-serif); color: var(--color-text, #334155); font-size: 0.85rem; }
+  .ddd-ssm-var-col { text-align: center; width: 8rem; }
+  .ddd-ssm-var-col .ddd-ssm-var-label { display: block; color: var(--color-text, #0f172a); }
+  .ddd-ssm-var-stat { display: block; margin-top: 0.2rem; font-size: 0.7rem; letter-spacing: 0.05em; color: var(--color-text-muted, #94a3b8); font-weight: 400; }
+  .ddd-ssm-var-stat-sep { margin: 0 0.1rem; }
+
+  .ddd-ssm-cell { text-align: center; width: 8rem; }
+  .ddd-ssm-cell-link, .ddd-ssm-cell-glyph { display: inline-flex; align-items: center; justify-content: center; width: 1.5rem; height: 1.5rem; border-radius: 999px; font-size: 1rem; line-height: 1; text-decoration: none; }
+  .ddd-ssm-cell-link:hover { background: var(--color-background, #fff); outline: 1px solid var(--color-border, #cbd5e1); }
+  .ddd-ssm-cell--static     .ddd-ssm-cell-link, .ddd-ssm-cell--static     .ddd-ssm-cell-glyph { color: #047857; }
+  .ddd-ssm-cell--legacy     .ddd-ssm-cell-link, .ddd-ssm-cell--legacy     .ddd-ssm-cell-glyph { color: #b45309; }
+  .ddd-ssm-cell--registered .ddd-ssm-cell-link, .ddd-ssm-cell--registered .ddd-ssm-cell-glyph { color: #6b7280; }
+  .ddd-ssm-cell--absent     .ddd-ssm-cell-glyph { color: #cbd5e1; }
+</style>

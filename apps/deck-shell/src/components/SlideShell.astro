@@ -1,0 +1,115 @@
+---
+/**
+ * SlideShell — shared chrome around an individual slide section.
+ *
+ * Renders the outer <section> with:
+ *   - shared padding (clamp-based for fluid scaling)
+ *   - min-height: 100vh
+ *   - scroll-snap-align: start
+ *   - flex-column body wrapper with content-max-width
+ *   - optional vertical alignment (start / center / end)
+ *   - optional background variant (surface / background)
+ *   - optional consumer-provided "mark" pinned top-right via <slot name="mark">
+ *
+ * Promoted from chroma-decks/src/layouts/SlideShell.astro on 2026-06-06
+ * (plan: dididecks-ai/context-v/plans/
+ *         Lift-Chroma-Decks-Generic-Code-into-Shared-Shell.md, Phase 1).
+ *
+ * Differences from the chroma original:
+ *   - The hard-coded <ChromaMark /> is gone. Consumers wanting a corner
+ *     mark drop their own component into <slot name="mark"> (Wordmark,
+ *     ChromaMark, HumainMark, etc.). The shell stays brand-agnostic.
+ *   - CSS classes prefixed `ddd-slide-*` to avoid collisions.
+ *   - Visual values read through `--ddd-slide-*` tokens with fallbacks
+ *     to the consumer's semantic tokens (`--color-background`, etc.) —
+ *     no consumer is required to declare new tokens.
+ *
+ * Consumer integration:
+ *
+ *   import SlideShell from "@dididecks/shell/components/SlideShell.astro";
+ *
+ *   <SlideShell align="center" bg="background">
+ *     <Fragment slot="mark"><MyWordmark /></Fragment>
+ *     <h1>Slot content</h1>
+ *   </SlideShell>
+ */
+
+interface Props {
+  /** Optional class added to the <section> (e.g. for slide-specific background). */
+  class?: string;
+  /** Vertical content alignment. Default "center". */
+  align?: "start" | "center" | "end";
+  /** Background variant — "background" reads --color-background, "surface" reads --color-surface. */
+  bg?: "background" | "surface";
+  /** Optional data-slot value to forward to the <section> for the slot scanner. */
+  dataSlot?: string;
+  /** Optional data-variant value to forward to the <section> for the slot scanner. */
+  dataVariant?: string;
+  /** Optional data-slot-title. */
+  dataSlotTitle?: string;
+  /** Optional data-slot-slug. */
+  dataSlotSlug?: string;
+}
+
+const {
+  class: className,
+  align = "center",
+  bg = "background",
+  dataSlot,
+  dataVariant,
+  dataSlotTitle,
+  dataSlotSlug,
+} = Astro.props as Props;
+---
+
+<section
+  class:list={["ddd-slide", `ddd-slide-bg-${bg}`, `ddd-slide-align-${align}`, className]}
+  data-slot={dataSlot}
+  data-variant={dataVariant}
+  data-slot-title={dataSlotTitle}
+  data-slot-slug={dataSlotSlug}
+>
+  <div class="ddd-slide-mark">
+    <slot name="mark" />
+  </div>
+  <div class="ddd-slide-body">
+    <slot />
+  </div>
+</section>
+
+<style is:global>
+  .ddd-slide {
+    position: relative;
+    box-sizing: border-box;
+    min-height: var(--ddd-slide-min-height, 100vh);
+    width: 100%;
+    padding: var(--ddd-slide-padding-y, clamp(48px, 6vw, 88px))
+             var(--ddd-slide-padding-x, clamp(48px, 7vw, 112px));
+    display: flex;
+    flex-direction: column;
+    scroll-snap-align: start;
+  }
+  .ddd-slide-bg-background { background: var(--ddd-slide-bg, var(--color-background, white)); }
+  .ddd-slide-bg-surface    { background: var(--ddd-slide-bg-surface, var(--color-surface, white)); }
+
+  .ddd-slide-align-start  .ddd-slide-body { justify-content: flex-start; }
+  .ddd-slide-align-center .ddd-slide-body { justify-content: center; }
+  .ddd-slide-align-end    .ddd-slide-body { justify-content: flex-end; }
+
+  .ddd-slide-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: var(--ddd-slide-body-gap, clamp(20px, 2vw, 36px));
+    width: 100%;
+    max-width: var(--ddd-slide-body-max-width, 1280px);
+    margin: 0 auto;
+  }
+
+  .ddd-slide-mark {
+    position: absolute;
+    top: var(--ddd-slide-mark-offset, 32px);
+    right: var(--ddd-slide-mark-offset, 32px);
+    z-index: 2;
+  }
+</style>

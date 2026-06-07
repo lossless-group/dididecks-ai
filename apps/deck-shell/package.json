@@ -10,6 +10,7 @@
     "./routes/*": "./src/routes/*",
     "./components/*": "./src/components/*",
     "./runtime/*": "./src/runtime/*",
+    "./lib/*": "./src/lib/*",
     "./types": "./src/types/index.ts"
   },
   "files": [
