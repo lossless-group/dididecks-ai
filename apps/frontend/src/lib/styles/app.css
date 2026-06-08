@@ -309,6 +309,84 @@ textarea, select { font: inherit; }
   color: #c5cfea;
 }
 
+.play-mode-shell {
+  display: grid;
+  gap: 24px;
+}
+
+.play-mode-fullscreen {
+  min-height: calc(100vh - 160px);
+}
+
+.play-chrome {
+  display: grid;
+  gap: 18px;
+}
+
+.play-chrome-meta,
+.play-shortcuts,
+.variant-cycle-pill {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.variant-cycle-pill button {
+  display: grid;
+  gap: 2px;
+  padding: 10px 14px;
+  border-radius: 14px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.04);
+  color: #edf2ff;
+}
+
+.variant-cycle-pill button.selected {
+  background: rgba(111,92,255,0.16);
+  border-color: rgba(111,92,255,0.52);
+}
+
+.variant-empty {
+  color: #98a5cb;
+}
+
+.play-viewport {
+  display: grid;
+  place-items: center;
+  min-height: 60vh;
+}
+
+.play-slide-frame {
+  width: min(var(--play-max-width), calc(var(--play-max-height) * 16 / 9));
+  max-width: 100%;
+  aspect-ratio: 16 / 9;
+  display: grid;
+  place-items: stretch;
+}
+
+.play-slide-surface {
+  display: grid;
+  gap: 18px;
+  padding: 28px;
+  border-radius: 26px;
+  border: 1px solid rgba(255,255,255,0.1);
+  background:
+    radial-gradient(circle at top right, rgba(111,92,255,0.24), transparent 28%),
+    rgba(9, 12, 27, 0.96);
+  min-height: 100%;
+}
+
+.play-empty-surface {
+  place-items: center;
+  text-align: center;
+}
+
+.play-block-stack {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
 input, textarea, select {
   width: 100%;
   border-radius: 14px;
