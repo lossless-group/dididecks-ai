@@ -6,7 +6,10 @@
     { href: `/decks/${deckId}/editor`, label: 'Editor' },
     { href: `/decks/${deckId}/map`, label: 'Map' },
     { href: `/decks/${deckId}/smart-edit`, label: 'Smart edit' },
-    { href: `/decks/${deckId}/rebuild`, label: 'Rebuild' }
+    { href: `/decks/${deckId}/rebuild`, label: 'Rebuild' },
+    { href: `/decks/${deckId}/play`, label: 'Play' },
+    { href: `/decks/${deckId}/scroll`, label: 'Scroll' },
+    { href: `/decks/${deckId}/print`, label: 'Print' }
   ];
 </script>
 

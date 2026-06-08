@@ -10,7 +10,7 @@
 </script>
 
 <DeckWorkspaceShell {deckId}>
-  <PageHeader eyebrow="Access" title="Permissions and share surfaces" copy="Reserved for members, links, and access policy UI." />
+  <PageHeader eyebrow="Access" title="Permissions and share surfaces" copy="Manage workspace members, share links, and access posture for the active deck." />
 
   <section class="route-grid route-grid-wide">
     <article class="panel">

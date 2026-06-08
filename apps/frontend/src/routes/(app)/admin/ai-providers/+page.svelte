@@ -15,7 +15,7 @@
   ];
 </script>
 
-<PageHeader eyebrow="Admin" title="Managed AI providers" copy="Provider configuration stays backend-owned. This route is an admin surface shell only." />
+<PageHeader eyebrow="Admin" title="Managed AI providers" copy="Review provider status and admin-facing model defaults here while keeping all real credentials and activation logic backend-owned." />
 <ManagedProviderForm />
 {#each mockConnections as connection}
   <ManagedProviderCard {connection} />

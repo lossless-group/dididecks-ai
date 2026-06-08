@@ -16,7 +16,7 @@
 </script>
 
 <DeckWorkspaceShell {deckId}>
-  <PageHeader eyebrow="Rebuild" title="Full rebuild" copy="Reserved for high-impact deck rebuild workflows." />
+  <PageHeader eyebrow="Rebuild" title="Full rebuild" copy="Review high-impact narrative rebuild phases before a backend-backed apply step changes the deck." />
 
   <section class="route-grid route-grid-wide">
     <article class="panel">
