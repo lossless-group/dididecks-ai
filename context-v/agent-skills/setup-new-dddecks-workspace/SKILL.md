@@ -150,7 +150,19 @@ This hierarchy holds in both CSS and Tailwind. The refactor obligation is the lo
 
 ### Why three layers, not two
 
-The first two layers do the work the `theme-system` skill names: client iteration (swap Tier 1, re-point Tier 2, components don't change) and three-mode runtime switching (cascade through Tier 2 per `data-mode`). The third layer does a *different* job — it makes the brand reachable from utility-class authoring. Without it, an LLM coding agent generating Tailwind has access only to the default Tailwind palette; the brand's signature colors are invisible to the class-generation step.
+**The three-layer discipline is DRY at cross-project, cross-repo scale.** Inside one codebase DRY means "don't repeat yourself"; here it means "don't re-author the same slide for every client." A slide layout written for one `client-sites/<X>/` repo should drop into another with the *same component code* and pick up the destination's brand automatically — no line-by-line translation of colors, fonts, or spacing. That works only when components reach through the abstraction layers in the right order:
+
+- **System-tier utilities** (`bg-primary`, `text-display`, `font-display`) resolve to the destination's mode-aware semantic values. No work to repurpose.
+- **Functional-tier vars** (`var(--color-primary)` in arbitrary CSS values or `bg-[var(--color-primary)]`) resolve the same way. Also no work.
+- **Named-tier reaches** (`bg-purple-heart`, `var(--color__cyan-aqua)`) carry a *source-specific* color into the destination, where that name may not exist or mean something different. **These are the points repurposing breaks.**
+
+The three-layer discipline is what makes "this slide layout was perfect for Calmstorm, let's use it for Lossless" a free operation rather than a refactor. Across the dididecks tree — calmstorm-decks, chroma-decks, humain-vc-decks, reach-edu-hub, lossless-decks, future engagements — Phase 1-3 outputs of `deck-iteration-workflow` (the single-page narrative, the individual slides, the cleaned-up componentization) become shareable assets, not single-use ones. **The deck-OS spec's eventual catalog of reusable slide patterns rides on this contract; without three-layer discipline, the catalog can't exist.**
+
+Secondary payoffs (real but not the lead motivation):
+
+- **Per-engagement client iteration** — swap Tier 1 named values mid-engagement, components keep working (the original two-tier framing in the `theme-system` skill).
+- **Three-mode runtime switching** — Tier 2 cascade per `data-mode` (also the original framing).
+- **Agent-authoring affordance** — Tier 3 makes the brand reachable from utility-class generation, so an LLM coding agent doesn't drop to inline `style=""` and silently dilute the brand. This is the surface payoff; the structural payoff is the recyclability above.
 
 ### What to mirror into Tier 3
 
