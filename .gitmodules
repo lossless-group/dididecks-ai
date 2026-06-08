@@ -18,3 +18,7 @@
 	path = corpus
 	url = https://github.com/lossless-group/dddecks-corpus.git
 	branch = development
+[submodule "client-sites/lossless-decks"]
+	path = client-sites/lossless-decks
+	url = https://github.com/lossless-group/lossless-decks.git
+	branch = development
