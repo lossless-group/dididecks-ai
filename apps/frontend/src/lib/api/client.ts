@@ -1,0 +1,46 @@
+function resolveApiPath(path: string): string {
+  if (/^https?:\/\//.test(path)) {
+    return path;
+  }
+
+  const normalizedPath = path.startsWith('/') ? path : `/${path}`;
+  const base = (import.meta.env.PUBLIC_API_BASE_URL as string | undefined)?.trim();
+
+  if (!base) {
+    return normalizedPath;
+  }
+
+  return `${base.replace(/\/$/, '')}${normalizedPath}`;
+}
+
+export async function apiGet<T>(path: string, fetcher: typeof fetch = fetch): Promise<T> {
+  const response = await fetcher(resolveApiPath(path), {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json'
+    }
+  });
+
+  if (!response.ok) {
+    throw new Error(`GET ${path} failed with ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+}
+
+export async function apiPost<T>(path: string, body: unknown, fetcher: typeof fetch = fetch): Promise<T> {
+  const response = await fetcher(resolveApiPath(path), {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json'
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    throw new Error(`POST ${path} failed with ${response.status}`);
+  }
+
+  return (await response.json()) as T;
+}

@@ -10,6 +10,8 @@ recurring VC/Private Markets/Philanthropy work that single-deck tools don't addr
 
 ## Where things live
 
+- **Active product app:** [`apps/frontend/`](./apps/frontend/)
+- **Astro shell reference package:** [`apps/deck-shell/`](./apps/deck-shell/)
 - **Living spec:** [`context-v/specs/Dididecks-AI-Slide-Decks-as-Code.md`](./context-v/specs/Dididecks-AI-Slide-Decks-as-Code.md)
 - **Sibling specs:**
   - [`Dididecks-AI-DD-Ready-Citation-and-Source-Access`](./context-v/specs/Dididecks-AI-DD-Ready-Citation-and-Source-Access.md)
@@ -43,10 +45,49 @@ included in the snapshot.
 
 ## Status
 
-**Early architecture.** No core implementation yet. The splash page, the specs,
-and the two existing client engagements (`calmstorm-decks`, `reach-edu-hub`) are
-the entire surface area today. Implementation prompts will follow under
-`context-v/prompts/`.
+**Active MVP in progress.** `apps/frontend` is now the active SvelteKit product app.
+`apps/deck-shell` remains an Astro integration/reference package, `splash/` remains
+the landing/reference site, and the local SvelteKit API is MVP-only. No AiStack
+backend code is copied here and no secrets belong in committed files.
+
+## Public Product Surfaces
+
+The active commercial/public product work lives in [`apps/frontend/`](./apps/frontend/).
+
+Public routes now available in the SvelteKit app:
+
+- `/`
+- `/about`
+- `/pricing`
+- `/billing/success`
+- `/billing/cancel`
+- `/contact`
+- `/legal/privacy`
+- `/legal/terms`
+- `/auth/sign-in`
+- `/auth/sign-up`
+
+To run the active frontend locally:
+
+```bash
+pnpm install
+pnpm --filter @dididecks/frontend dev
+```
+
+Verification commands:
+
+```bash
+pnpm --filter @dididecks/frontend check
+pnpm --filter @dididecks/frontend build
+```
+
+Current scope:
+
+- public product pages and auth shells are implemented in the frontend
+- pricing and billing are frontend surfaces only for now
+- privacy and terms are draft product pages and still require legal review
+- backend-dependent work still includes checkout, subscription confirmation, session validation, persistence, uploads, and AI/provider secrets
+- secrets belong only in the backend; the frontend calls backend API boundaries only
 
 ## Parentage
 

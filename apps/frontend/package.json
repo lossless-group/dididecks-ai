@@ -1,0 +1,22 @@
+{
+  "name": "@dididecks/frontend",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite dev",
+    "build": "vite build",
+    "preview": "vite preview",
+    "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json"
+  },
+  "devDependencies": {
+    "@sveltejs/adapter-auto": "^3.3.1",
+    "@sveltejs/kit": "^2.39.5",
+    "@sveltejs/vite-plugin-svelte": "^5.1.1",
+    "@types/node": "^22.15.30",
+    "svelte": "^5.28.2",
+    "svelte-check": "^4.1.1",
+    "typescript": "^5.6.3",
+    "vite": "^6.4.1"
+  }
+}
