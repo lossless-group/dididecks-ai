@@ -80,6 +80,17 @@ Each phase produces named files and a clear "done" condition. Substantive bodies
 - Pick Mode A (website-parse) or Mode B (source-code-copy) per the section above
 - Produce: `DESIGN.md` (per `maintain-design-md`), `src/styles/theme.css` + `global.css` (per `theme-system`), `src/assets/brand/` with logo/favicon
 - For OG / share imagery: scaffold the `imagery:` block in `DESIGN.md` (per `generate-consistent-og-images`) — actual image generation is deferred to Phase 6
+- **Mode B reconciliation when the source predates the three-mode discipline:** the source `theme.css` likely uses a flat single-mode palette (no light/dark/vibrant separation, no two-tier semantic discipline). Do NOT ship the legacy file verbatim. *Translate* it into the convention; preserve the verbatim source at `references/source--<name>.legacy.css` so the lineage from the parent brand is auditable. See *Tailwind brand-token wiring* below for the layer the translation produces.
+
+### Phase 2.5 — Wire brand tokens through to Tailwind  [awaits first run]
+
+This is small but high-leverage. The `@theme` block (and any `@utility` declarations) is what makes the brand reachable by an LLM coding agent generating Tailwind classes. Skipped, the agent falls back to inline `style="..."` or invents one-off classes — which silently dilutes the brand across slides.
+
+See the *Tailwind brand-token wiring* section below for the full discipline; the per-engagement work is:
+
+- Mirror a curated subset of named brand colors into `@theme` (so utilities like `bg-jaguar`, `text-cyan-aqua` exist)
+- Add `@utility` declarations for any brand-load-bearing visual that doesn't fit a single token — at minimum, the signature gradient (`bg-signature` / `text-signature` for gradient-filled text)
+- Decide which compound utilities (if any) earn their place — defer until first-deck evidence shows repeated patterns; over-baking compounds locks in the wrong shapes
 
 ### Phase 3 — Wire the auth surface  [awaits first run]
 
@@ -114,6 +125,57 @@ Each phase produces named files and a clear "done" condition. Substantive bodies
 
 - For native / current pattern: stand up a Vercel project, wire env vars per the per-engagement `Install-Auth-Surface-from-Calmstorm-Pattern` plan
 - For cloud-workspace clients (when that pattern exists): wire to the central server-side build per the bridging exploration's "publish step"
+
+## Tailwind brand-token wiring (the three-layer convention)
+
+Lossless theme files carry tokens through **three** layers, not two. The `theme-system` skill describes the first two (named + functional); the third is the porting that makes the brand reachable from Tailwind utility classes. All three layers live in `src/styles/theme.css`:
+
+| Layer | Convention | Example | Read by (by convention) |
+|---|---|---|---|
+| **1. Named** (brand inventory) | `--color__<thing>-<descriptor>` with BEM-ish `__` separator. Raw values. Mode-invariant. Private *by default*. | `--color__purple-heart: hsl(272, 73%, 55%)` | Tier 2 + Tier 3. By components only as an escape hatch (see *Reach order* below). |
+| **2. Functional** (semantic) | `--color-<role>` kebab-case. References Tier 1 via `var()`. Rebound per `<html data-mode>`. | `--color-primary: var(--color__purple-heart)` | Components (via CSS) AND Tier 3. |
+| **3. System** (Tailwind exposure) | `@theme { --color-<role>: var(--color-<role>) }` block. Mirrors Tier 2 into Tailwind's namespace AND ports a *curated subset* of Tier 1 named colors so brand-explicit utilities exist. | `--color-primary: var(--color-primary)` AND `--color-purple-heart: var(--color__purple-heart)` | Components (via Tailwind utilities) AND Tailwind's utility-class generator. **This is the first reach for component code.** |
+
+### Reach order in component code
+
+Component code (Astro files, CSS classes, inline class= attributes) should reach for layers in this order, with the next layer used only when the previous one doesn't carry the meaning:
+
+1. **System first.** Tailwind utility classes — `bg-primary`, `text-text-muted`, `font-display`, `bg-signature`. This is the default authoring surface, what an LLM coding agent should generate by default, and what survives a theme refresh untouched.
+2. **Functional next.** CSS `var(--color-primary)` inside a custom property, a one-off `<style>` block, or a Tailwind arbitrary value like `bg-[var(--color-primary)]`. Used when the agent needs the semantic role but Tailwind doesn't have the exact utility shape (e.g., a `linear-gradient` mixing two semantic stops).
+3. **Named as last resort.** `var(--color__purple-heart)` or the utility shortcut `bg-purple-heart`. Fine for creativity — sometimes a slide *needs* "Lossless purple" specifically rather than whatever primary the current mode resolves to. **But every use of a named variable is a refactor candidate.** If the same named color appears in 3+ places, it has earned a new functional role (probably a new Tier 2 token) or a new compound utility. Pull it back up the stack.
+
+This hierarchy holds in both CSS and Tailwind. The refactor obligation is the load-bearing part: named-tier reaches drift the brand if left in place, because they bypass the mode cascade and lock in a fixed look that won't respond to a future theme swap.
+
+### What to mirror into Tier 3
+
+### Why three layers, not two
+
+The first two layers do the work the `theme-system` skill names: client iteration (swap Tier 1, re-point Tier 2, components don't change) and three-mode runtime switching (cascade through Tier 2 per `data-mode`). The third layer does a *different* job — it makes the brand reachable from utility-class authoring. Without it, an LLM coding agent generating Tailwind has access only to the default Tailwind palette; the brand's signature colors are invisible to the class-generation step.
+
+### What to mirror into Tier 3
+
+- **All Tier 2 (functional) tokens.** These are the default reach for components.
+- **A curated subset of Tier 1 (named) brand colors.** Pick the ones authors will reach for *deliberately* — the signature gradient stops, the signature primary (`purple-heart`), the peak accent (`cyan-aqua`), 2-3 darks, 2-3 lights. Skip the rare ones.
+- **Brand-load-bearing compounds via `@utility`.** At minimum, the signature gradient as `bg-signature` and `text-signature` (gradient-filled text). Custom utilities are Tailwind v4's `@utility` directive.
+
+### What NOT to mirror
+
+- Every named color from Tier 1 — too much surface area, makes the agent's autocomplete noisy, devalues the curated brand picks.
+- Mode-specific values directly — Tier 2 already handles modes via the cascade; Tier 3 mirrors *references* to Tier 2, not the resolved values.
+- Compound utilities before you have evidence — a `card-bench` shortcut baked in before the first deck shows whether that compound is real will lock in the wrong shape. Defer to second-deck.
+
+### Maintenance triggers
+
+When this layer wants attention:
+
+- **Adding a new named brand color** → consider whether to also mirror it into `@theme` for agent affordance. If the new color is for a *one-off illustration*, no; if authors will reach for it, yes.
+- **Adding a new functional token** → always mirror into `@theme`. Functional tokens are the default agent-authoring surface and must be in the namespace.
+- **An LLM-generated slide reaches for `style="background: ..."` or invents a new class** → that's the smoke signal. Whatever it reached for probably belongs in `@theme` or as a new `@utility`.
+- **A theme refresh changes a named color's value** → no Tier 3 change needed (the `var()` reference still resolves), but DESIGN.md needs to update per `maintain-design-md`.
+
+### Reference implementation
+
+`client-sites/lossless-decks/src/styles/theme.css` carries the canonical version of this pattern as of 2026-06-08. Read it end-to-end as the worked example. The `lossless.group` source — `lossless-monorepo/site/src/styles/lossless-theme.css` — is preserved verbatim at `client-sites/lossless-decks/references/source--lossless-theme.legacy.css` to show what a *pre-three-mode, pre-three-layer* brand file looks like, so the translation work is auditable.
 
 ## Output shape (canonical, target)
 
