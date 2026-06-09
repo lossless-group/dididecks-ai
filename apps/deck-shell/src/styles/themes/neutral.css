@@ -1,17 +1,21 @@
 /* =====================================================================
- * @dididecks/shell — neutral default theme
+ * @dididecks/shell — chrome theme defaults (pass-through to contract)
  *
- * The universal calmstorm-flavored fallback. Clean, light, white/grey/
- * black. This is what every consumer site inherits when they override
- * no tokens. If your client deck has its own design system, override
- * the relevant `--ddd-chrome-*` tokens at `:root` (or a scoped
- * `:root[data-deck-skin="..."]`) and you get your skin — un-overridden
- * tokens still fall back to these values.
+ * This file used to carry calmstorm-flavored hardcoded white/grey/black
+ * values as a "neutral default" for consumers that didn't set their own.
+ * That was wrong — the shell has no business shipping color values that
+ * fight a client-site's brand. All chrome color and font references now
+ * live in `../chrome-tokens.css` and resolve to the CONSUMER's functional
+ * tokens (`--color-background`, `--color-surface`, `--color-text`,
+ * `--color-text-muted`, `--color-border`, `--font-body`, `--font-mono`).
  *
- * Imports the contract catalog first (so docs/IDE see every token),
- * then re-asserts every value at `:root`. Importing this file is what
- * "opts in" to the neutral default; importing only `chrome-tokens.css`
- * gives consumers a documentation file without committing to a theme.
+ * This file is kept only as a stable import path — existing consumers
+ * (PlayChrome, the /play routes, etc.) import it via
+ *   `import "../styles/themes/neutral.css"`
+ * and we don't want to churn every importer. It simply re-imports the
+ * contract; there are no per-mode override blocks, no hardcoded colors,
+ * no font stacks. The consumer's `[data-mode]` cascade on `--color-*`
+ * tokens drives all chrome mode-awareness automatically.
  *
  * Plan of record:
  *   dididecks-ai/context-v/plans/
@@ -19,54 +23,3 @@
  * ===================================================================== */
 
 @import "../chrome-tokens.css";
-
-:root {
-  /* Surface */
-  --ddd-chrome-bg:                rgb(255 255 255 / 0.85);
-  --ddd-chrome-bg-hover:          rgb(249 250 251);
-  --ddd-chrome-backdrop:          blur(8px);
-
-  /* Border + radius */
-  --ddd-chrome-border:            rgb(209 213 219);
-  --ddd-chrome-radius:            2px;
-
-  /* Type */
-  --ddd-chrome-fg:                rgb(55 65 81);
-  --ddd-chrome-fg-strong:         rgb(15 23 42);
-  --ddd-chrome-fg-muted:          rgb(107 114 128);
-  --ddd-chrome-font:              ui-sans-serif, system-ui, sans-serif;
-  --ddd-chrome-font-mono:         ui-monospace, "SFMono-Regular", Menlo, monospace;
-  --ddd-chrome-size-counter:      11px;
-  --ddd-chrome-size-button:       12px;
-
-  /* Button geometry */
-  --ddd-chrome-button-h:          28px;
-  --ddd-chrome-button-w:          28px;
-
-  /* Idle behavior */
-  --ddd-chrome-idle-opacity:      0.3;
-  --ddd-chrome-fade-ms:           200ms;
-  --ddd-chrome-z:                 100;
-
-  /* Tooltip */
-  --ddd-chrome-tooltip-bg:        rgb(15 23 42 / 0.95);
-  --ddd-chrome-tooltip-fg:        white;
-  --ddd-chrome-tooltip-radius:    4px;
-  --ddd-chrome-tooltip-pad:       0.4rem 0.65rem;
-  --ddd-chrome-tooltip-fade-ms:   120ms;
-
-  /* Play surface (dark cinema chrome — calmstorm-flavored default) */
-  --ddd-play-stage-bg:            #0a0f1a;
-  --ddd-play-chrome-bg:           rgb(10 15 26 / 0.85);
-  --ddd-play-chrome-backdrop:     blur(6px);
-  --ddd-play-chrome-border:       rgb(255 255 255 / 0.08);
-  --ddd-play-chrome-fg:           rgb(255 255 255 / 0.65);
-  --ddd-play-chrome-fg-strong:    white;
-  --ddd-play-chrome-fg-muted:     rgb(255 255 255 / 0.45);
-  --ddd-play-link-bg:             transparent;
-  --ddd-play-link-bg-hover:       rgb(255 255 255 / 0.08);
-  --ddd-play-link-border:         rgb(255 255 255 / 0.2);
-  --ddd-play-link-border-hover:   rgb(255 255 255 / 0.5);
-  --ddd-play-canvas-shadow:       0 12px 48px rgb(0 0 0 / 0.4);
-  --ddd-play-canvas-radius:       4px;
-}

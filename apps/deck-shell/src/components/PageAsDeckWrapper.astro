@@ -46,6 +46,14 @@ const {
   showNavigationHints = true,
   hintDuration = 2400,
 } = Astro.props as Props;
+
+// SlidePaginator is the standalone top-right indicator. It replaces the
+// inline `.ddd-section-indicator` block that used to live here; theming
+// is via `--ddd-chrome-*` tokens (chrome-tokens.css) so the capsule
+// inverts contrast per `<html data-mode>`. It dispatches
+// `deck:section-goto` events for type-to-jump, which the wrapper script
+// listens for below.
+import SlidePaginator from "./SlidePaginator.astro";
 ---
 
 <div
@@ -63,11 +71,7 @@ const {
     <span class="ddd-hint-text">scroll · arrow keys · double-click to advance</span>
   </div>
 
-  <div class="ddd-section-indicator">
-    <span class="ddd-current-section">1</span>
-    <span class="ddd-separator">/</span>
-    <span class="ddd-total-sections">1</span>
-  </div>
+  <SlidePaginator />
 </div>
 
 <style>
@@ -124,33 +128,12 @@ const {
   .ddd-hint-icon { font-size: 0.9rem; animation: ddd-bounce 2s ease-in-out infinite; }
   @keyframes ddd-bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(3px); } }
 
-  .ddd-section-indicator {
-    position: fixed;
-    top: 1.5rem;
-    right: 1.5rem;
-    display: flex;
-    align-items: baseline;
-    gap: 0.25rem;
-    padding: 0.5rem 0.85rem;
-    border-radius: var(--ddd-scroll-counter-radius, 4px);
-    background: var(--ddd-scroll-glass-bg, var(--color-glass-bg, rgba(255, 255, 255, 0.85)));
-    border: 1px solid var(--ddd-scroll-glass-border, var(--color-border, rgba(0, 0, 0, 0.1)));
-    color: var(--ddd-scroll-text-muted, var(--color-text-muted, #6b7280));
-    font-family: var(--ddd-scroll-display, var(--font-display, var(--font-body, system-ui, sans-serif)));
-    font-size: 0.8rem;
-    letter-spacing: 0.05em;
-    z-index: 100;
-    backdrop-filter: blur(6px);
-    -webkit-backdrop-filter: blur(6px);
-    font-variant-numeric: tabular-nums;
-  }
+  /* The section-indicator capsule has been extracted to SlidePaginator.astro,
+     which owns its own styles via the canonical --ddd-chrome-* tokens and
+     mode-aware overrides for dark/vibrant. Don't reintroduce styles here. */
 
-  .ddd-current-section { font-weight: 600; color: var(--ddd-scroll-text, var(--color-text, #111)); }
-  .ddd-separator       { opacity: 0.4; }
-  .ddd-total-sections  { opacity: 0.7; }
-
-  /* Chrome-off mode (toggled with 'c'). */
-  :global(body[data-chrome="off"]) .ddd-section-indicator,
+  /* Chrome-off mode (toggled with 'c'). SlidePaginator handles its own
+     visibility under body[data-chrome="off"]. */
   :global(body[data-chrome="off"]) .ddd-nav-hint { opacity: 0; pointer-events: none; }
   :global(body[data-chrome="off"]) .ddd-deck-wrapper { height: 100vh; }
 </style>
@@ -177,6 +160,12 @@ const {
       const hintDuration = parseInt(wrapper.getAttribute("data-hint-duration") || "2400", 10);
 
       const updateIndicator = () => {
+        // SlidePaginator listens to deck:section-changed (dispatched in
+        // updateBoundaries) and syncs its own DOM. We keep this stub for
+        // backwards-compat with any consumer that still queries the old
+        // .ddd-current-section / .ddd-total-sections selectors — those
+        // selectors no longer match anything but the function is cheap
+        // and the call sites already exist.
         const cur = wrapper.querySelector(".ddd-current-section");
         const tot = wrapper.querySelector(".ddd-total-sections");
         if (cur) cur.textContent = String(currentIndex + 1);
@@ -211,6 +200,12 @@ const {
 
       window.addEventListener("deck:section-prev", prev as EventListener);
       window.addEventListener("deck:section-next", next as EventListener);
+
+      // SlidePaginator's type-to-jump input dispatches this with detail.index
+      // (0-based, already clamped to deck bounds).
+      window.addEventListener("deck:section-goto", ((e: CustomEvent) => {
+        if (typeof e.detail?.index === "number") navigateTo(e.detail.index);
+      }) as EventListener);
 
       // #s-N hash jump on load.
       const hashMatch = location.hash.match(/^#s-(\d+)$/);
@@ -286,7 +281,9 @@ const {
       items.forEach((item) => io.observe(item));
 
       updateIndicator();
-      updateBoundaries();
+      // Defer one tick so SlidePaginator's DOMContentLoaded listener has
+      // registered before the initial deck:section-changed event fires.
+      setTimeout(() => updateBoundaries(), 0);
 
       if (showHints) {
         wrapper.classList.add("show-hints");

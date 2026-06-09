@@ -22,41 +22,57 @@
  * ===================================================================== */
 
 :root {
+  /* ── Reference discipline ─────────────────────────────────────────
+   * The shell is consumer-agnostic — it has no business shipping color
+   * values (hardcoded white/grey/black) that would override or fight
+   * a client-site's brand. EVERY chrome color and font reference below
+   * resolves to a CONSUMER token via var(). The consumer's theme.css
+   * sets `--color-background`, `--color-surface`, `--color-text`,
+   * `--color-text-muted`, `--color-border`, `--font-body`, `--font-mono`
+   * per their own brand and rebinds them per `[data-mode]`. The chrome
+   * picks up whatever's set; it never asserts its own colors.
+   *
+   * Per the setup-new-dddecks-workspace skill's reach-order discipline:
+   * system tokens reference functional. No hardcoded colors anywhere.
+   * Geometric tokens (radius, sizes, durations) and pure CSS filters
+   * (blur) remain literal — they're tuning, not theme.
+   * ────────────────────────────────────────────────────────────────── */
+
   /* ── Surface ────────────────────────────────────────────────────── */
 
-  /** Capsule background. Alpha < 1 lets `backdrop-filter` read through. */
-  --ddd-chrome-bg:                rgb(255 255 255 / 0.85);
+  /** Capsule background — sits a step up from the page background. */
+  --ddd-chrome-bg:                var(--color-surface);
 
-  /** Button hover-state background. Lands on top of `--ddd-chrome-bg`. */
-  --ddd-chrome-bg-hover:          rgb(249 250 251);
+  /** Button hover-state background — same surface; consumer can elevate further. */
+  --ddd-chrome-bg-hover:          var(--color-surface);
 
-  /** Backdrop filter applied behind the capsule. */
+  /** Backdrop filter applied behind the capsule (CSS filter, not a color). */
   --ddd-chrome-backdrop:          blur(8px);
 
   /* ── Border + radius ────────────────────────────────────────────── */
 
   /** Border color for capsule + each button. */
-  --ddd-chrome-border:            rgb(209 213 219);
+  --ddd-chrome-border:            var(--color-border);
 
-  /** Corner radius for capsule + buttons. 2px = calmstorm's `rounded-sm`. */
+  /** Corner radius for capsule + buttons. Geometric — not a theme token. */
   --ddd-chrome-radius:            2px;
 
   /* ── Type ───────────────────────────────────────────────────────── */
 
   /** Default button glyph + label color. */
-  --ddd-chrome-fg:                rgb(55 65 81);
+  --ddd-chrome-fg:                var(--color-text-muted);
 
   /** Strong text (counter numeral, button hover, focus). */
-  --ddd-chrome-fg-strong:         rgb(15 23 42);
+  --ddd-chrome-fg-strong:         var(--color-text);
 
   /** Muted text (counter label, separators). */
-  --ddd-chrome-fg-muted:          rgb(107 114 128);
+  --ddd-chrome-fg-muted:          var(--color-text-muted);
 
   /** Body font for buttons + counter labels. */
-  --ddd-chrome-font:              ui-sans-serif, system-ui, sans-serif;
+  --ddd-chrome-font:              var(--font-body);
 
   /** Monospace for tabular-num counters. */
-  --ddd-chrome-font-mono:         ui-monospace, "SFMono-Regular", Menlo, monospace;
+  --ddd-chrome-font-mono:         var(--font-mono);
 
   /** Counter font-size (pill of "01 / 17 · v2"). */
   --ddd-chrome-size-counter:      11px;
@@ -85,11 +101,11 @@
 
   /* ── Tooltip ────────────────────────────────────────────────────── */
 
-  /** Tooltip background. Alpha to read on glass surfaces. */
-  --ddd-chrome-tooltip-bg:        rgb(15 23 42 / 0.95);
+  /** Tooltip background — inverted from the page surface so the pop is high-contrast. */
+  --ddd-chrome-tooltip-bg:        var(--color-text);
 
-  /** Tooltip text color. */
-  --ddd-chrome-tooltip-fg:        white;
+  /** Tooltip text — inverted from the tooltip bg, reads on the consumer's text color. */
+  --ddd-chrome-tooltip-fg:        var(--color-background);
 
   /** Tooltip corner radius. */
   --ddd-chrome-tooltip-radius:    4px;
@@ -100,50 +116,62 @@
   /** Tooltip transition duration. */
   --ddd-chrome-tooltip-fade-ms:   120ms;
 
-  /* ── Play-surface tokens (dark cinema chrome) ─────────────────────
-   * The /play/[slot] route uses a different visual register than the
-   * floating capsule — full-width fixed top + bottom bars over a dark
-   * stage, so the white slide canvas pops as paper-on-table. These
-   * tokens parameterize that surface. Calmstorm-flavored defaults:
-   * stage = #0a0f1a, chrome = stage @ 0.85 alpha with 6px blur.
+  /* ── Play-surface tokens (cinema-style chrome on the /play route) ──
+   * Same reference-only discipline as the floating chrome above. The
+   * play surface intentionally has a heavier visual register, but the
+   * COLORS still come from the consumer's theme — not from hardcoded
+   * cinema-dark RGB values that would fight a light-mode brand.
    * ───────────────────────────────────────────────────────────────── */
 
   /** Stage background (what the slide canvas sits on). */
-  --ddd-play-stage-bg:            #0a0f1a;
+  --ddd-play-stage-bg:            var(--color-background);
 
-  /** Top/bottom chrome bar background. Alpha < 1 so backdrop-filter reads. */
-  --ddd-play-chrome-bg:           rgb(10 15 26 / 0.85);
+  /** Top/bottom chrome bar background. */
+  --ddd-play-chrome-bg:           var(--color-surface);
 
   /** Backdrop filter for chrome bars over the stage. */
   --ddd-play-chrome-backdrop:     blur(6px);
 
   /** Chrome bar border (separator from stage). */
-  --ddd-play-chrome-border:       rgb(255 255 255 / 0.08);
+  --ddd-play-chrome-border:       var(--color-border);
 
   /** Chrome bar text — muted default. */
-  --ddd-play-chrome-fg:           rgb(255 255 255 / 0.65);
+  --ddd-play-chrome-fg:           var(--color-text-muted);
 
   /** Chrome bar text — strong (brand label). */
-  --ddd-play-chrome-fg-strong:    white;
+  --ddd-play-chrome-fg-strong:    var(--color-text);
 
   /** Chrome bar text — extra muted (hints, secondary labels). */
-  --ddd-play-chrome-fg-muted:     rgb(255 255 255 / 0.45);
+  --ddd-play-chrome-fg-muted:     var(--color-text-muted);
 
   /** Nav-link button bg (resting). */
   --ddd-play-link-bg:             transparent;
 
   /** Nav-link button bg (hover). */
-  --ddd-play-link-bg-hover:       rgb(255 255 255 / 0.08);
+  --ddd-play-link-bg-hover:       var(--color-surface);
 
   /** Nav-link button border. */
-  --ddd-play-link-border:         rgb(255 255 255 / 0.2);
+  --ddd-play-link-border:         var(--color-border);
 
   /** Nav-link button border on hover. */
-  --ddd-play-link-border-hover:   rgb(255 255 255 / 0.5);
+  --ddd-play-link-border-hover:   var(--color-text-muted);
 
-  /** Canvas drop-shadow (paper-on-table effect). */
-  --ddd-play-canvas-shadow:       0 12px 48px rgb(0 0 0 / 0.4);
+  /** Canvas drop-shadow (atmospheric, ties to the consumer's text color). */
+  --ddd-play-canvas-shadow:       0 12px 48px color-mix(in srgb, var(--color-text) 30%, transparent);
 
   /** Canvas border radius. */
   --ddd-play-canvas-radius:       4px;
 }
+
+/* No per-mode override blocks needed.
+ *
+ * The chrome surface + text tokens above all derive from the consumer's
+ * functional `--color-text` via `color-mix()`. Since `--color-text` is
+ * already mode-aware in the consumer's theme (per the theme-system skill
+ * — light/dark/vibrant rebind it via `[data-mode]`), the chrome inherits
+ * the contrast automatically. The capsule reads as low-alpha dark on
+ * light, low-alpha light on dark, low-alpha white on vibrant — driven
+ * by the consumer's own color choices, not by hardcoded fallback values
+ * in this file. Per the setup-new-dddecks-workspace skill's "system
+ * → functional → named" reach order, this is the right tier for chrome
+ * tokens to live at. */
