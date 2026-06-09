@@ -9,7 +9,6 @@
   ];
 </script>
 
-<svelte:head><title>Create account | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Auth" title="Create account" copy="Create the workspace boundary for decks, versions, exports, access, and AI-assisted narrative operations." />
 
 <section class="auth-grid">

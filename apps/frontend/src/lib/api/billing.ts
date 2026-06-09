@@ -3,7 +3,7 @@ import type {
   BillingCheckoutPayload,
   BillingCheckoutResponse,
   BillingPlan
-} from '$lib/types/billing';
+} from '@dididecks/shared/billing';
 import { apiGet, apiPost } from './client';
 
 export function listBillingPlans(fetcher?: typeof fetch): Promise<BillingPlan[]> {

@@ -3,7 +3,6 @@
   import { useCases } from '$lib/data/marketing';
 </script>
 
-<svelte:head><title>Use Cases | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Use Cases" title="Where reusable deck infrastructure matters most" copy="The strongest fit is recurring, high-stakes narrative work where decks change often, proof matters, and brand context varies by audience." />
 
 <section class="card-grid-3 route-grid">

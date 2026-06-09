@@ -11,7 +11,6 @@
   ];
 </script>
 
-<svelte:head><title>Privacy | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Legal" title="Privacy draft" copy="Product-appropriate privacy draft for DidiDecks. This text requires legal review before production use." />
 
 <section class="route-grid route-grid-wide">

@@ -4,13 +4,21 @@
 
   const mainItems = [
     { href: '/dashboard', label: 'Dashboard' },
+    { href: '/analytics', label: 'Analytics' },
+    { href: '/clients', label: 'Clients' },
+    { href: '/templates', label: 'Templates' },
     { href: '/decks', label: 'Decks' },
     { href: '/decks/new', label: 'Create Deck' },
+    { href: '/design-system', label: 'Design System' },
+    { href: '/component-library', label: 'Component Library' },
     { href: '/admin/ai-providers', label: 'Provider Status' },
+    { href: '/admin/repo-structure', label: 'Repo Structure' },
     { href: '/account/settings', label: 'Account' }
   ];
 
   const reviewItems = [
+    { href: '/toc', label: 'TOC' },
+    { href: '/slides', label: 'Slides' },
     { href: '/map', label: 'Deck Map' },
     { href: '/editor', label: 'Editor' },
     { href: '/smart-edit', label: 'Smart Edit' },
@@ -25,7 +33,14 @@
 
   const platformItems = [
     { href: '/versions', label: 'Versions' },
-    { href: '/access', label: 'Access' }
+    { href: '/access', label: 'Access' },
+    { href: '/audit', label: 'Audit' },
+    { href: '/feedback', label: 'Feedback' },
+    { href: '/change-requests', label: 'Change Requests' },
+    { href: '/guardrails', label: 'Guardrails' },
+    { href: '/data-assets', label: 'Data Assets' },
+    { href: '/api-status', label: 'API Status' },
+    { href: '/sync', label: 'Sync' }
   ];
 
   const accountItems = [
@@ -40,11 +55,14 @@
     ? [
         { href: `/decks/${deckId}`, label: 'Overview' },
         { href: `/decks/${deckId}/map`, label: 'Deck Map' },
+        { href: `/decks/${deckId}/toc`, label: 'TOC' },
+        { href: `/decks/${deckId}/slides`, label: 'Slides' },
         { href: `/decks/${deckId}/editor`, label: 'Interactive Editor' },
         { href: `/decks/${deckId}/smart-edit`, label: 'Smart Edit' },
         { href: `/decks/${deckId}/rebuild`, label: 'Rebuild & Apply' },
         { href: `/decks/${deckId}/versions`, label: 'Versions' },
-        { href: `/decks/${deckId}/exports`, label: 'Exports' }
+        { href: `/decks/${deckId}/exports`, label: 'Exports' },
+        { href: `/decks/${deckId}/guardrails`, label: 'Guardrails' }
       ]
     : [];
 
@@ -55,10 +73,17 @@
 
     const globalRoutes = new Set([
       '/dashboard',
+      '/analytics',
+      '/clients',
+      '/templates',
       '/decks',
+      '/design-system',
+      '/component-library',
       '/admin/ai-providers',
+      '/admin/repo-structure',
       '/decks/new',
       '/account/settings',
+      '/support',
       '/'
     ]);
 

@@ -1,10 +1,9 @@
 /**
  * Shared frontend API transport helpers.
  *
- * These functions are safe to import from browser code. The deployable website
- * remains a frontend shell and should call the product backend through a
- * public API base URL rather than embedding durable backend logic in browser
- * code.
+ * These functions are safe to import from browser code. They know how to call
+ * the repo-local SvelteKit API during MVP development and can also honor a
+ * public API base URL when the frontend is pointed at another backend.
  */
 function resolveApiPath(path: string): string {
   if (/^https?:\/\//.test(path)) {
@@ -12,9 +11,15 @@ function resolveApiPath(path: string): string {
   }
 
   const normalizedPath = path.startsWith('/') ? path : `/${path}`;
-  const base = (import.meta.env.PUBLIC_API_BASE_URL as string | undefined)?.trim();
+  const base = (
+    (import.meta.env.PUBLIC_DIDIDECKS_API_URL as string | undefined) ??
+    (import.meta.env.PUBLIC_API_BASE_URL as string | undefined)
+  )?.trim();
 
   if (!base) {
+    if (normalizedPath.startsWith('/api/products/dididecks/')) {
+      return normalizedPath.replace('/api/products/dididecks/', '/api/dididecks/');
+    }
     return normalizedPath;
   }
 

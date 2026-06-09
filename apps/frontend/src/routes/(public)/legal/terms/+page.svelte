@@ -11,7 +11,6 @@
   ];
 </script>
 
-<svelte:head><title>Terms | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Legal" title="Terms draft" copy="Product terms draft for DidiDecks. This text requires legal review before production use." />
 
 <section class="route-grid route-grid-wide">

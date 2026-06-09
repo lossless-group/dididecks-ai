@@ -8,7 +8,6 @@
   ];
 </script>
 
-<svelte:head><title>Sign in | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Auth" title="Sign in" copy="Access the workspace shell while keeping auth, billing, and AI configuration backend-owned." />
 
 <section class="auth-grid">

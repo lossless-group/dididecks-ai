@@ -3,7 +3,6 @@
   import { northStars, principles, useCases } from '$lib/data/marketing';
 </script>
 
-<svelte:head><title>About | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="About" title="A reusable deck operating system for high-stakes narrative work" copy="Built for fundraising, board, LP, diligence, and client delivery workflows where portability, proof, and repeatability matter." />
 
 <section class="route-grid route-grid-wide">

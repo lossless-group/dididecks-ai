@@ -2,7 +2,6 @@
   import PageHeader from '$lib/components/common/PageHeader.svelte';
 </script>
 
-<svelte:head><title>Billing cancelled | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Billing" title="Checkout cancelled" copy="No billing changes were applied. You can return to pricing and choose a plan whenever you are ready." />
 
 <section class="route-grid route-grid-wide">

@@ -1,0 +1,33 @@
+export const PUBLIC_INDEXABLE_PATHS = [
+  '/',
+  '/founders',
+  '/advisors',
+  '/pricing',
+  '/about',
+  '/contact',
+  '/support',
+  '/product',
+  '/resources',
+  '/use-cases',
+  '/use-cases/fundraising',
+  '/use-cases/demo-day',
+  '/use-cases/advisor-workflow',
+  '/use-cases/board-decks',
+  '/security',
+  '/data-privacy',
+  '/legal/privacy',
+  '/legal/terms',
+  '/features/review-matrix',
+  '/features/smart-edit',
+  '/features/deck-versions',
+  '/features/presentation-readiness',
+  '/features/ai-deck-rebuild',
+  '/features/deck-exports',
+  '/guides/pitch-deck-review-checklist',
+  '/guides/how-to-know-if-your-investor-deck-is-ready',
+  '/guides/pitch-deck-version-control',
+  '/guides/accelerator-demo-day-deck-review-workflow',
+  '/guides/manage-multiple-founder-decks'
+] as const;
+
+export const PRIVATE_ROBOTS_DISALLOWS = ['/dashboard', '/decks', '/account', '/share', '/auth', '/billing'] as const;

@@ -12,7 +12,6 @@
   };
 </script>
 
-<svelte:head><title>Pricing | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Pricing" title="Plans for reusable deck operations" copy="Billing remains backend-owned. This Svelte page defines the commercial surface while the checkout boundary stays on the server." />
 
 {#snippet planCard(plan: BillingPlan)}

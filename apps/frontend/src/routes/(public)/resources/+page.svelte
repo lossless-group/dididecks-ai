@@ -3,7 +3,6 @@
   import { resourceCards, siblingSpecs } from '$lib/data/marketing';
 </script>
 
-<svelte:head><title>Resources | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Resources" title="Specs, guides, and continuity references" copy="The repo already carries the conceptual contract for the product. This route surfaces that material inside the Svelte public marketing shell." />
 
 <section class="card-grid-3 route-grid">

@@ -3,7 +3,6 @@
   import { northStars, principles } from '$lib/data/marketing';
 </script>
 
-<svelte:head><title>Product | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Product" title="A deck operating system, not a single-deck tool" copy="The product boundary is built around ingest, structured editing, live play, white-label publish, and export-ready continuity." />
 
 <section class="route-grid route-grid-wide">

@@ -8,6 +8,8 @@
     "dev:frontend": "pnpm --filter @dididecks/frontend dev",
     "build:frontend": "pnpm --filter @dididecks/frontend build",
     "check:frontend": "pnpm --filter @dididecks/frontend check",
+    "build:shared": "pnpm --filter @dididecks/shared build",
+    "check:shared": "pnpm --filter @dididecks/shared check",
     "build": "pnpm run build:frontend",
     "check": "pnpm run check:frontend"
   },

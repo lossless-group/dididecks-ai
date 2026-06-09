@@ -1,0 +1,20 @@
+{
+  "name": "@dididecks/shared",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "exports": {
+    ".": "./src/index.ts",
+    "./api": "./src/api.ts",
+    "./auth": "./src/auth.ts",
+    "./billing": "./src/billing.ts",
+    "./dididecks": "./src/dididecks.ts"
+  },
+  "scripts": {
+    "build": "tsc --noEmit",
+    "check": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "typescript": "^5.6.3"
+  }
+}

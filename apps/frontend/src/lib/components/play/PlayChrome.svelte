@@ -1,6 +1,7 @@
 <script lang="ts">
   import VariantCyclePill from './VariantCyclePill.svelte';
   import type { DeckSlide, DeckSlideVariant } from '$lib/types/dididecks';
+  import { getSurfaceVariants } from '$lib/utils/dididecks';
 
   export let deckId = '';
   export let slide: DeckSlide | null = null;
@@ -14,7 +15,7 @@
   export let onToggleFullscreen: () => void = () => {};
   export let onSelectVariant: (variantKey: string) => void = () => {};
 
-  $: variants = slide?.variants ?? ([] as DeckSlideVariant[]);
+  $: variants = getSurfaceVariants(slide, 'play') ?? ([] as DeckSlideVariant[]);
 </script>
 
 {#if chromeVisible}
@@ -43,6 +44,7 @@
     <div class="play-shortcuts">
       <span><strong>Next:</strong> Right, Space, PageDown</span>
       <span><strong>Previous:</strong> Left, PageUp</span>
+      <span><strong>Variants:</strong> Up, Down</span>
       <span><strong>Jump:</strong> Home, End, T</span>
       <span><strong>Chrome:</strong> C, Esc</span>
       <span><strong>Fullscreen:</strong> F</span>

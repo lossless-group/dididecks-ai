@@ -2,7 +2,6 @@
   import PageHeader from '$lib/components/common/PageHeader.svelte';
 </script>
 
-<svelte:head><title>Billing success | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Billing" title="Payment received" copy="Your checkout completed. Subscription state will still be confirmed by the backend before the workspace is fully upgraded." />
 
 <section class="route-grid route-grid-wide">

@@ -1,0 +1,3 @@
+<script lang="ts">import SeoContentPage from '$lib/components/marketing/SeoContentPage.svelte';</script>
+<SeoContentPage eyebrow="Guide" title="Pitch deck review checklist" copy="Use this guide to pressure-test a fundraising deck before sharing it with investors." ctas={[{ label: 'For founders', href: '/founders' }, { label: 'Pricing', href: '/pricing', tone: 'ghost' }]} sections={[{ title: 'Checklist', items: [{ title: 'Narrative clarity', body: 'Can someone understand the story in scroll mode without you speaking?' }, { title: 'Presentation safety', body: 'Does the deck still hold together in play mode?' }, { title: 'Version clarity', body: 'Do you know which file or version is the real candidate?' }] }]} />
+

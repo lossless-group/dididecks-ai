@@ -1,6 +1,6 @@
 # MVP Backend Stubs
 
-The local backend-like behavior currently lives inside:
+The local backend-like behavior lives inside:
 
 - `src/routes/api/dididecks/*`
 - `src/lib/server/dididecks/*`
@@ -9,10 +9,7 @@ The local backend-like behavior currently lives inside:
 
 This layer is intentionally thin, modular, and replaceable.
 
-It is not the durable product backend.
-
-Future dedicated backend work should replace these internals with a real product
-backend without changing the product route structure.
+Future dedicated backend work can swap these internals without changing the product route structure.
 
 Play mode notes:
 
@@ -30,8 +27,7 @@ Explicit mock-backed route groups now include:
 - review matrix, comments, reviews, versions, exports, access
 - admin AI provider management
 
-These routes compile against the repo-local server layer today, but production
-persistence still requires a real backend with database and storage ownership.
+These routes compile against the repo-local server layer today, but production persistence still requires a real database and backend storage.
 
 The service, repository, and route modules are now intentionally commented so a
 developer can trace where HTTP validation stops and product behavior begins.

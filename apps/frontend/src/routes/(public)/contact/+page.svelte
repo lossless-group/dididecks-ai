@@ -2,7 +2,6 @@
   import PageHeader from '$lib/components/common/PageHeader.svelte';
 </script>
 
-<svelte:head><title>Contact | DidiDecks</title></svelte:head>
 <PageHeader eyebrow="Contact" title="Talk to the team behind the deck system" copy="Use this route for product walkthroughs, client-site portability, onboarding, support, and commercial collaboration." />
 
 <section class="route-grid route-grid-wide">

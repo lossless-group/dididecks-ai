@@ -1,6 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import DeckStatusBadge from '$lib/components/deck-workspace/DeckStatusBadge.svelte';
+  import StatCard from '$lib/components/dashboard/StatCard.svelte';
+  import RecentDecksTable from '$lib/components/dashboard/RecentDecksTable.svelte';
 
   export let data: PageData;
 
@@ -44,14 +45,7 @@
 
 <section class="stat-grid stat-grid-dashboard">
   {#each workspaceStats as stat}
-    <article class="panel stat-card dashboard-stat-card">
-      <div class={`dashboard-stat-icon ${stat.tone}`}></div>
-      <div class="dashboard-stat-copy">
-        <div class="eyebrow">{stat.label}</div>
-        <strong>{stat.value}</strong>
-        <small>{stat.delta}</small>
-      </div>
-    </article>
+    <StatCard {...stat} />
   {/each}
 </section>
 
@@ -61,21 +55,7 @@
       <h2>Recent Decks</h2>
       <a href="/decks">View all decks</a>
     </div>
-    <div class="dashboard-list">
-      {#each data.decks as deck}
-        <a class="dashboard-deck-row" href={`/decks/${deck.id}`}>
-          <div class="dashboard-deck-thumb">{deck.name.slice(0, 2).toUpperCase()}</div>
-          <div class="dashboard-deck-copy">
-            <strong>{deck.name}</strong>
-            <p>{deck.owner}</p>
-            <small>Updated {deck.updatedAt}</small>
-          </div>
-          <div class="dashboard-deck-meta">
-            <DeckStatusBadge status={deck.status} />
-          </div>
-        </a>
-      {/each}
-    </div>
+    <RecentDecksTable decks={data.decks} />
   </article>
 
   <article class="panel dashboard-panel">

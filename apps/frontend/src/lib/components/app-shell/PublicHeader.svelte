@@ -6,6 +6,8 @@
   <DidiDecksLogo subtitle="Brand-inheriting deck infrastructure" />
 
   <nav class="public-nav">
+    <a href="/founders">Founders</a>
+    <a href="/advisors">Advisors</a>
     <a href="/product">Product</a>
     <a href="/use-cases">Use Cases</a>
     <a href="/resources">Resources</a>

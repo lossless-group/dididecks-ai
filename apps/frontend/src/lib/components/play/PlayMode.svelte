@@ -1,6 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
   import type { DeckEditorViewModel, DeckSlide } from '$lib/types/dididecks';
+  import { getBlocksForSlideVariant, getPrimaryVariant, getSurfaceVariants } from '$lib/utils/dididecks';
   import PlayChrome from './PlayChrome.svelte';
   import PlaySlideCanvas from './PlaySlideCanvas.svelte';
 
@@ -18,10 +19,13 @@
   $: totalSlides = slides.length;
   $: if (currentSlideIndex > Math.max(totalSlides - 1, 0)) currentSlideIndex = Math.max(totalSlides - 1, 0);
   $: activeSlide = slides[currentSlideIndex] ?? null;
-  $: activeBlocks = model?.blocks.filter((block) => block.slideId === activeSlide?.id) ?? [];
-  $: if (activeSlide && !activeSlide.variants.some((variant) => variant.id === activeVariantKey)) {
-    activeVariantKey = activeSlide.variants[0]?.id ?? '';
+  $: activeVariants = getSurfaceVariants(activeSlide, 'play');
+  $: if (activeSlide && !activeVariants.some((variant) => variant.id === activeVariantKey)) {
+    activeVariantKey = getPrimaryVariant(activeSlide, 'play')?.id ?? '';
   }
+  $: activeBlocks = activeSlide
+    ? getBlocksForSlideVariant(model?.blocks ?? [], activeSlide.id, activeVariantKey)
+    : [];
   $: viewportLabel = `${innerWidth}×${innerHeight}`;
   $: canvasStyle = `--play-max-width:${Math.max(innerWidth - 120, 320)}px;--play-max-height:${Math.max(innerHeight - 180, 220)}px;`;
 
@@ -56,6 +60,16 @@
     activeVariantKey = variantKey;
   }
 
+  function cycleVariant(direction: -1 | 1) {
+    if (!activeVariants.length) return;
+    const currentIndex = Math.max(
+      activeVariants.findIndex((variant) => variant.id === activeVariantKey),
+      0
+    );
+    const nextIndex = (currentIndex + direction + activeVariants.length) % activeVariants.length;
+    activeVariantKey = activeVariants[nextIndex].id;
+  }
+
   function isInteractiveTarget(target: EventTarget | null): boolean {
     if (!(target instanceof HTMLElement)) return false;
     const tag = target.tagName.toLowerCase();
@@ -66,7 +80,7 @@
     if (isInteractiveTarget(event.target)) return;
 
     const key = event.key;
-    const navigationKeys = [' ', 'Spacebar', 'ArrowRight', 'ArrowLeft', 'PageDown', 'PageUp', 'Home', 'End'];
+    const navigationKeys = [' ', 'Spacebar', 'ArrowRight', 'ArrowLeft', 'ArrowUp', 'ArrowDown', 'PageDown', 'PageUp', 'Home', 'End'];
 
     if (navigationKeys.includes(key)) {
       event.preventDefault();
@@ -82,6 +96,12 @@
       case 'ArrowLeft':
       case 'PageUp':
         previousSlide();
+        break;
+      case 'ArrowUp':
+        cycleVariant(-1);
+        break;
+      case 'ArrowDown':
+        cycleVariant(1);
         break;
       case 'Home':
         firstSlide();

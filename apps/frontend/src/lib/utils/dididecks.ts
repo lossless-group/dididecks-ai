@@ -1,4 +1,11 @@
-import type { DeckBlock, FieldUsage, PersistentField } from '$lib/types/dididecks';
+import type {
+  DeckBlock,
+  DeckSlide,
+  DeckSlideVariant,
+  FieldUsage,
+  PersistentField,
+  ReviewSurface
+} from '$lib/types/dididecks';
 
 export function getVariantKey(value: { variantKey?: string; id: string } | null | undefined): string {
   return value?.variantKey ?? value?.id ?? '';
@@ -113,4 +120,58 @@ export function buildCanvasBlockStyle(block: DeckBlock): string {
   }
 
   return parts.join(';');
+}
+
+export function getSurfaceVariants(slide: DeckSlide | null | undefined, surface: ReviewSurface): DeckSlideVariant[] {
+  if (!slide) return [];
+
+  return slide.variants.filter((variant) => {
+    const availability = variant.surfaceAvailability?.[surface];
+    return availability !== false;
+  });
+}
+
+export function getPrimaryVariant(slide: DeckSlide | null | undefined, surface: ReviewSurface): DeckSlideVariant | null {
+  return getSurfaceVariants(slide, surface)[0] ?? slide?.variants[0] ?? null;
+}
+
+export function getBlocksForSlideVariant(
+  blocks: DeckBlock[],
+  slideId: string,
+  variantId?: string | null
+): DeckBlock[] {
+  const slideBlocks = blocks.filter((block) => block.slideId === slideId);
+
+  if (!variantId) {
+    return slideBlocks;
+  }
+
+  const variantScopedBlocks = slideBlocks.filter((block) => block.variantId === variantId);
+  const sharedBlocks = slideBlocks.filter((block) => !block.variantId);
+
+  return variantScopedBlocks.length ? [...sharedBlocks, ...variantScopedBlocks] : slideBlocks;
+}
+
+export function getVariantSummary(
+  slide: DeckSlide | null | undefined,
+  activeVariantId: string,
+  surface: ReviewSurface
+): {
+  index: number;
+  total: number;
+  variant: DeckSlideVariant | null;
+  variants: DeckSlideVariant[];
+} {
+  const variants = getSurfaceVariants(slide, surface);
+  const index = Math.max(
+    variants.findIndex((variant) => variant.id === activeVariantId),
+    0
+  );
+
+  return {
+    index,
+    total: variants.length,
+    variant: variants[index] ?? null,
+    variants
+  };
 }
