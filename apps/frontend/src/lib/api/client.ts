@@ -1,9 +1,10 @@
 /**
  * Shared frontend API transport helpers.
  *
- * These functions are safe to import from browser code. They know how to call
- * the repo-local SvelteKit API during MVP development and can also honor a
- * public API base URL when the frontend is pointed at another backend.
+ * These functions are safe to import from browser code. The deployable website
+ * remains a frontend shell and should call the product backend through a
+ * public API base URL rather than embedding durable backend logic in browser
+ * code.
  */
 function resolveApiPath(path: string): string {
   if (/^https?:\/\//.test(path)) {
