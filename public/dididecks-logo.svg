@@ -1,0 +1,82 @@
+<svg width="1600" height="1000" viewBox="0 0 1600 1000" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DidiDecks logo</title>
+  <desc id="desc">A horizontal DidiDecks logo with a three-layer stacked slide icon forming a D, representing reusable deck infrastructure and three-layer brand architecture.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1600" y2="1000" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#06142F"/>
+      <stop offset="0.55" stop-color="#071A3C"/>
+      <stop offset="1" stop-color="#020817"/>
+    </linearGradient>
+    <linearGradient id="cyanMagenta" x1="330" y1="260" x2="670" y2="690" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#27D8FF"/>
+      <stop offset="0.48" stop-color="#4B6BFF"/>
+      <stop offset="1" stop-color="#FF3BAA"/>
+    </linearGradient>
+    <linearGradient id="layerTwo" x1="265" y1="392" x2="565" y2="725" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6A5CFF"/>
+      <stop offset="1" stop-color="#A742FF"/>
+    </linearGradient>
+    <linearGradient id="layerThree" x1="210" y1="465" x2="490" y2="775" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#C444FF"/>
+      <stop offset="1" stop-color="#FF3BAA"/>
+    </linearGradient>
+    <filter id="softGlow" x="120" y="160" width="720" height="720" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="28" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.1 0 0 0 0 0.55 0 0 0 0 1 0 0 0 0.4 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <filter id="magentaGlow" x="150" y="260" width="610" height="580" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feGaussianBlur stdDeviation="18" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 1 0 0 0 0 0.12 0 0 0 0 0.62 0 0 0 0.35 0"/>
+      <feBlend in="SourceGraphic"/>
+    </filter>
+    <filter id="textShadow" x="650" y="390" width="820" height="220" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="14" flood-color="#000000" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="1000" fill="url(#bg)"/>
+  <circle cx="464" cy="500" r="305" fill="#0AA8FF" opacity="0.08"/>
+  <circle cx="484" cy="544" r="235" fill="#FF3BAA" opacity="0.08"/>
+
+  <!-- three tier indicators: system, functional, named -->
+  <g opacity="0.95" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M160 432h72" stroke="#28D8FF" stroke-width="6" stroke-dasharray="1 14"/>
+    <path d="M160 526h72" stroke="#805DFF" stroke-width="6" stroke-dasharray="1 14"/>
+    <path d="M160 621h72" stroke="#FF3BAA" stroke-width="6" stroke-dasharray="1 14"/>
+
+    <g transform="translate(112 404)" stroke="#28D8FF" stroke-width="5">
+      <circle cx="24" cy="24" r="10"/>
+      <path d="M24 2v8M24 38v8M2 24h8M38 24h8M8 8l6 6M34 34l6 6M40 8l-6 6M14 34l-6 6"/>
+    </g>
+    <g transform="translate(112 498)" stroke="#805DFF" stroke-width="5">
+      <path d="M24 2v10M24 36v10M2 24h10M36 24h10"/>
+      <path d="M16 12h16a4 4 0 0 1 4 4v16a4 4 0 0 1-4 4H16a4 4 0 0 1-4-4V16a4 4 0 0 1 4-4z"/>
+      <path d="M20 20h8v8h-8z"/>
+    </g>
+    <g transform="translate(112 591)" stroke="#FF3BAA" stroke-width="5">
+      <path d="M24 2l20 11v22L24 46 4 35V13L24 2z"/>
+      <path d="M24 11l12 7v14l-12 7-12-7V18l12-7z" opacity="0.75"/>
+    </g>
+  </g>
+
+  <!-- stacked reusable deck icon -->
+  <g filter="url(#softGlow)">
+    <path d="M247 470c0-16 13-29 29-29h211c76 0 138 62 138 138v94c0 16-13 29-29 29H276c-16 0-29-13-29-29V470z" fill="url(#layerThree)" opacity="0.97" transform="rotate(-5 436 572)"/>
+    <path d="M287 408c0-16 13-29 29-29h211c76 0 138 62 138 138v94c0 16-13 29-29 29H316c-16 0-29-13-29-29V408z" fill="url(#layerTwo)" opacity="0.97" transform="rotate(-3 476 510)"/>
+  </g>
+
+  <g filter="url(#magentaGlow)">
+    <path d="M335 335c0-17.7 14.3-32 32-32h168c105.5 0 191 85.5 191 191v68c0 17.7-14.3 32-32 32H367c-17.7 0-32-14.3-32-32V335z" fill="url(#cyanMagenta)"/>
+    <path d="M401 404c0-14.4 11.6-26 26-26h103c64.1 0 116 51.9 116 116v27c0 14.4-11.6 26-26 26H427c-14.4 0-26-11.6-26-26V404z" fill="#071A3C" opacity="0.95"/>
+    <path d="M438 429h50c11 0 20 9 20 20v50c0 11-9 20-20 20h-50c-11 0-20-9-20-20v-50c0-11 9-20 20-20z" fill="#2355CA" opacity="0.74"/>
+    <path d="M533 435h94c10 0 18 8 18 18v4c0 10-8 18-18 18h-94c-10 0-18-8-18-18v-4c0-10 8-18 18-18z" fill="#2E62D8" opacity="0.7"/>
+    <path d="M533 494h94c10 0 18 8 18 18v4c0 10-8 18-18 18h-94c-10 0-18-8-18-18v-4c0-10 8-18 18-18z" fill="#2E62D8" opacity="0.82"/>
+    <path d="M533 553h94c10 0 18 8 18 18v4c0 10-8 18-18 18h-94c-10 0-18-8-18-18v-4c0-10 8-18 18-18z" fill="#2E62D8" opacity="0.62"/>
+  </g>
+
+  <!-- wordmark -->
+  <g filter="url(#textShadow)">
+    <text x="800" y="548" fill="#F7FAFF" font-family="Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif" font-size="118" font-weight="760" letter-spacing="-5">DidiDecks</text>
+  </g>
+</svg>
