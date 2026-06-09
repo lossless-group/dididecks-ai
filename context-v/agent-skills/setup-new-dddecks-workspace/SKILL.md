@@ -241,7 +241,7 @@ The first run of this skill will fill in the **[awaits first run]** sections by 
 ## Sibling skills this skill composes
 
 - [[../pseudomonorepos/SKILL]] — submodule scaffolding, `.gitmodules` discipline, branch-tier alignment
-- [[../maintain-design-md/SKILL]] — `DESIGN.md` authoring per Google Stitch spec + Lossless extensions
+- [[../loops/maintain-design-md/SKILL]] — `DESIGN.md` authoring per Google Stitch spec + Lossless extensions
 - [[../theme-system/SKILL]] — two-tier tokens, three-mode (light/dark/vibrant) contract
 - [[../crawl-fetch-ingest/SKILL]] — Mode A website-parse for branding import
 - [[../generate-consistent-og-images/SKILL]] — share imagery scaffold
