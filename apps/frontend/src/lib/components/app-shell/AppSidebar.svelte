@@ -5,30 +5,31 @@
   const mainItems = [
     { href: '/dashboard', label: 'Dashboard' },
     { href: '/decks', label: 'Decks' },
-    { href: '/clients', label: 'Clients' },
-    { href: '/templates', label: 'Templates' },
-    { href: '/analytics', label: 'Analytics' }
+    { href: '/decks/new', label: 'Create Deck' },
+    { href: '/admin/ai-providers', label: 'Provider Status' },
+    { href: '/account/settings', label: 'Account' }
   ];
 
   const reviewItems = [
-    { href: '/scroll', label: 'Scroll Review' },
-    { href: '/play', label: 'Play Mode' },
+    { href: '/map', label: 'Deck Map' },
+    { href: '/editor', label: 'Editor' },
+    { href: '/smart-edit', label: 'Smart Edit' },
+    { href: '/rebuild', label: 'Rebuild' },
     { href: '/review-matrix', label: 'Review Matrix' },
+    { href: '/reviews', label: 'Reviews' },
     { href: '/comments', label: 'Comments' },
-    { href: '/reviews', label: 'Feedback Learning' }
+    { href: '/scroll', label: 'Scroll View' },
+    { href: '/play', label: 'Play Mode' },
+    { href: '/print', label: 'Print View' }
   ];
 
-  const aiStackItems = [
-    { href: '/guardrails', label: 'Guardrails' },
-    { href: '/audit', label: 'Audit Log' },
-    { href: '/admin/ai-providers', label: 'API Status' },
-    { href: '/sync', label: 'Backend Sync' }
+  const platformItems = [
+    { href: '/versions', label: 'Versions' },
+    { href: '/access', label: 'Access' }
   ];
 
   const accountItems = [
-    { href: '/account/settings', label: 'Settings' },
-    { href: '/billing', label: 'Billing' },
-    { href: '/support', label: 'Support' }
+    { href: '/account/settings', label: 'Settings' }
   ];
 
   $: pathname = $page.url.pathname;
@@ -55,13 +56,10 @@
     const globalRoutes = new Set([
       '/dashboard',
       '/decks',
-      '/clients',
-      '/templates',
-      '/analytics',
       '/admin/ai-providers',
+      '/decks/new',
       '/account/settings',
-      '/billing',
-      '/support'
+      '/'
     ]);
 
     return globalRoutes.has(baseHref) ? baseHref : `/decks/${deckId}${baseHref}`;
@@ -110,9 +108,9 @@
   </div>
 
   <div class="sidebar-section">
-    <div class="sidebar-label">AIStack</div>
+    <div class="sidebar-label">Platform</div>
     <nav class="sidebar-nav compact">
-      {#each aiStackItems as item}
+      {#each platformItems as item}
         <a
           class:active={pathname === resolveHref(item.href) || pathname.startsWith(`${resolveHref(item.href)}/`)}
           href={resolveHref(item.href)}
