@@ -1,3 +1,10 @@
+/**
+ * Product-level selectors for the local MVP.
+ *
+ * This module centralizes how route loaders retrieve the main demo deck and its
+ * related mock workspace data so future repository replacements have a single
+ * handoff point.
+ */
 import { mockAccessEntries, mockShareLinks } from './mockAccess';
 import { mockDeckEditorView } from './mockDeckEditor';
 import { mockDecks } from './mockDecks';

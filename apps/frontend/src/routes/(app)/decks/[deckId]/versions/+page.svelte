@@ -1,21 +1,18 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import type { PageData } from './$types';
   import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
   import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { getVersionsByDeckId } from '$lib/data/mockProduct';
-
-  $: deckId = $page.params.deckId ?? 'deck-001';
-  $: versions = getVersionsByDeckId(deckId);
+  export let data: PageData;
 </script>
 
-<DeckWorkspaceShell {deckId}>
+<DeckWorkspaceShell deckId={data.deckId}>
   <PageHeader eyebrow="Versions" title="Version history" copy="Version records remain backend-owned, but this route is now reserved." />
 
   <section class="panel">
     <div class="eyebrow">Snapshot history</div>
     <div class="stack-list">
-      {#if versions.length}
-        {#each versions as version}
+      {#if data.versions.length}
+        {#each data.versions as version}
           <div class="list-card">
             <div>
               <strong>{version.label}</strong>

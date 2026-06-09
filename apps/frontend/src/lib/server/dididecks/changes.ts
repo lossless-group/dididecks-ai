@@ -1,3 +1,10 @@
+/**
+ * Local MVP field-change orchestration.
+ *
+ * Preview calls are non-mutating and explain which slides would be affected.
+ * Apply calls mutate the in-memory deck state, update any bound blocks, and
+ * create a mock version snapshot so later screens can observe the change.
+ */
 import type { ChangePreview, ChangeRequest, DeckEditorViewModel } from '$lib/types/dididecks';
 import { getDididecksState } from './repository';
 import { createVersionSnapshot } from './versions';

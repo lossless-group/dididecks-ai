@@ -1,3 +1,9 @@
+/**
+ * Marketing/billing plan fixtures for public pricing surfaces.
+ *
+ * These values are product copy only. Real billing prices, checkout links, and
+ * entitlement enforcement must remain backend-owned.
+ */
 import type { BillingPlan } from '$lib/types/billing';
 
 export const mockPlans: BillingPlan[] = [

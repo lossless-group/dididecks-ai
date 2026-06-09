@@ -1,7 +1,8 @@
 <script lang="ts">
+  import type { PageData } from './$types';
   import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { mockDecks } from '$lib/data/mockDecks';
   import DeckStatusBadge from '$lib/components/deck-workspace/DeckStatusBadge.svelte';
+  export let data: PageData;
 
   const deckFilters = ['All', 'Investor-ready', 'In review', 'Draft'];
 </script>
@@ -16,7 +17,7 @@
 </section>
 
 <section class="route-grid card-grid-3">
-  {#each mockDecks as deck}
+  {#each data.decks as deck}
     <article class="panel deck-card">
       <DeckStatusBadge status={deck.status} />
       <h2>{deck.name}</h2>

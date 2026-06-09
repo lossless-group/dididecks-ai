@@ -4,6 +4,13 @@
   "version": "0.0.1",
   "description": "DidiDecks AI — pseudomonorepo hosting @dididecks/shell (Astro integration) and the client-sites that consume it.",
   "type": "module",
+  "scripts": {
+    "dev:frontend": "pnpm --filter @dididecks/frontend dev",
+    "build:frontend": "pnpm --filter @dididecks/frontend build",
+    "check:frontend": "pnpm --filter @dididecks/frontend check",
+    "build": "pnpm run build:frontend",
+    "check": "pnpm run check:frontend"
+  },
   "packageManager": "pnpm@10.15.0",
   "engines": {
     "node": ">=20.0.0",

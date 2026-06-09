@@ -1,13 +1,12 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import type { PageData } from './$types';
   import PageHeader from '$lib/components/common/PageHeader.svelte';
   import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
   import DeckStatusBadge from '$lib/components/deck-workspace/DeckStatusBadge.svelte';
-  import { getDeckById, getEditorViewByDeckId } from '$lib/data/mockProduct';
+  export let data: PageData;
 
-  $: deckId = $page.params.deckId ?? 'deck-001';
-  $: deck = getDeckById(deckId);
-  $: editorView = getEditorViewByDeckId(deckId);
+  $: deck = data.deck;
+  $: editorView = data.editorView;
   $: deckStats = [
     { label: 'Slides', value: `${editorView.slides.length}` },
     { label: 'Blocks', value: `${editorView.blocks.length}` },
@@ -15,7 +14,7 @@
   ];
 </script>
 
-<DeckWorkspaceShell {deckId}>
+<DeckWorkspaceShell deckId={data.deckId}>
   <PageHeader eyebrow="Deck overview" title={deck.name} copy={deck.summary} />
 
   <section class="panel overview-card">
@@ -45,9 +44,9 @@
     <article class="panel">
       <div class="eyebrow">Next actions</div>
       <div class="stack-list">
-        <a class="list-card" href={`/decks/${deckId}/editor`}><strong>Open editor</strong><p>Refine blocks, bound fields, and slide variants.</p></a>
-        <a class="list-card" href={`/decks/${deckId}/map`}><strong>Review narrative map</strong><p>Inspect structure, variants, and persistent field coverage.</p></a>
-        <a class="list-card" href={`/decks/${deckId}/smart-edit`}><strong>Queue Smart Edit</strong><p>Preview changes before touching deck versions.</p></a>
+        <a class="list-card" href={`/decks/${data.deckId}/editor`}><strong>Open editor</strong><p>Refine blocks, bound fields, and slide variants.</p></a>
+        <a class="list-card" href={`/decks/${data.deckId}/map`}><strong>Review narrative map</strong><p>Inspect structure, variants, and persistent field coverage.</p></a>
+        <a class="list-card" href={`/decks/${data.deckId}/smart-edit`}><strong>Queue Smart Edit</strong><p>Preview changes before touching deck versions.</p></a>
       </div>
     </article>
 

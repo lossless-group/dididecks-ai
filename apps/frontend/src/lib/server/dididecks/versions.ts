@@ -1,3 +1,10 @@
+/**
+ * Local MVP version history helpers.
+ *
+ * Version records are generated inside the repo-local backend whenever a
+ * change is applied. They are mock-backed today but shaped like a future audit
+ * trail for real persistence.
+ */
 import type { DeckVersion } from '$lib/types/dididecks';
 import { getDididecksState } from './repository';
 

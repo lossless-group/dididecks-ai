@@ -1,5 +1,6 @@
 <script lang="ts">
   import type { DeckBlock, DeckSlide } from '$lib/types/dididecks';
+  import { getBlockContentSummary, getBlockDisplayType } from '$lib/utils/dididecks';
 
   export let slide: DeckSlide | null = null;
   export let blocks: DeckBlock[] = [];
@@ -23,8 +24,11 @@
         <div class="play-block-stack">
           {#each blocks as block}
             <div class="runtime-block">
-              <strong>{block.type}</strong>
-              <p>{block.content}</p>
+              <strong>{block.blockKey ?? getBlockDisplayType(block)}</strong>
+              <p>{getBlockContentSummary(block)}</p>
+              {#if block.dataBindingKey}
+                <small>Bound to {block.dataBindingKey}</small>
+              {/if}
             </div>
           {/each}
         </div>

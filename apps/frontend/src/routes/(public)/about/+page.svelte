@@ -1,53 +1,49 @@
 <script lang="ts">
   import PageHeader from '$lib/components/common/PageHeader.svelte';
-
-  const pillars = [
-    {
-      title: 'Structured decks',
-      copy: 'Turn slides into persistent fields, blocks, variants, and reusable story structure instead of static visuals.'
-    },
-    {
-      title: 'AI with operator control',
-      copy: 'Use Smart Edit and rebuild flows to propose improvements while keeping human review and acceptance in the loop.'
-    },
-    {
-      title: 'Operational surfaces',
-      copy: 'Manage versions, exports, access, and review state in one product shell instead of ad hoc file passing.'
-    }
-  ];
+  import { northStars, principles, useCases } from '$lib/data/marketing';
 </script>
 
 <svelte:head><title>About | DidiDecks</title></svelte:head>
-<PageHeader eyebrow="About" title="DidiDecks turns high-stakes decks into managed product assets" copy="Built for fundraising, board, LP, and diligence workflows where deck quality, control, and repeatability matter." />
+<PageHeader eyebrow="About" title="A reusable deck operating system for high-stakes narrative work" copy="Built for fundraising, board, LP, diligence, and client delivery workflows where portability, proof, and repeatability matter." />
 
 <section class="route-grid route-grid-wide">
   <article class="panel">
-    <div class="eyebrow">What it does</div>
+    <div class="eyebrow">What it is</div>
     <p class="muted-copy">
-      DidiDecks lets teams upload or create decks, transform slides into structured editable elements,
-      improve copy with AI-guided commands, rebuild affected slides, and manage versions and exports.
+      DidiDecks is not just a deck builder. It is a reusable deck operating system where slide layouts,
+      content structures, and review flows can move across projects and inherit the destination brand.
     </p>
     <p class="muted-copy">
-      The system is designed for operators who need better narrative tooling without surrendering control of the final deck.
+      The system is designed for operators who need better narrative tooling without surrendering control of the final presentation runtime or the underlying proof chain.
     </p>
   </article>
 
   <article class="panel">
-    <div class="eyebrow">Who it is for</div>
+    <div class="eyebrow">North stars</div>
     <div class="stack-list">
-      <div class="list-card"><div><strong>Founders</strong><p>Keep fundraising narratives consistent as traction and ask evolve.</p></div></div>
-      <div class="list-card"><div><strong>Funds and advisors</strong><p>Run recurring diligence and update workflows without slide chaos.</p></div></div>
-      <div class="list-card"><div><strong>Operating teams</strong><p>Manage board, LP, and strategic communication decks as repeatable systems.</p></div></div>
+      {#each northStars as item}
+        <div class="list-card"><div><strong>{item.title}</strong><p>{item.body}</p></div></div>
+      {/each}
     </div>
   </article>
 </section>
 
 <section class="card-grid-3 route-grid">
-  {#each pillars as pillar}
+  {#each useCases as item}
     <article class="panel feature-card">
-      <div class="eyebrow">Pillar</div>
-      <h2>{pillar.title}</h2>
-      <p>{pillar.copy}</p>
+      <div class="eyebrow">Use case</div>
+      <h2>{item.title}</h2>
+      <p>{item.body}</p>
+    </article>
+  {/each}
+</section>
+
+<section class="principles-grid">
+  {#each principles as item}
+    <article class="panel feature-card">
+      <div class="eyebrow">{item.n}</div>
+      <h3>{item.title}</h3>
+      <p>{item.body}</p>
     </article>
   {/each}
 </section>

@@ -1,20 +1,17 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import type { PageData } from './$types';
   import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
   import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { getReviewMatrixByDeckId } from '$lib/data/mockProduct';
-
-  $: deckId = $page.params.deckId ?? 'deck-001';
-  $: matrix = getReviewMatrixByDeckId(deckId);
+  export let data: PageData;
 </script>
 
-<DeckWorkspaceShell {deckId}>
+<DeckWorkspaceShell deckId={data.deckId}>
   <PageHeader eyebrow="Review" title="Review matrix" copy="Per-slide scoring and readiness surface shell." />
 
   <section class="panel">
     <div class="eyebrow">Slide readiness</div>
     <div class="stack-list">
-      {#each matrix as item}
+      {#each data.matrix as item}
         <div class="list-card">
           <div>
             <strong>{item.slide}</strong>

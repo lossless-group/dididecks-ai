@@ -1,22 +1,18 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import type { PageData } from './$types';
   import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
   import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { getAccessEntriesByDeckId, getShareLinksByDeckId } from '$lib/data/mockProduct';
-
-  $: deckId = $page.params.deckId ?? 'deck-001';
-  $: accessEntries = getAccessEntriesByDeckId(deckId);
-  $: shareLinks = getShareLinksByDeckId(deckId);
+  export let data: PageData;
 </script>
 
-<DeckWorkspaceShell {deckId}>
+<DeckWorkspaceShell deckId={data.deckId}>
   <PageHeader eyebrow="Access" title="Permissions and share surfaces" copy="Manage workspace members, share links, and access posture for the active deck." />
 
   <section class="route-grid route-grid-wide">
     <article class="panel">
       <div class="eyebrow">Workspace members</div>
       <div class="stack-list">
-        {#each accessEntries as entry}
+        {#each data.accessEntries as entry}
           <div class="list-card">
             <div>
               <strong>{entry.principal}</strong>
@@ -30,7 +26,7 @@
     <article class="panel">
       <div class="eyebrow">Share links</div>
       <div class="stack-list">
-        {#each shareLinks as link}
+        {#each data.shareLinks as link}
           <div class="list-card">
             <div>
               <strong>{link.label}</strong>

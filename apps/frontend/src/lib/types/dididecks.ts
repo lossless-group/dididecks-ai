@@ -1,7 +1,22 @@
+/**
+ * Shared DidiDecks product model for the local MVP.
+ *
+ * These types intentionally describe a richer system than the current mock
+ * implementation. The MVP uses in-memory data today, but the model is shaped
+ * like a future persisted deck system with slides, blocks, fields, variants,
+ * versions, exports, reviews, and AI proposals.
+ */
 export interface Deck {
   id: string;
+  title?: string;
   name: string;
-  status: 'draft' | 'in-review' | 'investor-ready';
+  clientName?: string;
+  workspaceId?: string;
+  ownerUserId?: string;
+  status: 'draft' | 'in-review' | 'investor-ready' | 'in_review' | 'ready' | 'archived';
+  progressPercent?: number;
+  reviewScore?: number;
+  currentVersionId?: string;
   summary: string;
   owner: string;
   updatedAt: string;
@@ -9,36 +24,78 @@ export interface Deck {
 
 export interface DeckSlideVariant {
   id: string;
+  slideId?: string;
+  variantKey?: string;
   label: string;
   audience: string;
+  surfaceAvailability?: {
+    editor?: boolean;
+    scroll?: boolean;
+    play?: boolean;
+    print?: boolean;
+    thumbnail?: boolean;
+  };
 }
 
 export interface DeckSlide {
   id: string;
   deckId: string;
+  slideNumber?: number;
+  slideKey?: string;
   title: string;
+  slideType?: string;
+  status?: 'draft' | 'active' | 'needs_work' | 'ready';
   note: string;
   variants: DeckSlideVariant[];
 }
 
 export interface DeckBlock {
   id: string;
+  deckId?: string;
   slideId: string;
-  type: 'heading' | 'paragraph' | 'chart' | 'image' | 'metric';
+  variantId?: string;
+  blockKey?: string;
+  type: 'heading' | 'paragraph' | 'chart' | 'image' | 'metric' | 'text' | 'shape' | 'logo' | 'card';
+  blockType?: 'text' | 'image' | 'shape' | 'metric' | 'chart' | 'table' | 'logo' | 'card';
   content: string;
+  contentJson?: Record<string, unknown>;
+  styleJson?: Record<string, unknown>;
+  positionJson?: {
+    x: number;
+    y: number;
+    width: number;
+    height: number;
+    rotation?: number;
+  };
+  dataBindingKey?: string;
+  isLocked?: boolean;
+  isGenerated?: boolean;
   boundFieldId?: string;
 }
 
 export interface PersistentField {
   id: string;
   deckId: string;
+  fieldKey?: string;
+  fieldLabel?: string;
+  fieldGroup?: string;
+  fieldType?: 'text' | 'long_text' | 'url' | 'image' | 'color' | 'number' | 'currency' | 'percentage';
   category: string;
   label: string;
   value: string;
+  valueJson?: Record<string, unknown>;
 }
 
 export interface FieldUsage {
+  id?: string;
+  deckId?: string;
+  persistentFieldId?: string;
+  fieldKey?: string;
   fieldId: string;
+  slideId?: string;
+  blockId?: string;
+  usageType?: 'text_render' | 'link_render' | 'image_render' | 'style_token' | 'metric_render';
+  isRequired?: boolean;
   usedInBlockIds: string[];
   usedInSlideIds: string[];
 }
@@ -46,9 +103,12 @@ export interface FieldUsage {
 export interface DeckEditorViewModel {
   deck: Deck;
   slides: DeckSlide[];
+  variants?: DeckSlideVariant[];
   blocks: DeckBlock[];
   persistentFields: PersistentField[];
   fieldUsages: FieldUsage[];
+  versions?: DeckVersion[];
+  exports?: DeckExport[];
 }
 
 export interface ChangeRequest {
@@ -99,6 +159,18 @@ export interface DeckComment {
   createdAt: string;
 }
 
+export interface DeckReview {
+  id: string;
+  deckId: string;
+  slideId?: string;
+  variantId?: string;
+  reviewer: string;
+  status: SurfaceReviewStatus;
+  note?: string;
+  surface?: ReviewSurface;
+  updatedAt?: string;
+}
+
 export interface DeckAccessEntry {
   id: string;
   deckId: string;
@@ -131,4 +203,32 @@ export interface AiChangeProposal {
 export interface GuardrailDecision {
   status: 'allow' | 'warn' | 'block';
   reason: string;
+}
+
+export type ReviewSurface = 'editor' | 'scroll' | 'play' | 'print' | 'thumbnail';
+
+export type SurfaceReviewStatus =
+  | 'perfect'
+  | 'passable'
+  | 'urgent-redo'
+  | 'ready'
+  | 'needs_work'
+  | 'blocked'
+  | 'pending';
+
+export interface DeckReviewMatrixItem {
+  id?: string;
+  deckId?: string;
+  slideId?: string;
+  variantId?: string;
+  slide: string;
+  surface?: ReviewSurface;
+  status: SurfaceReviewStatus;
+  reviewer: string;
+  note?: string;
+}
+
+export interface ReviewMatrix {
+  deckId: string;
+  items: DeckReviewMatrixItem[];
 }

@@ -1,3 +1,10 @@
+/**
+ * Local heuristic guardrail evaluator.
+ *
+ * This is intentionally simple. It exists to show that AI proposals should be
+ * evaluated before acceptance. Production should replace this with a more
+ * robust guardrail service.
+ */
 import type { AiChangeProposal, GuardrailDecision } from '$lib/types/dididecks';
 
 const SECRET_PATTERN = /(api[_-]?key|sk-[a-z0-9]{10,}|token|password)/i;

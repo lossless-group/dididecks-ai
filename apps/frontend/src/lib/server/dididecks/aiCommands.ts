@@ -1,8 +1,15 @@
+/**
+ * Local MVP AI proposal flow.
+ *
+ * AI commands create proposals only. A proposal does not mutate a deck until
+ * it is explicitly accepted and survives the local heuristic guardrail check.
+ */
 import type { AiChangeProposal, AiCommand, ChangeRequest } from '$lib/types/dididecks';
+import { canRunAiCommand } from '$lib/server/account/entitlements';
+import { getCurrentAccountViewModel, getDeckOwnership as getDeckOwnershipRecord, getCurrentUserMock } from '$lib/server/account/service';
 import { applyFieldChanges } from './changes';
 import { evaluateAiChangeProposal } from './guardrails';
 import { getDididecksState } from './repository';
-import { createVersionSnapshot } from './versions';
 
 function buildMockChanges(deckId: string): ChangeRequest[] {
   const field = getDididecksState().editorViews[deckId]?.persistentFields[0];
@@ -18,6 +25,15 @@ function buildMockChanges(deckId: string): ChangeRequest[] {
 }
 
 export function createAiCommandProposal(deckId: string, commandText: string): { command: AiCommand; proposal: AiChangeProposal } {
+  const account = getCurrentAccountViewModel();
+  const currentUser = getCurrentUserMock();
+  if (!getDeckOwnershipRecord(deckId, currentUser.id)) {
+    throw new Error('No deck access for current user');
+  }
+  if (!canRunAiCommand(account.subscription)) {
+    throw new Error('AI command limit reached for current subscription');
+  }
+
   const command: AiCommand = {
     id: `cmd-${Date.now()}`,
     deckId,
@@ -50,7 +66,6 @@ export function acceptAiCommand(commandId: string) {
   if (command && proposal) {
     command.status = 'accepted';
     applyFieldChanges(proposal.deckId, proposal.changes);
-    createVersionSnapshot(proposal.deckId, `Accepted AI proposal: ${proposal.summary}`);
   }
 
   return { command, proposal };

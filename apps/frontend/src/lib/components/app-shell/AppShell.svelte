@@ -3,7 +3,7 @@
   import Topbar from './Topbar.svelte';
 </script>
 
-<div class="app-shell">
+<div class="app-shell page-stack page-stack-app">
   <AppSidebar />
   <div class="app-shell-main">
     <Topbar />

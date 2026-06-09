@@ -1,3 +1,10 @@
+/**
+ * Supporting workspace fixtures for the local deck control room.
+ *
+ * These arrays back versions, exports, AI commands, and comments for the main
+ * demo deck. They remain in-memory so another developer can safely replace
+ * them with repository-backed persistence later.
+ */
 import type { AiCommand, DeckComment, DeckExport, DeckVersion } from '$lib/types/dididecks';
 
 export const mockVersions: DeckVersion[] = [

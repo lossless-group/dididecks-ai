@@ -1,3 +1,9 @@
+/**
+ * Access-control fixtures for the main demo deck.
+ *
+ * These records drive the Access page and show owner/editor/viewer plus
+ * share-link states without implying real permission persistence yet.
+ */
 import type { DeckAccessEntry, DeckShareLink } from '$lib/types/dididecks';
 
 export const mockAccessEntries: DeckAccessEntry[] = [

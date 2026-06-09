@@ -3,12 +3,14 @@ import type {
   AiCommand,
   Deck,
   DeckAccessEntry,
+  DeckComment,
   DeckEditorViewModel,
   DeckExport,
   DeckShareLink,
   DeckVersion,
   RebuildJob
 } from '$lib/types/dididecks';
+import type { ManagedAiProviderConnection } from '$lib/types/adminAiProviders';
 
 export interface DididecksState {
   decks: Deck[];
@@ -17,7 +19,9 @@ export interface DididecksState {
   exports: Record<string, DeckExport[]>;
   accessEntries: Record<string, DeckAccessEntry[]>;
   shareLinks: Record<string, DeckShareLink[]>;
+  comments: Record<string, DeckComment[]>;
   aiCommands: AiCommand[];
   proposals: AiChangeProposal[];
   rebuildJobs: RebuildJob[];
+  managedAiProviders: ManagedAiProviderConnection[];
 }

@@ -13,7 +13,7 @@
 </script>
 
 <svelte:head><title>Pricing | DidiDecks</title></svelte:head>
-<PageHeader eyebrow="Pricing" title="Plans for investor-grade deck operations" copy="Billing remains backend-owned. This page defines the commercial surface and API boundary without exposing checkout secrets." />
+<PageHeader eyebrow="Pricing" title="Plans for reusable deck operations" copy="Billing remains backend-owned. This Svelte page defines the commercial surface while the checkout boundary stays on the server." />
 
 {#snippet planCard(plan: BillingPlan)}
   <article class="panel plan-card">
@@ -40,6 +40,24 @@
     {/each}
   </section>
 {/await}
+
+<section class="card-grid-3 route-grid">
+  <article class="panel feature-card">
+    <div class="eyebrow">Starter</div>
+    <h3>Founder speed</h3>
+    <p>For single-team fundraising or board narratives where you need structure, review, and export without a big workflow surface.</p>
+  </article>
+  <article class="panel feature-card">
+    <div class="eyebrow">Growth</div>
+    <h3>Weekly operating cadence</h3>
+    <p>For teams that continuously edit, rebuild, review, and version decks as product and company context shifts.</p>
+  </article>
+  <article class="panel feature-card">
+    <div class="eyebrow">Capital</div>
+    <h3>Multi-client or multi-workspace</h3>
+    <p>For funds, advisors, and studios that need portable slide systems, white-label delivery, and higher-touch collaboration.</p>
+  </article>
+</section>
 
 <section class="panel">
   <div class="eyebrow">Billing boundary</div>
