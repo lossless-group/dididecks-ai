@@ -1,6 +1,6 @@
 {
   "name": "@lossless-group/dididecks-shell",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Astro integration that wraps a client-site deck workspace with shared chrome — TOC + slide-ranking UI in v0.1, lifted calmstorm primitives + /play runtime in later releases.",
   "type": "module",
   "main": "./src/index.ts",
@@ -21,10 +21,10 @@
     "typecheck": "tsc --noEmit"
   },
   "peerDependencies": {
-    "astro": "^6.0.0"
+    "astro": "^7.0.0"
   },
   "devDependencies": {
-    "astro": "^6.4.4",
+    "astro": "^7.1.6",
     "esbuild": "^0.28.0",
     "typescript": "^5.6.0"
   },
