@@ -1,0 +1,149 @@
+---
+/**
+ * CitationPopover — injects the single shared hover/focus popover that every
+ * citation marker on the page uses. Renders NO visible markup.
+ *
+ * Include it once per page that has `.ddd-cite-marker` elements:
+ *   - InlineCitation renders it for you (component usage "just works").
+ *   - Pages that emit markers as strings via `set:html` (where an Astro
+ *     component cannot be embedded) should import and render <CitationPopover />
+ *     once, then output `<sup class="ddd-cite-marker" data-citation-*>` markers.
+ *
+ * Any element with class `.ddd-cite-marker` and these data attributes gets a
+ * popover on hover/focus:
+ *   data-citation-title, data-citation-source, data-citation-date,
+ *   data-citation-url, and the OPTIONAL data-citation-copy.
+ *
+ * `data-citation-copy` is optional extra descriptive copy shown at the top of
+ * the popover (e.g. a model's capability + cost). When absent OR empty the copy
+ * block is hidden (`:empty { display:none }`), so plain citations that pass no
+ * copy render exactly as before — the property is optional by construction.
+ *
+ * Token-driven: adopts the host deck's palette via --ddd-cite-accent /
+ * --ddd-cite-surface / --ddd-cite-text / --ddd-cite-link with sensible fallbacks.
+ * Also injects a global base style for `.ddd-cite-marker` so string-emitted
+ * markers look right without any per-page marker CSS.
+ */
+---
+
+<script>
+  function initCitationPopover() {
+    if (document.getElementById("ddd-cite-popover")) return;
+
+    // Global base style for the marker itself (so set:html markers are styled).
+    const markerStyle = document.createElement("style");
+    markerStyle.id = "ddd-cite-marker-style";
+    markerStyle.textContent = `
+      .ddd-cite-marker { cursor: help; font-weight: 600; font-size: 0.72em; line-height: 0; padding: 0 0.15em; margin-left: 0.05em; border-radius: 2px; text-decoration: none; vertical-align: super; transition: background 0.2s ease; color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))); background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 14%, transparent); }
+      .ddd-cite-marker:hover { background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 26%, transparent); }
+      .ddd-cite-marker:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; }`;
+    if (!document.getElementById("ddd-cite-marker-style")) document.head.appendChild(markerStyle);
+
+    const popover = document.createElement("div");
+    popover.id = "ddd-cite-popover";
+    popover.className = "ddd-cite-popover";
+    popover.innerHTML = `
+      <div class="ddd-cite-arrow"></div>
+      <div class="ddd-cite-body">
+        <div class="ddd-cite-copy"></div>
+        <div class="ddd-cite-title"></div>
+        <div class="ddd-cite-source"></div>
+        <div class="ddd-cite-date"></div>
+        <a class="ddd-cite-link" target="_blank" rel="noopener noreferrer">
+          <span>View Source</span>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+        </a>
+      </div>`;
+
+    // Every field is overridable via a --ddd-cite-* token so a deck can theme the
+    // popover from :root even though it lives on <body> (outside deck-scoped
+    // selectors). muted + border used to read --color-* directly with no escape
+    // hatch — added --ddd-cite-muted / --ddd-cite-border so the popover never
+    // gets stranded on a host site's brand palette it isn't part of.
+    const surface = "var(--ddd-cite-surface, var(--color-surface-elevated, var(--color-surface, #14141c)))";
+    const text = "var(--ddd-cite-text, var(--color-text, #f2f2f5))";
+    const muted = "var(--ddd-cite-muted, var(--color-text-muted, #9a9aa8))";
+    const border = "var(--ddd-cite-border, var(--color-border, rgba(127,127,140,0.28)))";
+    const accent = "var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor)))";
+    const link = "var(--ddd-cite-link, var(--color-accent-2, var(--color-accent, #4cc9f0)))";
+
+    const style = document.createElement("style");
+    style.textContent = `
+      .ddd-cite-popover { position: fixed; z-index: 99999; opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 0.15s ease, visibility 0.15s ease; }
+      .ddd-cite-popover.is-visible { opacity: 1; visibility: visible; pointer-events: auto; }
+      .ddd-cite-popover .ddd-cite-arrow { position: absolute; top: -6px; left: 50%; transform: translateX(-50%) rotate(45deg); width: 12px; height: 12px; z-index: -1; background: ${surface}; border-left: 1px solid ${border}; border-top: 1px solid ${border}; }
+      .ddd-cite-popover .ddd-cite-body { border-radius: 0.5rem; padding: 0.75rem 1rem; min-width: 220px; max-width: 340px; text-align: left; background: ${surface}; border: 1px solid ${border}; box-shadow: 0 4px 26px rgba(0,0,0,0.35); }
+      .ddd-cite-popover .ddd-cite-copy { font-size: 0.8125rem; font-weight: 500; line-height: 1.45; margin: 0 0 0.5rem; padding: 0 0 0.5rem; border-bottom: 1px solid ${border}; color: ${text}; }
+      .ddd-cite-popover .ddd-cite-copy:empty { display: none; }
+      .ddd-cite-popover .ddd-cite-title { font-size: 0.8125rem; font-weight: 500; line-height: 1.4; margin: 0 0 0.375rem; color: ${text}; }
+      .ddd-cite-popover .ddd-cite-title:empty { display: none; }
+      .ddd-cite-popover .ddd-cite-source { font-size: 0.6875rem; margin: 0 0 0.25rem; text-transform: uppercase; letter-spacing: 0.05em; color: ${accent}; }
+      .ddd-cite-popover .ddd-cite-date { font-size: 0.6875rem; margin: 0 0 0.5rem; color: ${muted}; }
+      .ddd-cite-popover .ddd-cite-date:empty { display: none; }
+      .ddd-cite-popover .ddd-cite-link { font-size: 0.75rem; text-decoration: none; display: inline-flex; align-items: center; gap: 0.375rem; padding: 0.25rem 0; color: ${link}; }
+      .ddd-cite-popover .ddd-cite-link:hover { text-decoration: underline; }`;
+    document.head.appendChild(style);
+    document.body.appendChild(popover);
+
+    const arrow = popover.querySelector(".ddd-cite-arrow") as HTMLElement;
+    const copyEl = popover.querySelector(".ddd-cite-copy") as HTMLElement;
+    const titleEl = popover.querySelector(".ddd-cite-title") as HTMLElement;
+    const sourceEl = popover.querySelector(".ddd-cite-source") as HTMLElement;
+    const dateEl = popover.querySelector(".ddd-cite-date") as HTMLElement;
+    const linkEl = popover.querySelector(".ddd-cite-link") as HTMLAnchorElement;
+    let hideTimeout: ReturnType<typeof setTimeout> | null = null;
+
+    function showPopover(marker: HTMLElement) {
+      if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; }
+      copyEl.textContent = marker.dataset.citationCopy || "";
+      titleEl.textContent = marker.dataset.citationTitle || "";
+      sourceEl.textContent = marker.dataset.citationSource || "";
+      dateEl.textContent = marker.dataset.citationDate || "";
+      linkEl.href = marker.dataset.citationUrl || "#";
+      popover.style.visibility = "hidden";
+      popover.style.opacity = "0";
+      popover.classList.add("is-visible");
+      requestAnimationFrame(() => {
+        const rect = marker.getBoundingClientRect();
+        const pr = popover.getBoundingClientRect();
+        const pad = 12;
+        let left = rect.left + rect.width / 2 - pr.width / 2;
+        let top = rect.bottom + 8;
+        if (left < pad) left = pad;
+        if (left + pr.width > window.innerWidth - pad) left = window.innerWidth - pr.width - pad;
+        if (top + pr.height > window.innerHeight - pad) {
+          top = rect.top - pr.height - 8;
+          arrow.style.top = "auto"; arrow.style.bottom = "-6px";
+        } else { arrow.style.top = "-6px"; arrow.style.bottom = "auto"; }
+        popover.style.left = `${left}px`;
+        popover.style.top = `${top}px`;
+        popover.style.visibility = "";
+        popover.style.opacity = "";
+      });
+    }
+    function hidePopover() { hideTimeout = setTimeout(() => popover.classList.remove("is-visible"), 150); }
+
+    document.addEventListener("mouseenter", (e) => {
+      const m = (e.target as HTMLElement).closest(".ddd-cite-marker");
+      if (m) showPopover(m as HTMLElement);
+    }, true);
+    document.addEventListener("mouseleave", (e) => {
+      const m = (e.target as HTMLElement).closest(".ddd-cite-marker");
+      if (m) hidePopover();
+    }, true);
+    popover.addEventListener("mouseenter", () => { if (hideTimeout) { clearTimeout(hideTimeout); hideTimeout = null; } });
+    popover.addEventListener("mouseleave", hidePopover);
+    document.addEventListener("focusin", (e) => {
+      const m = (e.target as HTMLElement).closest(".ddd-cite-marker");
+      if (m) showPopover(m as HTMLElement);
+    });
+    document.addEventListener("focusout", (e) => {
+      const m = (e.target as HTMLElement).closest(".ddd-cite-marker");
+      if (m) hidePopover();
+    });
+  }
+
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", initCitationPopover);
+  else initCitationPopover();
+  document.addEventListener("astro:page-load", initCitationPopover);
+</script>

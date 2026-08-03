@@ -1,0 +1,69 @@
+---
+/**
+ * InlineCitation — Scroll-UI in-text citation marker with hover/focus popover.
+ *
+ * Renders a `[n]` <sup> marker; the shared popover (see CitationPopover.astro,
+ * created once on the body) shows the optional copy / source title / publication
+ * / date / link on hover or focus. Token-driven so it adopts the host deck's
+ * palette in every mode. Override via --ddd-cite-accent / --ddd-cite-surface /
+ * --ddd-cite-text / --ddd-cite-link; otherwise it falls back through deck tokens.
+ *
+ * `copy` is OPTIONAL extra descriptive text shown at the top of the popover
+ * (e.g. a model's capability + cost). Omit it and the popover renders exactly as
+ * before — plain citations are unaffected.
+ *
+ * For the static 16:9 (Play-UI) surface, use Sources.astro / SourcesPager.astro
+ * instead — popovers need JS the letterboxed export can't rely on.
+ */
+import CitationPopover from "./CitationPopover.astro";
+import { formatCitationDate } from "../../lib/citations/types.ts";
+
+interface Props {
+  index: number;
+  hexCode: string;
+  title: string;
+  url: string;
+  source?: string;
+  publishedDate?: string;
+  /** Optional extra copy shown at the top of the popover. */
+  copy?: string;
+}
+
+const { index, hexCode, title, url, source, publishedDate, copy } = Astro.props;
+const displaySource = source || (() => { try { return new URL(url).hostname.replace("www.", ""); } catch { return url; } })();
+const displayDate = formatCitationDate(publishedDate);
+void hexCode;
+---
+
+<sup
+  class="ddd-cite-marker"
+  tabindex="0"
+  role="button"
+  data-citation-copy={copy}
+  data-citation-title={title}
+  data-citation-source={displaySource}
+  data-citation-url={url}
+  data-citation-date={displayDate}
+>[{index}]</sup>
+<CitationPopover />
+
+<style>
+  .ddd-cite-marker {
+    cursor: help;
+    font-weight: 600;
+    font-size: 0.75em;
+    padding: 0 0.15em;
+    border-radius: 2px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor)));
+    background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 14%, transparent);
+  }
+  .ddd-cite-marker:hover {
+    background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 26%, transparent);
+  }
+  .ddd-cite-marker:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+  }
+</style>

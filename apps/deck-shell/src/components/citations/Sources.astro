@@ -1,0 +1,71 @@
+---
+/**
+ * Sources — static numbered source list for the bottom of a slide.
+ *
+ * The Play-UI / 16:9 citation surface: no JS, no popovers (the letterboxed
+ * export can't rely on hover). Renders `[n] Title — Publication · Date` with a
+ * link. Token-driven for light/dark/vibrant via the host deck's palette.
+ * Wrap in SourcesPager.astro when the list is long enough to overflow a slide.
+ */
+import type { IndexedCitation } from "../../lib/citations/types.ts";
+
+interface Props {
+  citations: IndexedCitation[];
+  title?: string;
+}
+
+const { citations, title = "Sources" } = Astro.props;
+const sorted = [...citations].sort((a, b) => a.index - b.index);
+const getDomain = (url: string): string => {
+  try { return new URL(url).hostname.replace("www.", ""); } catch { return url; }
+};
+---
+
+{sorted.length > 0 && (
+  <section class="ddd-sources">
+    <h2 class="ddd-sources__title">{title}</h2>
+    <ol class="ddd-sources__list">
+      {sorted.map((c) => (
+        <li class="ddd-sources__item" id={`source-${c.hexCode}`}>
+          <span class="ddd-sources__index">[{c.index}]</span>
+          <div class="ddd-sources__content">
+            <a href={c.url} target="_blank" rel="noopener noreferrer" class="ddd-sources__link">
+              <span class="ddd-sources__st">{c.title}</span>
+              <svg class="ddd-sources__icon" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path><polyline points="15 3 21 3 21 9"></polyline><line x1="10" y1="14" x2="21" y2="3"></line></svg>
+            </a>
+            <div class="ddd-sources__meta">
+              <span class="ddd-sources__pub">{c.source || getDomain(c.url)}</span>
+              {c.publishedDate && (<><span class="ddd-sources__sep">&middot;</span><span class="ddd-sources__date">{c.publishedDate}</span></>)}
+            </div>
+          </div>
+        </li>
+      ))}
+    </ol>
+  </section>
+)}
+
+<style>
+  .ddd-sources {
+    margin-top: 2rem; padding: 1.25rem; border-radius: 0.75rem;
+    background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 5%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 20%, transparent);
+  }
+  .ddd-sources__title {
+    font-size: 0.72rem; font-weight: 600; margin: 0 0 0.9rem; text-transform: uppercase; letter-spacing: 0.1em;
+    color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor)));
+  }
+  .ddd-sources__list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 0.5rem; }
+  .ddd-sources__item { display: flex; gap: 0.6rem; font-size: 0.8rem; line-height: 1.45; padding: 0.45rem 0.6rem; border-radius: 0.35rem; }
+  .ddd-sources__item:hover { background: color-mix(in srgb, var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))) 7%, transparent); }
+  .ddd-sources__index { flex-shrink: 0; font-weight: 600; min-width: 2rem; font-variant-numeric: tabular-nums; color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))); }
+  .ddd-sources__content { display: flex; flex-direction: column; gap: 0.2rem; min-width: 0; }
+  .ddd-sources__link { display: inline-flex; align-items: flex-start; gap: 0.4rem; text-decoration: none; color: var(--color-text, #ededf2); }
+  .ddd-sources__link:hover { text-decoration: underline; color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))); }
+  .ddd-sources__st { font-weight: 500; }
+  .ddd-sources__icon { flex-shrink: 0; margin-top: 0.2rem; opacity: 0; transition: opacity 0.15s ease; }
+  .ddd-sources__link:hover .ddd-sources__icon { opacity: 1; }
+  .ddd-sources__meta { display: flex; align-items: center; gap: 0.4rem; font-size: 0.7rem; }
+  .ddd-sources__pub { text-transform: uppercase; letter-spacing: 0.05em; font-weight: 500; color: var(--ddd-cite-accent, var(--color-accent-1, var(--color-accent, currentColor))); opacity: 0.85; }
+  .ddd-sources__sep { opacity: 0.5; }
+  .ddd-sources__date { font-variant-numeric: tabular-nums; color: var(--color-text-muted, #9a9aa8); }
+</style>
