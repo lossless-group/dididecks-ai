@@ -22,3 +22,7 @@
 	path = client-sites/lossless-decks
 	url = https://github.com/lossless-group/lossless-decks.git
 	branch = development
+[submodule "client-sites/eventcut-ai"]
+	path = client-sites/eventcut-ai
+	url = https://github.com/lossless-group/eventcut-ai.git
+	branch = development
