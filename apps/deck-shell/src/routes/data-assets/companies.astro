@@ -183,33 +183,26 @@ const flagged = companies.filter((c) => c.flagged).length;
     <meta name="robots" content="noindex,nofollow" />
     <title>Companies · Assets & Data Audit</title>
     <style>
+      /* Chrome palette REBOUND to the consumer's functional tokens instead
+         of a hardcoded light/dark pair. The old block ignored the client's
+         brand and tracked prefers-color-scheme (the OS) rather than the
+         consumer's own [data-mode] toggle. Tokens reach this injected
+         route via the integration's `themeStylesheets` page-ssr injection.
+         Fallbacks are system colors / currentColor mixes so an opted-out
+         consumer still renders legibly in either mode. */
       :root {
         color-scheme: light dark;
-        --bg: #ffffff;
-        --bg-soft: #f8fafc;
-        --fg: #0f172a;
-        --fg-muted: #64748b;
-        --fg-strong: #020617;
-        --line: rgb(15 23 42 / 0.1);
-        --line-soft: rgb(15 23 42 / 0.06);
-        --accent: #2b7fff;
+        --bg: var(--color-background, Canvas);
+        --bg-soft: var(--color-surface, color-mix(in srgb, currentColor 5%, Canvas));
+        --fg: var(--color-text, CanvasText);
+        --fg-muted: var(--color-text-muted, color-mix(in srgb, currentColor 60%, transparent));
+        --fg-strong: var(--color-text, CanvasText);
+        --line: var(--color-border, color-mix(in srgb, currentColor 12%, transparent));
+        --line-soft: var(--color-border, color-mix(in srgb, currentColor 7%, transparent));
+        --accent: var(--color-primary, var(--color-accent-1, #2b7fff));
         --flag-bg: #fef3c7;
         --flag-fg: #92400e;
-        --missing: rgb(15 23 42 / 0.3);
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --bg: #0b0f17;
-          --bg-soft: #11171f;
-          --fg: #e2e8f0;
-          --fg-muted: #94a3b8;
-          --fg-strong: #f8fafc;
-          --line: rgb(226 232 240 / 0.1);
-          --line-soft: rgb(226 232 240 / 0.06);
-          --flag-bg: rgb(252 211 77 / 0.15);
-          --flag-fg: #fbbf24;
-          --missing: rgb(226 232 240 / 0.25);
-        }
+        --missing: color-mix(in srgb, currentColor 35%, transparent);
       }
       * { box-sizing: border-box; }
       body {

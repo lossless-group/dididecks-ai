@@ -1,3 +1,4 @@
+import { existsSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import type { AstroIntegration } from "astro";
 import type { DididecksShellOptions, ResolvedShellOptions } from "./types/index.js";
@@ -21,11 +22,37 @@ export default function dididecksShell(options: DididecksShellOptions): AstroInt
   return {
     name: "@dididecks/shell",
     hooks: {
-      "astro:config:setup": ({ config, logger, injectRoute, updateConfig }) => {
+      "astro:config:setup": ({ config, logger, injectRoute, injectScript, updateConfig }) => {
         logger.info(`loaded for client: ${options.client}`);
 
         const projectRoot = fileURLToPath(config.root);
         const resolved = resolveOptions(options, projectRoot);
+
+        // ── Consumer theme → shell routes ────────────────────────────────
+        // The chrome reads the consumer's functional tokens (--color-*,
+        // --font-*) instead of shipping its own palette. Injected routes
+        // (/toc, /play, /data-assets) are not authored by the consumer, so
+        // nothing ever imported the consumer's stylesheet into them and
+        // every token lookup dangled — the chrome rendered untokenized
+        // while the consumer's own /scroll pages rendered branded.
+        //
+        // `page-ssr` runs the import for every page in the build, consumer-
+        // authored and shell-injected alike. This is the same mechanism
+        // Astro's own Tailwind integration uses to make a global stylesheet
+        // universal. Consumer pages that already import the file are
+        // unaffected — the bundler dedupes.
+        for (const sheet of resolved.absolute.themeStylesheets) {
+          if (!existsSync(sheet)) {
+            logger.warn(
+              `themeStylesheets: ${sheet} not found — shell chrome will fall back to ` +
+                `currentColor neutrals on injected routes. Fix the path in ` +
+                `dididecksShell({ themeStylesheets }) or pass [] to opt out.`,
+            );
+            continue;
+          }
+          injectScript("page-ssr", `import ${JSON.stringify(sheet)};`);
+          logger.info(`theme stylesheet wired into all routes · ${sheet}`);
+        }
 
         // Tell Vite's file watcher NOT to watch the audits file. When the
         // /api/slide-rank POST writes to it, the default watch behaviour

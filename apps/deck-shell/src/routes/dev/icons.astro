@@ -62,23 +62,21 @@ const alternates = [
     <title>Icon review · @dididecks/shell</title>
     <meta name="robots" content="noindex,nofollow" />
     <style>
+      /* Chrome palette REBOUND to the consumer's functional tokens instead
+         of a hardcoded light/dark pair. The old block ignored the client's
+         brand and tracked prefers-color-scheme (the OS) rather than the
+         consumer's own [data-mode] toggle. Tokens reach this injected
+         route via the integration's `themeStylesheets` page-ssr injection.
+         Fallbacks are system colors / currentColor mixes so an opted-out
+         consumer still renders legibly in either mode. */
       :root {
         color-scheme: light dark;
-        --fg: #0f172a;
-        --fg-muted: #475569;
-        --bg: #ffffff;
-        --panel: #f8fafc;
-        --border: rgb(15 23 42 / 0.08);
-        --accent: #f05100;
-      }
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --fg: #e2e8f0;
-          --fg-muted: #94a3b8;
-          --bg: #0b0f17;
-          --panel: #11171f;
-          --border: rgb(226 232 240 / 0.08);
-        }
+        --fg: var(--color-text, CanvasText);
+        --fg-muted: var(--color-text-muted, color-mix(in srgb, currentColor 60%, transparent));
+        --bg: var(--color-background, Canvas);
+        --panel: var(--color-surface, color-mix(in srgb, currentColor 5%, Canvas));
+        --border: var(--color-border, color-mix(in srgb, currentColor 10%, transparent));
+        --accent: var(--color-primary, var(--color-accent-1, #2b7fff));
       }
       * { box-sizing: border-box; }
       html, body { margin: 0; padding: 0; }

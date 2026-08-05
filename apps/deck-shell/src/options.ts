@@ -8,6 +8,10 @@ const DEFAULTS = {
   slidesComponentsRoot: "./src/components/slides",
   scrollPagesRoot: "./src/pages/scroll",
   distributionTier: "private" as const,
+  /* Every client-site in the tree funnels its theme through this one entry
+     point (it @imports tailwind + theme.css), so it is the right default.
+     A consumer with a different layout overrides; `[]` opts out. */
+  themeStylesheets: ["./src/styles/global.css"],
 };
 
 export function resolveOptions(
@@ -22,6 +26,9 @@ export function resolveOptions(
     slidesComponentsRoot: options.slidesComponentsRoot ?? DEFAULTS.slidesComponentsRoot,
     scrollPagesRoot: options.scrollPagesRoot ?? DEFAULTS.scrollPagesRoot,
     distributionTier: options.distributionTier ?? DEFAULTS.distributionTier,
+    // `?? `, not `||` — an explicit `[]` is a meaningful opt-out and must
+    // survive, where `||` would silently restore the default.
+    themeStylesheets: options.themeStylesheets ?? DEFAULTS.themeStylesheets,
   };
 
   return {
@@ -32,6 +39,7 @@ export function resolveOptions(
       audits: path.resolve(projectRoot, merged.auditsPath),
       slidesComponentsRoot: path.resolve(projectRoot, merged.slidesComponentsRoot),
       scrollPagesRoot: path.resolve(projectRoot, merged.scrollPagesRoot),
+      themeStylesheets: merged.themeStylesheets.map((p) => path.resolve(projectRoot, p)),
     },
   };
 }
@@ -42,4 +50,5 @@ export interface ResolvedAbsolutePaths {
   audits: string;
   slidesComponentsRoot: string;
   scrollPagesRoot: string;
+  themeStylesheets: string[];
 }

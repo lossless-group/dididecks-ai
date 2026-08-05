@@ -35,20 +35,21 @@ const focusVariant = Astro.url.searchParams.get("variant");
     <title>TOC · {deckSlug}</title>
     <meta name="robots" content="noindex,nofollow" />
     <style>
-      :root {
-        color-scheme: light dark;
-        --bg: #0b0d10;
-        --fg: #e6e9ee;
-      }
-      @media (prefers-color-scheme: light) {
-        :root { --bg: #ffffff; --fg: #14181d; }
-      }
+      /* This route used to hardcode `--bg: #0b0d10` / `--fg: #e6e9ee` on
+         :root, which made the TOC render shell-dark on every client
+         regardless of brand — the exact "shell imposes styles" complaint.
+         It now reads the consumer's functional tokens, which reach this
+         injected route via the integration's `themeStylesheets` page-ssr
+         injection. The fallbacks are the system `Canvas`/`CanvasText`
+         pair, so a consumer that opts out still gets a legible page that
+         honours light/dark rather than a palette we chose for them. */
+      :root { color-scheme: light dark; }
       * { box-sizing: border-box; }
       body {
         margin: 0;
-        background: var(--bg);
-        color: var(--fg);
-        font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+        background: var(--color-background, Canvas);
+        color: var(--color-text, CanvasText);
+        font: 14px/1.5 var(--font-body, -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif);
       }
       .wrap { max-width: 1280px; margin: 0 auto; padding: 32px 24px 80px; }
     </style>

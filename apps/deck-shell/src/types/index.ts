@@ -45,6 +45,30 @@ export interface DididecksShellOptions {
 
   /** Default tier resolver fallback for unmapped routes. Default: "private". Phase B fills this in. */
   distributionTier?: "private" | "shared" | "public";
+
+  /**
+   * Consumer stylesheets to load on EVERY page, including the shell's own
+   * injected routes (`/toc/*`, `/play/*`, `/data-assets/*`). Paths are
+   * relative to the client-site root. Default: `["./src/styles/global.css"]`.
+   *
+   * WHY THIS EXISTS. The shell's chrome reads the consumer's functional
+   * tokens (`--color-background`, `--color-surface`, `--color-text`,
+   * `--color-text-muted`, `--color-border`, `--font-body`, `--font-mono`)
+   * rather than shipping its own colors — that is the reference discipline
+   * in `styles/chrome-tokens.css`. But injected routes are not authored by
+   * the consumer, so they never imported the consumer's theme, and every
+   * one of those `var()` lookups resolved to nothing. The chrome rendered
+   * untokenized on `/toc` and `/play` while the consumer's own `/scroll`
+   * pages rendered fully branded.
+   *
+   * Declaring the stylesheets here closes that loop: the integration
+   * injects them at the `page-ssr` stage so both consumer-authored and
+   * shell-injected routes resolve the same tokens.
+   *
+   * Set to `[]` to opt out entirely (the chrome then falls back to
+   * `currentColor`-derived neutrals, which are legible but unbranded).
+   */
+  themeStylesheets?: string[];
 }
 
 export interface ResolvedShellOptions extends Required<DididecksShellOptions> {}

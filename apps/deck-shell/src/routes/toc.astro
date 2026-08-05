@@ -78,31 +78,34 @@ const pillLabel: Record<(typeof STATUSES_FOR_PILLS)[number], string> = {
     <title>TOC · {deck?.title ?? deckSlug} · {variant?.label ?? variantSlug}</title>
     <meta name="robots" content="noindex,nofollow" />
     <style>
+      /* The chrome palette below is REBOUND to the consumer's functional
+         tokens rather than hardcoded. It used to ship a dark slate on
+         :root with a prefers-color-scheme light override, which meant the
+         TOC ignored the client's brand entirely and — worse — ignored the
+         consumer's own [data-mode] toggle, since prefers-color-scheme
+         tracks the OS rather than the deck's mode.
+         Consumer tokens reach this injected route via the integration's
+         `themeStylesheets` page-ssr injection (see src/index.ts). The
+         fallbacks are system colors / currentColor mixes, so an opted-out
+         consumer still gets a legible page in either mode.
+         STATUS colors stay literal — they encode rank semantics
+         (urgent/could/passable/perfect), not brand, and must stay stable
+         across clients so a reviewer reads the same signal everywhere. */
       :root {
         color-scheme: light dark;
-        --bg: #0b0d10;
-        --fg: #e6e9ee;
-        --muted: #8a93a0;
-        --line: #1f242c;
-        --pill-bg: #161a20;
-        --pill-bg-hover: #1f242c;
-        --pill-active-bg: #2b7fff;
-        --pill-active-fg: #ffffff;
+        --bg:              var(--color-background, Canvas);
+        --fg:              var(--color-text, CanvasText);
+        --muted:           var(--color-text-muted, color-mix(in srgb, currentColor 60%, transparent));
+        --line:            var(--color-border, color-mix(in srgb, currentColor 18%, transparent));
+        --pill-bg:         var(--color-surface, color-mix(in srgb, currentColor 6%, Canvas));
+        --pill-bg-hover:   var(--color-surface-elevated, color-mix(in srgb, currentColor 12%, Canvas));
+        --pill-active-bg:  var(--color-primary, var(--color-accent-1, #2b7fff));
+        --pill-active-fg:  var(--color-primary-on, var(--color-background, Canvas));
         --urgent: #ff5e57;
         --could: #ffb84a;
         --passable: #66c0f4;
         --perfect: #4ade80;
         --pending: #6b7280;
-      }
-      @media (prefers-color-scheme: light) {
-        :root {
-          --bg: #ffffff;
-          --fg: #14181d;
-          --muted: #5a6470;
-          --line: #e5e7eb;
-          --pill-bg: #f3f4f6;
-          --pill-bg-hover: #e5e7eb;
-        }
       }
       * { box-sizing: border-box; }
       body {

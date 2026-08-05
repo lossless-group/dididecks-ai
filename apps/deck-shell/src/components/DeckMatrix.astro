@@ -96,12 +96,23 @@ function compareSlot(a: string, b: string): number {
 
 const allVariants = deck?.variants ?? [];
 
-// Visible-variant filter. Max 3 columns at a time keeps the header readable.
-// Default: the last 3 variants in registry order (typically the most-refined
-// iterations; the baseline lives at index 0). URL-param override:
-// ?variants=slug1,slug2,slug3 — invalid slugs are dropped; if the param is
-// present but no valid slugs match, fall back to the default.
-const MAX_VISIBLE_VARIANTS = 3;
+// The BASELINE is the deck's canonical default — `variants[0]`, which
+// decks.ts documents as "first listed is the canonical default". It is what
+// every other column gets compared against ("we have been pitching it this
+// way"), so it is always visible and pinned to the left edge of the scroll
+// region. See the spec:
+//   context-v/specs/Deck-Convergence-Slot-Level-Alternatives-and-Compositions.md
+const baselineSlug: string | null = allVariants[0]?.slug ?? null;
+
+// Visible-variant filter. There is NO cap — a deck may carry as many design
+// variants as have been generated, and the matrix is the surface for
+// converging across all of them. Width is handled by horizontal scroll with
+// sticky slot/title/baseline columns, not by hiding columns.
+//
+// `?variants=a,b,c` narrows to an explicit set; absent the param every variant
+// is shown. Invalid slugs are dropped. The baseline is always included
+// regardless of the param, because a comparison with nothing to compare
+// against is not a comparison.
 const variantsParam = Astro.url.searchParams.get("variants");
 const requestedSlugs: string[] = variantsParam
   ? variantsParam.split(",").map((s) => s.trim()).filter(Boolean)
@@ -109,30 +120,35 @@ const requestedSlugs: string[] = variantsParam
 const validRequested = requestedSlugs.filter((s) =>
   allVariants.some((v) => v.slug === s),
 );
-const visibleSlugs: string[] = validRequested.length > 0
-  ? validRequested.slice(0, MAX_VISIBLE_VARIANTS)
-  : allVariants.slice(-MAX_VISIBLE_VARIANTS).map((v) => v.slug);
-const visibleSet = new Set(visibleSlugs);
+const visibleSet = new Set<string>(
+  validRequested.length > 0
+    ? [...(baselineSlug ? [baselineSlug] : []), ...validRequested]
+    : allVariants.map((v) => v.slug),
+);
 
+// Registry order is preserved, so the baseline (index 0) is naturally first.
 const variants = allVariants.filter((v) => visibleSet.has(v.slug));
+const visibleSlugs: string[] = variants.map((v) => v.slug);
 
 // Compute each chip's "what set would clicking this produce" — drives the
 // chip-strip hrefs so the toggle is pure-server navigation (no JS state).
 function chipHrefFor(slug: string): string {
-  const isSelected = visibleSet.has(slug);
-  let nextSlugs: string[];
-  if (isSelected) {
-    // Toggle off — but don't allow the empty state. If clicking would leave
-    // zero visible, drop the request entirely (revert to default).
-    nextSlugs = visibleSlugs.filter((s) => s !== slug);
-  } else if (visibleSlugs.length < MAX_VISIBLE_VARIANTS) {
-    nextSlugs = [...visibleSlugs, slug];
-  } else {
-    // 3 selected, adding a 4th — FIFO drop oldest.
-    nextSlugs = [...visibleSlugs.slice(1), slug];
-  }
   const params = new URLSearchParams(Astro.url.search);
-  if (nextSlugs.length === 0) {
+
+  // The baseline chip is inert — it cannot be toggled off. Return the current
+  // URL so the anchor is a no-op rather than a dead `#` that scrolls the page.
+  if (slug === baselineSlug) {
+    const cur = params.toString();
+    return `${Astro.url.pathname}${cur ? `?${cur}` : ""}`;
+  }
+
+  const nextSlugs = visibleSet.has(slug)
+    ? visibleSlugs.filter((s) => s !== slug)
+    : [...visibleSlugs, slug];
+
+  // When the selection covers every variant, drop the param — "all" is the
+  // default, and a URL listing all of them is noise.
+  if (nextSlugs.length === 0 || nextSlugs.length === allVariants.length) {
     params.delete("variants");
   } else {
     params.set("variants", nextSlugs.join(","));
@@ -313,15 +329,17 @@ const resolvedLede =
                     class="deck-matrix__variant-chip"
                     data-selected={selected ? "true" : "false"}
                     aria-pressed={selected ? "true" : "false"}
+                    data-baseline={v.slug === baselineSlug ? "true" : "false"}
                     title={
-                      selected
+                      v.slug === baselineSlug
+                        ? `${v.label} is the baseline — always shown, pinned to the left`
+                        : selected
                         ? `Hide ${v.label}`
-                        : visibleSlugs.length >= MAX_VISIBLE_VARIANTS
-                        ? `Show ${v.label} — will drop the oldest selected to keep ${MAX_VISIBLE_VARIANTS} max`
                         : `Show ${v.label}`
                     }
                   >
                     {v.label}
+                    {v.slug === baselineSlug && <span class="deck-matrix__variant-chip-tag">baseline</span>}
                   </a>
                 </li>
               );
@@ -359,7 +377,10 @@ const resolvedLede =
               const playHref = playCount > 0 ? `/play/${deckSlug}/${v.slug}/` : null;
               return (
                 <th
-                  class:list={["deck-matrix__variant-col", { "is-focused": isFocused }]}
+                  class:list={["deck-matrix__variant-col", {
+                    "is-focused": isFocused,
+                    "is-baseline": v.slug === baselineSlug,
+                  }]}
                   scope="col"
                 >
                   <div class="deck-matrix__variant-head">
@@ -369,6 +390,9 @@ const resolvedLede =
                         href={`/toc/${deckSlug}/${v.slug}/`}
                         title={`Open ${v.label} landing — per-variant slot list with ranks`}
                       >{v.label}</a>
+                      {v.slug === baselineSlug && (
+                        <span class="deck-matrix__baseline-tag" title="The deck's canonical default — every other column is compared against this one">baseline</span>
+                      )}
                     </div>
 
                     <a
@@ -443,7 +467,10 @@ const resolvedLede =
                 const cell = row.cells[v.slug];
                 const isFocused = v.slug === focusVariant;
                 return (
-                  <td class:list={["deck-matrix__cell", { "is-focused": isFocused }]}>
+                  <td class:list={["deck-matrix__cell", {
+                    "is-focused": isFocused,
+                    "is-baseline": v.slug === baselineSlug,
+                  }]}>
                     <span class="deck-matrix__cell-inner">
                       <a
                         class="deck-matrix__surface-link"
@@ -592,6 +619,9 @@ const resolvedLede =
     text-align: center;
   }
 
+  /* Horizontal scroll replaces the old 3-column cap. Any number of variants
+     can be registered; the reader scrolls sideways while Slot / Title / the
+     baseline column stay pinned, so every comparison keeps its reference. */
   .deck-matrix__scroll { overflow-x: auto; }
   .deck-matrix__table {
     width: 100%;
@@ -625,6 +655,52 @@ const resolvedLede =
     padding-right: 6px;
   }
   .deck-matrix__row-title { font-weight: 500; }
+
+  /* ── Sticky reference columns ─────────────────────────────────────────
+     Slot (0) → Title (48px) → baseline variant (268px). Each needs an
+     opaque background or the scrolling columns show through, and a z-index
+     above the normal cells. Widths here MUST match the column widths above:
+     slot 48px, title 220px → baseline offset 268px. */
+  .deck-matrix__slot-col,
+  .deck-matrix__slot-num {
+    position: sticky;
+    left: 0;
+    z-index: 2;
+    background: var(--ddd-matrix-bg);
+  }
+  .deck-matrix__title-col,
+  .deck-matrix__row-title {
+    position: sticky;
+    left: 48px;
+    z-index: 2;
+    background: var(--ddd-matrix-bg);
+  }
+  .deck-matrix__variant-col.is-baseline,
+  .deck-matrix__cell.is-baseline {
+    position: sticky;
+    left: 268px;
+    z-index: 2;
+    background: var(--ddd-matrix-bg);
+    box-shadow: inset -1px 0 0 var(--ddd-matrix-line);
+  }
+  /* Header cells sit above body cells where the two sticky axes cross. */
+  .deck-matrix__table thead th.deck-matrix__slot-col,
+  .deck-matrix__table thead th.deck-matrix__title-col,
+  .deck-matrix__table thead th.deck-matrix__variant-col.is-baseline { z-index: 3; }
+
+  .deck-matrix__baseline-tag,
+  .deck-matrix__variant-chip-tag {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding: 1px 5px;
+    border-radius: 2px;
+    background: var(--ddd-matrix-pill-bg);
+    color: var(--ddd-matrix-muted);
+    white-space: nowrap;
+  }
+  .deck-matrix__variant-chip-tag { margin-left: 6px; }
+  .deck-matrix__variant-chip[data-baseline="true"] { cursor: default; }
 
   .deck-matrix__variant-head { display: flex; flex-direction: column; gap: 8px; }
   .deck-matrix__variant-label {
