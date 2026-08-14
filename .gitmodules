@@ -26,3 +26,7 @@
 	path = client-sites/eventcut-ai
 	url = https://github.com/lossless-group/eventcut-ai.git
 	branch = development
+[submodule "client-sites/the-water-foundation"]
+	path = client-sites/the-water-foundation
+	url = https://github.com/lossless-group/the-water-foundation.git
+	branch = development
