@@ -23,6 +23,7 @@ post_ship_note: |
   (DidiDecks shell `/play/[deckSlug]/[variantSlug]/[slot]/` runtime).
   Chroma now has Play-UI for proto, enhanced-v2, and enhanced-v3
   variants via per-slide files under `src/components/slides/`.
+publish: false
 ---
 
 # Init Chroma Decks Client-Site

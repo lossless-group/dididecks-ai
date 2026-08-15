@@ -15,6 +15,7 @@ tags:
   - Token-Derivation
   - Dramatic-Lean
 status: Draft
+publish: false
 ---
 
 # Three-Modes Derivation for chroma-decks

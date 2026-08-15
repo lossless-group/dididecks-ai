@@ -16,6 +16,9 @@ tags:
   - Component-Registry
 authors:
   - Michael Staton
+date_created: 2026-05-15
+date_modified: 2026-06-07
+publish: true
 ---
 
 # Sitemap — Universal Shell Layer

@@ -23,6 +23,9 @@ tags:
   - Generative-Abundance
   - Deck-Matrix
   - Variant-Model
+date_created: 2026-08-04
+date_modified: 2026-08-04
+publish: false
 ---
 
 # Deck Convergence: Slot-Level Alternatives and Compositions

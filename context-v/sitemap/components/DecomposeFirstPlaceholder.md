@@ -19,6 +19,9 @@ date_last_updated: 2026-05-15
 at_semantic_version: 0.1.0
 status_tags:
   - Shipped
+date_created: 2026-05-12
+date_modified: 2026-05-15
+publish: true
 ---
 
 # DecomposeFirstPlaceholder

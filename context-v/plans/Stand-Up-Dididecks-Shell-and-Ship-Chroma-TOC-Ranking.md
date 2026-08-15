@@ -26,6 +26,7 @@ authors:
   - Michael Staton
 date_created: 2026-05-12
 date_modified: 2026-05-12
+publish: false
 ---
 
 # Stand Up @dididecks/shell and Ship the Chroma TOC + Slide-Ranking UI

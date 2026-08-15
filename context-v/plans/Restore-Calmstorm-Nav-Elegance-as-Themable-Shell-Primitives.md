@@ -28,6 +28,9 @@ tags:
   - Phase-B-Foundation
 authors:
   - Michael Staton
+date_created: 2026-05-14
+date_modified: 2026-05-16
+publish: false
 ---
 
 # Restore calmstorm's nav-chrome elegance as themable shell primitives

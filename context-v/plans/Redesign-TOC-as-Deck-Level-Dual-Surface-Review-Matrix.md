@@ -24,6 +24,7 @@ authors:
   - Michael Staton
 date_created: 2026-05-17
 date_modified: 2026-05-17
+publish: false
 ---
 
 # Redesign TOC as a Deck-Level Dual-Surface Review Matrix

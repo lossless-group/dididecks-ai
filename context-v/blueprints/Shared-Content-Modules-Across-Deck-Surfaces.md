@@ -17,6 +17,7 @@ tags:
   - Google-Slides
   - Citations
   - DidiDecks
+publish: true
 ---
 
 # Shared Content Modules Across Deck Surfaces

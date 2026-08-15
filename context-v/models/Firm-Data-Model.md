@@ -10,6 +10,9 @@ applies_to:
   - client-sites/chroma-decks
 not_applicable_to:
   - client-sites/humain-vc-decks (flat operating-company variant — no firm container)
+date_created: 2026-06-07
+date_modified: 2026-06-07
+publish: false
 ---
 
 # Firm · Data Model

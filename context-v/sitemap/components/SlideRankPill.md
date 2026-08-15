@@ -27,6 +27,9 @@ at_semantic_version: 0.1.0
 status_tags:
   - Shipped
   - Rename-Pending
+date_created: 2026-05-12
+date_modified: 2026-05-15
+publish: true
 ---
 
 # SlideRankPill (→ SlideClassifierPill, rename pending)

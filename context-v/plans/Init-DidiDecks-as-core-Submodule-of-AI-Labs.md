@@ -18,6 +18,7 @@ tags:
   - Repo-Init
   - Branch-Alignment
 status: Shipped
+publish: true
 ---
 
 # Init DidiDecks as Core Submodule of AI-Labs

@@ -25,6 +25,9 @@ status_tags:
   - Shipped
   - Dev-Only
   - Non-Destructive
+date_created: 2026-05-12
+date_modified: 2026-05-15
+publish: true
 ---
 
 # /api/slide-decompose

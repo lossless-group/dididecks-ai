@@ -32,6 +32,9 @@ related:
   - "[[Stand-Up-Dididecks-Shell-and-Ship-Chroma-TOC-Ranking]]"
   - "[[Phase-A-Plus-In-Deck-Ranking-Shared-Nav-and-Play-Runtime]]"
   - "../../client-sites/humain-vc-decks/context-v/plans/Install-Auth-Surface-from-Calmstorm-Pattern.md"
+date_created: 2026-06-06
+date_modified: 2026-06-07
+publish: false
 ---
 
 # Lift chroma-decks' generic code into the shared shell

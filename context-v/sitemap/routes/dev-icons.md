@@ -27,6 +27,9 @@ status_tags:
   - Shipped
   - Design-Review-Workbench
   - Project-Local-Discipline
+date_created: 2026-05-17
+date_modified: 2026-05-17
+publish: true
 ---
 
 # /dev/icons

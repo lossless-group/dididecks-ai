@@ -32,6 +32,7 @@ authors:
   - Michael Staton
 date_created: 2026-05-12
 date_modified: 2026-05-12
+publish: false
 ---
 
 # Phase A+ — In-Deck Ranking, Shared Nav Chrome, and a Working `/play` Runtime

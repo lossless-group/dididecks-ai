@@ -24,6 +24,9 @@ tags:
   - Version-Drift
   - Client-Sites
   - Step-One
+date_created: 2026-08-04
+date_modified: 2026-08-04
+publish: false
 ---
 
 # A Structural Frontend for Single-Tenant Client Sites

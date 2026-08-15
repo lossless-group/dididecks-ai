@@ -24,6 +24,7 @@ authors:
   - Michael Staton
 date_created: 2026-05-12
 date_modified: 2026-05-12
+publish: false
 ---
 
 # Port Enhanced-v2 Scroll Slides to Static 16:9 Play Slides for PDF Export

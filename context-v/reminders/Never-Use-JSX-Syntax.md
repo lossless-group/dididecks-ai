@@ -11,6 +11,7 @@ tags:
   - Reminder
   - Deck-Iteration
   - Build-Discipline
+publish: true
 ---
 
 ## The rule

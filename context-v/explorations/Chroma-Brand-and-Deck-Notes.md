@@ -16,6 +16,7 @@ tags:
   - Pre-Scaffold
   - Light-Mode-Only
 status: Draft
+publish: false
 ---
 
 # Chroma Brand & Deck Notes

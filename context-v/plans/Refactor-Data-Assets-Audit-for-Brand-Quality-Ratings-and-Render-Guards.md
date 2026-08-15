@@ -18,6 +18,9 @@ tags:
   - Companies-Audit
 authors:
   - Michael Staton
+date_created: 2026-05-17
+date_modified: 2026-05-17
+publish: false
 ---
 
 # Refactor data-assets audit for per-asset quality ratings, brand-asset disambiguation, and deck-render guards
