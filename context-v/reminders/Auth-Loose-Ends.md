@@ -16,6 +16,11 @@ tags:
   - Open-Items
 status: Active
 publish: false
+private: true
+site_uuid: 2cb0b070-a28f-4eaf-8843-d090bc44e9ea
+hex_code: aw0h1i
+date_authored_initial_draft: 2026-05-17
+date_authored_current_draft: 2026-05-17
 ---
 
 # Auth — loose ends after the 2026-05-17 install
