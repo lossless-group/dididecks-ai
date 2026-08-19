@@ -1,0 +1,3 @@
+<script lang="ts">import SeoContentPage from '$lib/components/marketing/SeoContentPage.svelte';</script>
+<SeoContentPage eyebrow="Guide" title="Pitch deck version control" copy="Deck work breaks down when revisions are tracked only in filenames and memory." ctas={[{ label: 'Deck versions', href: '/features/deck-versions' }, { label: 'For advisors', href: '/advisors', tone: 'ghost' }]} sections={[{ title: 'Version-control basics', items: [{ title: 'Keep a clear current state', body: 'Know which deck is active right now.' }, { title: 'Link changes to reasons', body: 'A version trail is more useful when it captures why the deck changed.' }, { title: 'Preserve export lineage', body: 'Final artifacts should map to a specific version, not a guess.' }] }]} />
+

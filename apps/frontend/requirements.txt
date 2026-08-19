@@ -1,0 +1,2 @@
+# This frontend is a SvelteKit/Vercel application.
+# Python packages are not required for the frontend build.

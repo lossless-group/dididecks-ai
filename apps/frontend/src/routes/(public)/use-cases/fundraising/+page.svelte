@@ -1,0 +1,3 @@
+<script lang="ts">import SeoContentPage from '$lib/components/marketing/SeoContentPage.svelte';</script>
+<SeoContentPage eyebrow="Use Case" title="Fundraising deck workflow" copy="Founders need a clearer path from draft deck to investor-ready narrative than emailing versioned PDFs around." ctas={[{ label: 'For founders', href: '/founders' }, { label: 'Pricing', href: '/pricing', tone: 'ghost' }]} sections={[{ title: 'Why it fits', items: [{ title: 'Review readiness', body: 'Know which slides still weaken the narrative.' }, { title: 'Version control', body: 'Track the deck state before investor outreach.' }, { title: 'Presentation safety', body: 'Check the deck in play mode before live delivery.' }] }]} />
+

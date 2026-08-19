@@ -43,10 +43,30 @@ included in the snapshot.
 
 ## Status
 
-**Early architecture.** No core implementation yet. The splash page, the specs,
-and the two existing client engagements (`calmstorm-decks`, `reach-edu-hub`) are
-the entire surface area today. Implementation prompts will follow under
-`context-v/prompts/`.
+**Website frontend active.** The deployable product shell lives in `apps/frontend`
+and is intended to ship as the website surface. The durable backend remains a
+separate product boundary.
+
+## Frontend / Backend Split
+
+DidiDecks must be treated as a real SaaS product shell, not just a static deck
+UI.
+
+The clean split is:
+
+```text
+dididecks-ai/apps/frontend
+  = deployable frontend shell on Vercel
+  = routes, components, typed API clients
+
+aistack-backend/app/products/dididecks
+  = product backend
+  = persistence, auth, billing, deck state, review state, and AI workflows
+```
+
+The frontend may render the full product shell, but it must not become the
+source of truth for persistence, billing, auth, AI command execution, or
+database writes outside approved APIs.
 
 ## Parentage
 

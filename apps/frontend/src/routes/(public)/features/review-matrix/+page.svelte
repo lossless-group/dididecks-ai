@@ -1,0 +1,3 @@
+<script lang="ts">import SeoContentPage from '$lib/components/marketing/SeoContentPage.svelte';</script>
+<SeoContentPage eyebrow="Feature" title="Review matrix for slide readiness" copy="Compare variants, slides, and surfaces so readiness is explicit before you present or export." ctas={[{ label: 'For founders', href: '/founders' }, { label: 'Pricing', href: '/pricing', tone: 'ghost' }]} sections={[{ title: 'Why it matters', items: [{ title: 'Surface-aware review', body: 'Scroll, play, and print readiness should not be flattened into one generic score.' }, { title: 'Variant visibility', body: 'A matrix helps teams see which version is actually ready.' }, { title: 'Operational review', body: 'It is built for repeated review loops, not one-off comments.' }] }]} />
+

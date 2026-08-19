@@ -1,0 +1,43 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">DidiDecks favicon</title>
+  <desc id="desc">A dark navy rounded square with three stacked deck layers forming a stylized D mark in cyan, violet and magenta.</desc>
+  <defs>
+    <linearGradient id="brandGradient" x1="136" y1="86" x2="386" y2="407" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#22D3EE"/>
+      <stop offset="0.42" stop-color="#2563EB"/>
+      <stop offset="0.72" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="layerMagenta" x1="108" y1="194" x2="247" y2="427" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#A855F7"/>
+      <stop offset="1" stop-color="#EC4899"/>
+    </linearGradient>
+    <linearGradient id="layerViolet" x1="141" y1="151" x2="330" y2="401" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#4F46E5"/>
+      <stop offset="0.55" stop-color="#7C3AED"/>
+      <stop offset="1" stop-color="#A855F7"/>
+    </linearGradient>
+    <radialGradient id="bgGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(162 122) rotate(52) scale(337 371)">
+      <stop stop-color="#0B2A66"/>
+      <stop offset="0.5" stop-color="#071735"/>
+      <stop offset="1" stop-color="#050B1F"/>
+    </radialGradient>
+    <filter id="softShadow" x="60" y="66" width="391" height="396" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000814" flood-opacity="0.35"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="10" flood-color="#22D3EE" flood-opacity="0.14"/>
+    </filter>
+  </defs>
+
+  <rect x="20" y="20" width="472" height="472" rx="92" fill="url(#bgGlow)"/>
+  <rect x="20" y="20" width="472" height="472" rx="92" stroke="rgba(148,163,184,0.16)" stroke-width="2"/>
+
+  <g filter="url(#softShadow)">
+    <path d="M107 191C106 181 114 173 124 175L151 179C159 180 165 187 166 195L185 365C186 376 195 384 206 384H336C343 384 349 389 351 396L354 410H161C145 410 132 398 130 382L107 191Z" fill="url(#layerMagenta)"/>
+    <path d="M145 147C144 137 152 129 162 131L192 135C201 136 207 143 208 152L227 323C229 334 238 342 249 342H379C386 342 392 347 394 354L397 368H203C187 368 174 356 172 340L145 147Z" fill="url(#layerViolet)"/>
+    <path fill-rule="evenodd" clip-rule="evenodd" d="M183 103C182 92 191 83 202 84L317 90C378 94 424 144 424 205V277C424 338 377 388 316 388H211C199 388 189 379 188 367L169 123C168 112 172 104 183 103ZM235 152C229 152 224 157 225 163L238 311C239 317 244 322 250 322H313C351 322 381 291 381 253V217C381 180 353 150 316 148L235 152Z" fill="url(#brandGradient)"/>
+    <rect x="259" y="182" width="43" height="58" rx="7" fill="#1E3A8A" fill-opacity="0.88"/>
+    <rect x="318" y="190" width="78" height="17" rx="6" fill="#1E40AF" fill-opacity="0.9"/>
+    <rect x="322" y="229" width="69" height="18" rx="6" fill="#1E40AF" fill-opacity="0.9"/>
+    <rect x="270" y="270" width="117" height="31" rx="7" fill="#1E40AF" fill-opacity="0.9"/>
+  </g>
+</svg>

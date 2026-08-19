@@ -1,5 +1,6 @@
 packages:
   - 'apps/*'
+  - 'packages/*'
   - 'client-sites/chroma-decks'
   - 'client-sites/eventcut-ai'
   - 'client-sites/humain-vc-decks'
