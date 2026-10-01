@@ -2,7 +2,7 @@
   "name": "dididecks-ai",
   "private": true,
   "version": "0.0.1",
-  "description": "DidiDecks AI — pseudomonorepo hosting @dididecks/shell (Astro integration) and the client-sites that consume it.",
+  "description": "DidiDecks AI \u2014 pseudomonorepo hosting @dididecks/shell (Astro integration) and the client-sites that consume it.",
   "type": "module",
   "scripts": {
     "dev:frontend": "pnpm --filter @dididecks/frontend dev",
@@ -11,7 +11,9 @@
     "build:shared": "pnpm --filter @dididecks/shared build",
     "check:shared": "pnpm --filter @dididecks/shared check",
     "build": "pnpm run build:frontend",
-    "check": "pnpm run check:frontend"
+    "check": "pnpm run check:frontend",
+    "export": "pnpm --filter @dididecks/deck-export exec deck-export",
+    "export:calmstorm": "node packages/deck-export/src/index.mjs all --site-root client-sites/calmstorm-decks --pattern '/dev/shot/{slot}/{variant}' --slots 01-17 --variants v1,v2,v3 --deck-name calmstorm-teaser"
   },
   "packageManager": "pnpm@10.15.0",
   "engines": {

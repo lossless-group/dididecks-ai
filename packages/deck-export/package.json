@@ -1,0 +1,43 @@
+{
+  "name": "@dididecks/deck-export",
+  "version": "0.1.0",
+  "description": "Deck export tiers for DidiDecks client-sites \u2014 raster slides, vector SVG, PDF, PPTX, Keynote, and a component asset library, from any running deck site.",
+  "type": "module",
+  "main": "./src/index.mjs",
+  "bin": {
+    "deck-export": "./src/index.mjs"
+  },
+  "exports": {
+    ".": "./src/index.mjs",
+    "./tiers/*": "./src/tiers/*"
+  },
+  "files": [
+    "src",
+    "README.md"
+  ],
+  "scripts": {
+    "smoke": "node src/index.mjs --help"
+  },
+  "dependencies": {
+    "pdf-lib": "^1.17.1",
+    "playwright": "1.59.1",
+    "pptxgenjs": "^3.12.0"
+  },
+  "publishConfig": {
+    "access": "restricted",
+    "registry": "https://npm.pkg.github.com"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/lossless-group/dididecks-ai.git",
+    "directory": "packages/deck-export"
+  },
+  "license": "UNLICENSED",
+  "keywords": [
+    "dididecks",
+    "slide-decks-as-code",
+    "pptx",
+    "keynote",
+    "export"
+  ]
+}
