@@ -9,7 +9,8 @@ dist
 *.log
 .vercel
 .pnpm-store
-.claude/
+.claude/*
+!.claude/commands/
 
 output/
 exports/
