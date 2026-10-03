@@ -41,6 +41,33 @@ See [`context-v/agent-skills/README.md`](./context-v/agent-skills/README.md)
 for the full skill list, the discipline, and what's deliberately not
 included in the snapshot.
 
+## Commands
+
+Type these into an agent chat opened at this repo's root. In Claude Code they
+are slash commands that arrive with `git pull` (`.claude/commands/`). In other
+agent chats (Claude desktop, pi, Cursor, Codex), load the matching skill from
+[`context-v/agent-skills/`](./context-v/agent-skills/).
+
+| Command | What it does |
+|---|---|
+| `/remake-deck <Company> <client-site> <source-deck> [KEY=value …]` | Turns a source deck (PDF, PPTX, or slide images) into 3 clean-room design variants that play in the Scroll-UI shell at `/scroll/<deck>/v1…v3/`. It extracts and audits the deck, designs each variant from the content only, refactors each into `Section__<Name>.astro` components, and verifies them in a real browser. Optional overrides: `N_VARIANTS`, `DECK_SLUG`, `CONTENT_POLICY`, `BRAND_POLICY`, `INCLUDE_FAITHFUL`. Runs for 30–60 minutes. |
+| `/slide-target <deck> <variant> <slot>` | Loads everything about one slide and scopes the work to it. Skill only: [`slide-target`](./context-v/agent-skills/slide-target/SKILL.md). |
+
+Example:
+
+```text
+/remake-deck "Edit on the Spot" eventcut-ai client-sites/eventcut-ai/inputs/2026-08-02_EventCut_Deck/EventCut-Deck-2026-08-02.pdf
+```
+
+How `/remake-deck` is put together (Loop → Plan → Prompt, the variables, and
+where outputs land) is in
+[`context-v/prompts/README.md`](./context-v/prompts/README.md). The plan it
+runs is
+[`Remake-Source-Deck-into-Design-Variants`](./context-v/plans/Remake-Source-Deck-into-Design-Variants.md).
+**To add a command:** write the procedure in `context-v/` first, add a thin
+`.claude/commands/<name>.md` that points at it, mirror it as a skill in
+`context-v/agent-skills/<name>/`, and add a row here.
+
 ## Status
 
 **Website frontend active.** The deployable product shell lives in `apps/frontend`

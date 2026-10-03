@@ -44,6 +44,7 @@ Claude (and modern LLMs in general) are good at responsive section-based design 
 - `pseudomonorepos` — parent-repo patterns, branch alignment, submodule mechanics. This repo is itself a pseudomonorepo (it carries client-sites as submodules) AND a child of `ai-labs`.
 - `maintain-splash-pages` — splash conventions when working under `splash/`.
 - `deck-iteration-workflow` — slide-iteration rhythm aligned with the calmstorm-decks pattern.
+- `remake-deck` — turn a source deck into N clean-room design variants. Also the `/remake-deck` slash command (`.claude/commands/remake-deck.md`). Both run `context-v/plans/Remake-Source-Deck-into-Design-Variants.md`; read `context-v/prompts/README.md` first. Every command this repo offers is listed in `README.md` → "Commands".
 
 ### Where the canonical snapshot of these skills lives in-repo
 
