@@ -30,3 +30,7 @@
 	path = client-sites/the-water-foundation
 	url = https://github.com/lossless-group/the-water-foundation.git
 	branch = development
+[submodule "client-sites/lfg-hub"]
+	path = client-sites/lfg-hub
+	url = https://github.com/lossless-group/lfg-hub.git
+	branch = development
