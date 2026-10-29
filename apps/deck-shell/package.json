@@ -43,5 +43,8 @@
     "astro-component",
     "dididecks",
     "slide-decks-as-code"
-  ]
+  ],
+  "dependencies": {
+    "@lossless-group/didideck-player": "workspace:*"
+  }
 }
