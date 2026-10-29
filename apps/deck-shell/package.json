@@ -45,6 +45,6 @@
     "slide-decks-as-code"
   ],
   "dependencies": {
-    "@lossless-group/didideck-player": "workspace:*"
+    "@lossless-group/dididecks-player": "workspace:*"
   }
 }

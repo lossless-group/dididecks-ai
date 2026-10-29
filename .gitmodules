@@ -34,3 +34,7 @@
 	path = client-sites/lfg-hub
 	url = https://github.com/lossless-group/lfg-hub.git
 	branch = development
+[submodule "packages/dididecks-player"]
+	path = packages/dididecks-player
+	url = https://github.com/lossless-group/dididecks-player.git
+	branch = development

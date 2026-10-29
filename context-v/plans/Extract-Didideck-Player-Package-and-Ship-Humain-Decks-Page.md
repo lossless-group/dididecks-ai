@@ -1,5 +1,5 @@
 ---
-title: "Extract @lossless-group/didideck-player and ship a gated decks page on humain-web"
+title: "Extract @lossless-group/dididecks-player and ship a gated decks page on humain-web"
 lede: "Split the viewer half of @dididecks/shell into a standalone, publishable package (LFM-shaped), keep the rater and triage tools in dididecks, and give humain-web a passcode-gated decks page built on the player."
 date_created: 2026-10-28
 date_modified: 2026-10-28
@@ -17,7 +17,7 @@ tags:
 publish: false
 ---
 
-# Extract `@lossless-group/didideck-player` and ship Humain's decks page
+# Extract `@lossless-group/dididecks-player` and ship Humain's decks page
 
 ## Why Care?
 
@@ -32,7 +32,7 @@ nothing outside a dididecks client-site can use them.
 
 | Layer | Contents | Ships where |
 |---|---|---|
-| **Player** | `SlideCanvas` (pure-CSS 16:9 scaling), `DeckChrome`, `SlidePaginator`, `PageAsDeckWrapper` (scroll deck), `ModeToggle` + `runtime/mode-switcher.ts`, `chrome-tokens.css`, `themes/neutral.css`, and a new `DeckPlayer` (single-page play deck: keyboard, ToC skip, fullscreen, print) | **`@lossless-group/didideck-player`**, `packages/didideck-player/`, publishable to JSR beside LFM |
+| **Player** | `SlideCanvas` (pure-CSS 16:9 scaling), `DeckChrome`, `SlidePaginator`, `PageAsDeckWrapper` (scroll deck), `ModeToggle` + `runtime/mode-switcher.ts`, `chrome-tokens.css`, `themes/neutral.css`, and a new `DeckPlayer` (single-page play deck: keyboard, ToC skip, fullscreen, print) | **`@lossless-group/dididecks-player`**, `packages/dididecks-player/`, publishable to JSR beside LFM |
 | **Rater / triage** | `SlideRankPill`, `/api/slide-rank`, `/api/slide-decompose`, `DeckMatrix`, `DeckStatsPanel`, review ToC | Stays in `@dididecks/shell` (dev-only: writes to the filesystem) |
 | **Integration** | registry loader, slot scanner, injected `/play` `/toc` routes | Stays in `@dididecks/shell` |
 
@@ -41,7 +41,7 @@ so no client-site import changes.
 
 ## Phases
 
-1. **Extract.** Move the player files into `packages/didideck-player/`; leave
+1. **Extract.** Move the player files into `packages/dididecks-player/`; leave
    one-line shims in `apps/deck-shell`. Add `DeckPlayer.astro`. Verify every
    client-site still builds (humain-vc-decks as the check).
 2. **Humain decks page.** In humain-web:
@@ -55,12 +55,12 @@ so no client-site import changes.
    `SlideCanvas` under `src/components/deck/` with a header naming the
    package version, and swaps to the JSR import once published.
 3. **Publish** (needs a go-ahead: outward-facing). `jsr publish` from
-   `packages/didideck-player/`; humain-web, mpstaton-site, hypernova and
+   `packages/dididecks-player/`; humain-web, mpstaton-site, hypernova and
    twf_site migrate to the import.
 
 ## Status (2026-10-28)
 
-- **Phase 1 done (v0.1.0, unpublished).** `packages/didideck-player/`:
+- **Phase 1 done (v0.1.0, unpublished).** `packages/dididecks-player/`:
   SlideCanvas (shell base + CSS centring + calmstorm's wash layer),
   ContentFit (calmstorm), DeckChrome (shell, with the `deck:section-changed`
   listener fixed and modifier keys passed through), SlidePaginator,
@@ -69,7 +69,7 @@ so no client-site import changes.
   builds and its play/print output is unchanged.
 - **Phase 2 done.** humain-web `/decks/` (public), `/lp/decks/` and
   `/lp/decks/firm-deck/` (gated, `deck:*`), gated slide and PDF routes,
-  vendored player under `src/components/deck/didideck-player/`.
+  vendored player under `src/components/deck/dididecks-player/`.
 - **Open from the audit:** replace PageAsDeckWrapper with
   lossless-slides-site's `PageDeck` (re-tokenised), add fullstack-vc's jump
   panel, unify the chrome-hidden attribute on `html[data-chrome="off"]`, and
