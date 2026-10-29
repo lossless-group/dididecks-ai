@@ -68,8 +68,14 @@ so no client-site import changes.
   DeckPlayer, PlayerSlide, PrintDeck. Shell shims in place; humain-vc-decks
   builds and its play/print output is unchanged.
 - **Phase 2 done.** humain-web `/decks/` (public), `/lp/decks/` and
-  `/lp/decks/firm-deck/` (gated, `deck:*`), gated slide and PDF routes,
-  vendored player under `src/components/deck/dididecks-player/`.
+  `/lp/decks/firm-deck/` (gated, `deck:*`), gated slide and PDF routes.
+  The deck page offers **Scroll · Play · PDF**, Scroll by default: the
+  scroll deck is a single-file export (`deck-export html --public --clean`:
+  post-NDA sections dropped, rater pill and dev overlays stripped, a small
+  runtime for keys, counter and mode toggle injected) served from the gated
+  `/lp/decks/<slug>/scroll` route into an iframe. Play uses the player over
+  slide snapshots. The player comes from the package (git tag v0.1.0 until
+  the npm release clears), not a vendored copy.
 - **Open from the audit:** replace PageAsDeckWrapper with
   lossless-slides-site's `PageDeck` (re-tokenised), add fullstack-vc's jump
   panel, unify the chrome-hidden attribute on `html[data-chrome="off"]`, and

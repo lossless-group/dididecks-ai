@@ -73,6 +73,11 @@ OPTIONS
   --headroom             (audit-type) also measure per-slide scale headroom
   --dry-run              (retype) report the mapping without writing
   --keep-slide-pdfs      retain per-slide PDFs after stitching
+  --route <path>         (html) the page to export
+  --public               (html) drop every data-tier="post-nda" section
+  --drop-tier <name>     (html) drop sections with another data-tier
+  --clean                (html) strip authoring chrome, inject the reader runtime
+  --title <text>         (html) document title for the exported file
   -h, --help             this text
 `;
 
@@ -85,7 +90,7 @@ OPTIONS
  * AND the file is eaten from the positional list. That bug wrote files during
  * what was supposed to be a preview. Boolean flags must be declared.
  */
-const BOOLEAN_FLAGS = new Set(["help", "dry-run", "headroom", "keep-slide-pdfs", "force"]);
+const BOOLEAN_FLAGS = new Set(["public", "clean", "help", "dry-run", "headroom", "keep-slide-pdfs", "force"]);
 
 function parseArgs(argv) {
   const args = { _: [] };
@@ -202,6 +207,9 @@ async function main() {
       outFile,
       passcode: camel(args, "passcode", null),
       settleMs: Number(camel(args, "settle-ms", 2500)),
+      dropTier: args.public ? "post-nda" : camel(args, "drop-tier", null),
+      clean: Boolean(args.clean),
+      title: camel(args, "title", null),
       log,
     });
     log(`\n  ✓ ${result.outFile}`);
