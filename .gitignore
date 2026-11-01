@@ -14,3 +14,6 @@ dist
 
 output/
 exports/
+context-v/extra/
+# Client site kept local until its GitHub repo + submodule are set up
+/client-sites/jobmachine/
