@@ -25,6 +25,7 @@ parent_exploration: "[[../../../context-v/explorations/Shared-Auth-for-Applied-A
 publish: false
 site_uuid: 8eebe9f0-1dbb-4c92-ac16-6b7814fb0f8e
 hex_code: xjxmxe
+type: Specs
 ---
 
 # Calmstorm Auth — Inventory and Future-Package Map

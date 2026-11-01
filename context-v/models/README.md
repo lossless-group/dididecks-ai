@@ -16,6 +16,7 @@ date_modified: 2026-06-07
 publish: false
 site_uuid: e7f70dc5-20a0-4253-a474-4245ca1c8a26
 hex_code: lttewy
+type: Models
 ---
 
 # Data + content models · dididecks-ai

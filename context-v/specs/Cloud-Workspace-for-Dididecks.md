@@ -31,6 +31,7 @@ tags:
 publish: false
 site_uuid: ee1531b7-edf4-4281-a349-a62d4d8d2e51
 hex_code: z2zvjz
+type: Specs
 ---
 
 # Cloud Workspace for Dididecks

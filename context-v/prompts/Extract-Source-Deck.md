@@ -19,6 +19,7 @@ tags:
   - Vision-Extraction
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
 prior_art: "client-sites/eventcut-ai/context-v/narratives/Source-Deck-Extraction.md"
+type: Prompts
 ---
 
 # Prompt: Extract a source deck

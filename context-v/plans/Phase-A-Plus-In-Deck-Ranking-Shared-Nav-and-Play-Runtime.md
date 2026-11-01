@@ -35,6 +35,7 @@ date_modified: 2026-05-12
 publish: false
 site_uuid: 174bb3c1-3a46-49b1-8a0f-7b447976b543
 hex_code: 4gglbm
+type: Plans
 ---
 
 # Phase A+ — In-Deck Ranking, Shared Nav Chrome, and a Working `/play` Runtime

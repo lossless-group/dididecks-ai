@@ -25,6 +25,7 @@ date_modified: 2026-05-16
 publish: false
 site_uuid: 933eb4f2-2cd2-4e64-9018-adee1572c4d3
 hex_code: edbmwn
+type: Explorations
 ---
 
 # Plans Inventory 2026-05-16

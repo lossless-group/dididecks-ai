@@ -20,6 +20,7 @@ publish: false
 site_uuid: 6c722284-4c1e-45c7-81a4-dcc4401e37f5
 hex_code: 6mf373
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Auth Surface · Data Model

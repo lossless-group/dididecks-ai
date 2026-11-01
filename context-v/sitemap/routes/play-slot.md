@@ -35,6 +35,7 @@ publish: true
 site_uuid: 822f5b12-5287-4e2b-a79f-2c55bfde7cfc
 hex_code: 7mm2rh
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # /play/[deckSlug]/[variantSlug]/[slot]/

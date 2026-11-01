@@ -35,6 +35,7 @@ site_uuid: 1771e91e-6138-4605-ade7-a79e2ec4f492
 hex_code: 7ljq4q
 date_authored_initial_draft: 2026-05-16
 date_authored_current_draft: 2026-05-16
+type: Plans
 ---
 
 # Componentize Slides and Establish Component Library

@@ -19,6 +19,7 @@ tags:
   - Scroll-UI
   - Refactor
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+type: Prompts
 ---
 
 # Prompt: Refactor an HTML variant into Astro scroll sections

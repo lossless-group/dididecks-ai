@@ -28,6 +28,7 @@ publish: true
 site_uuid: 09ca1b6b-e5cb-494c-b090-62889a34fab9
 hex_code: z7yucd
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # DididecksNav

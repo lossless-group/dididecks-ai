@@ -16,6 +16,7 @@ publish: false
 site_uuid: ac89a5c5-9ca5-40c4-b044-f6ec6e8549da
 hex_code: 2u3xv9
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Firm · Data Model

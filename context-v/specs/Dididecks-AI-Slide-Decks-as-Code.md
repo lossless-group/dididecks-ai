@@ -25,6 +25,7 @@ date_modified: 2026-05-11
 publish: false
 site_uuid: 209a4765-7805-4890-a49e-468b8c87d6b9
 hex_code: vdzymm
+type: Specs
 ---
 
 # Dididecks-AI: Slide Decks as Code

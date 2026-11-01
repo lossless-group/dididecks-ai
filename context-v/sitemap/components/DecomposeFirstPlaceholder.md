@@ -25,6 +25,7 @@ publish: true
 site_uuid: 801a3b39-3dfa-479d-9488-d4486c71c093
 hex_code: 0qufnu
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # DecomposeFirstPlaceholder

@@ -33,6 +33,7 @@ date_modified: 2026-05-16
 publish: true
 site_uuid: b296e1c7-6983-47e8-a2d2-5c51cd2bbb93
 hex_code: 992gth
+type: Plans
 ---
 
 # Refactor scroll-ported slides into true static play-format slides

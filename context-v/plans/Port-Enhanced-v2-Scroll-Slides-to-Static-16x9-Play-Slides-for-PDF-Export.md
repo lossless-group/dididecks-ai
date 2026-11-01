@@ -27,6 +27,7 @@ date_modified: 2026-05-12
 publish: false
 site_uuid: d8d53a17-26e8-4b24-835f-d2b174467d86
 hex_code: ztzej8
+type: Plans
 ---
 
 # Port Enhanced-v2 Scroll Slides to Static 16:9 Play Slides for PDF Export

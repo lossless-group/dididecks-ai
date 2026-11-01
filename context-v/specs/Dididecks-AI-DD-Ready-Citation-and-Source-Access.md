@@ -26,6 +26,7 @@ date_modified: 2026-05-11
 publish: false
 site_uuid: c55d73ed-5109-4625-a19c-f778a132ec2e
 hex_code: 3ry85y
+type: Specs
 ---
 
 # Dididecks-AI: DD-Ready Citation and Source-Access System

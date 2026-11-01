@@ -37,6 +37,7 @@ publish: true
 site_uuid: 82fe47b3-e846-40ed-966f-be3f1bd718ef
 hex_code: omk5vk
 date_authored_current_draft: 2026-05-17
+type: Sitemap
 ---
 
 # /data-assets/people

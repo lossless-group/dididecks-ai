@@ -28,6 +28,7 @@ date_modified: 2026-08-04
 publish: false
 site_uuid: e7b0be84-5a86-4f00-872a-563b64a1bed4
 hex_code: qruwfo
+type: Specs
 ---
 
 # Deck Convergence: Slot-Level Alternatives and Compositions

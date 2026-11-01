@@ -20,6 +20,7 @@ site_uuid: ea815dfe-1f94-457e-9fb8-d3b40d2491a0
 hex_code: 6kai6f
 date_authored_initial_draft: 2026-05-11
 date_authored_current_draft: 2026-05-11
+type: Blueprints
 ---
 
 # Three-Modes Derivation for chroma-decks

@@ -27,6 +27,7 @@ publish: true
 site_uuid: e3622bb4-4aec-49c7-b551-176817435a3b
 hex_code: s3dmcm
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # /toc/[deckSlug]/[variantSlug]/

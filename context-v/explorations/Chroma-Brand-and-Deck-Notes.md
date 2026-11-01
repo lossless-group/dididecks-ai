@@ -21,6 +21,7 @@ site_uuid: b6b5c465-c842-4351-9f00-ce410e16bb7c
 hex_code: 1qw9if
 date_authored_initial_draft: 2026-05-11
 date_authored_current_draft: 2026-05-11
+type: Explorations
 ---
 
 # Chroma Brand & Deck Notes

@@ -25,6 +25,7 @@ private: true
 publish: false
 site_uuid: 18e519b3-78b1-4340-859e-7c940ad06c1c
 hex_code: b0cjwy
+type: Explorations
 ---
 # Integrating Instadeck Back into Dididecks-AI
 

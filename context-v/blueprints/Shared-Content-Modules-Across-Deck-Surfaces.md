@@ -22,6 +22,7 @@ site_uuid: ee059d7e-a0f3-4aa7-bdb8-b303d868e79a
 hex_code: 64etcg
 date_authored_initial_draft: 2026-07-28
 date_authored_current_draft: 2026-07-28
+type: Blueprints
 ---
 
 # Shared Content Modules Across Deck Surfaces

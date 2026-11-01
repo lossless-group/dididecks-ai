@@ -19,6 +19,7 @@ tags:
   - Scroll-UI
   - Tailwind
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+type: Prompts
 ---
 
 # Prompt: Design a deck variant as one coherent HTML file

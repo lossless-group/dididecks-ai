@@ -33,6 +33,7 @@ date_modified: 2026-05-16
 publish: false
 site_uuid: 48b254ea-03d4-4745-ba23-e3e117189746
 hex_code: vhz22y
+type: Plans
 ---
 
 # Restore calmstorm's nav-chrome elegance as themable shell primitives

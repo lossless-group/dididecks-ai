@@ -28,6 +28,7 @@ publish: true
 site_uuid: bf3490e5-459e-4364-8949-8132495ad2e4
 hex_code: dhwh0p
 date_authored_current_draft: 2026-05-14
+type: Sitemap
 ---
 
 # PlayChrome

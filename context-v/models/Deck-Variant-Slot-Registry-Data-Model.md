@@ -18,6 +18,7 @@ publish: false
 site_uuid: b56dd8de-0a27-410d-bc7c-09e2f4143023
 hex_code: iqt5qh
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Deck / Variant / Slot · Data Model

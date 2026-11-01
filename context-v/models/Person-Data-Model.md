@@ -16,6 +16,7 @@ publish: false
 site_uuid: 011b8974-826e-48cf-8108-06f024d5f1e5
 hex_code: nnemqt
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Person · Data Model

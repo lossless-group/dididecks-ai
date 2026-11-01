@@ -26,6 +26,7 @@ date_modified: 2026-05-11
 publish: false
 site_uuid: 41853e76-7fb7-4b91-baf1-fada441559ea
 hex_code: whoy9w
+type: Specs
 ---
 
 # Dididecks-AI: Visual and Diagram Component Library

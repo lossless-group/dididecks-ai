@@ -37,6 +37,7 @@ date_modified: 2026-06-07
 publish: false
 site_uuid: eb069ccc-cce8-413b-9d88-37ccc286004e
 hex_code: t6d2t4
+type: Plans
 ---
 
 # Lift chroma-decks' generic code into the shared shell

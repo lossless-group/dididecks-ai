@@ -25,6 +25,7 @@ date_modified: 2026-05-11
 publish: false
 site_uuid: 53aa0ab9-b6bf-4f5c-9b75-0d1bf887d4ee
 hex_code: wmah35
+type: Explorations
 ---
 
 # Dididecks-AI: Business Model Exploration

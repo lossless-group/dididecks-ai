@@ -40,6 +40,7 @@ publish: true
 site_uuid: bb9986fa-827b-471d-abfa-abeee14e7076
 hex_code: 0ghj58
 date_authored_current_draft: 2026-06-06
+type: Sitemap
 ---
 
 # PageAsDeckWrapper

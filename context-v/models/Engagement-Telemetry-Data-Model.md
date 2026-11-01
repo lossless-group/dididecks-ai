@@ -19,6 +19,7 @@ publish: false
 site_uuid: dd277eab-a224-431a-ad04-78e44fe40e87
 hex_code: tt5agc
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Engagement Telemetry · Data Model

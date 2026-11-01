@@ -26,6 +26,7 @@ calls:
   - "[[Verify-Variant-Plays-in-Scroll-Shell]]"
 called_by: "[[Remake-Source-Decks-Queue]]"
 prior_art: "client-sites/eventcut-ai (faithful + continuum / zero / hypercut, built by hand 2026-08)"
+type: Plans
 ---
 
 # Plan: Remake a source deck into N design variants

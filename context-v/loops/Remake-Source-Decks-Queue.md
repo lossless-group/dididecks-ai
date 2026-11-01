@@ -18,6 +18,7 @@ tags:
   - Subagent-Orchestration
   - Deck-Iteration-Workflow
 calls: "[[Remake-Source-Deck-into-Design-Variants]]"
+type: Loops
 ---
 
 # Loop: Remake source decks from a queue

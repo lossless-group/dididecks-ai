@@ -15,6 +15,7 @@ tags:
   - Humain-Web
   - Privacy-Gate
 publish: false
+type: Plans
 ---
 
 # Extract `@lossless-group/dididecks-player` and ship Humain's decks page

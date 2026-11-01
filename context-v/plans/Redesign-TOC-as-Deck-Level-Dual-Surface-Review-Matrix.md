@@ -27,6 +27,7 @@ date_modified: 2026-05-17
 publish: false
 site_uuid: 8508f01f-08f3-4d04-b5a6-41c4c25c74ea
 hex_code: b0fxfn
+type: Plans
 ---
 
 # Redesign TOC as a Deck-Level Dual-Surface Review Matrix

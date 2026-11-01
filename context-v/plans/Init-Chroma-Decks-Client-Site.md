@@ -28,6 +28,7 @@ site_uuid: bfc44333-2dc9-45ae-87c4-068080301081
 hex_code: agrw9v
 date_authored_initial_draft: 2026-05-16
 date_authored_current_draft: 2026-05-16
+type: Plans
 ---
 
 # Init Chroma Decks Client-Site

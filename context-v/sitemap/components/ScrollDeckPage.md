@@ -39,6 +39,7 @@ publish: true
 site_uuid: 7df1251a-302b-4c6f-8ac5-e9d60c8634d2
 hex_code: p19m53
 date_authored_current_draft: 2026-06-07
+type: Sitemap
 ---
 
 # ScrollDeckPage

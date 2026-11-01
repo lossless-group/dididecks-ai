@@ -27,6 +27,7 @@ publish: true
 site_uuid: aa84d68d-9e5b-466a-8cf6-b31e147e1770
 hex_code: 2s6ach
 date_authored_current_draft: 2026-05-13
+type: Sitemap
 ---
 
 # SlideCanvas

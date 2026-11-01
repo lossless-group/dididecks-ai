@@ -34,6 +34,7 @@ publish: true
 site_uuid: 82d565bd-41dd-4a90-abc9-b6223203e229
 hex_code: vx6mqs
 date_authored_current_draft: 2026-06-06
+type: Sitemap
 ---
 
 # lib/deck-overview

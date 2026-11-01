@@ -16,6 +16,7 @@ tags:
   - Prompt-Templates
   - Subagent-Orchestration
   - Deck-Iteration-Workflow
+type: Prompts
 ---
 
 # DidiDecks prompt templates

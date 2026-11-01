@@ -31,6 +31,7 @@ publish: true
 site_uuid: 695a421a-8347-4abd-af43-9f3a6829c885
 hex_code: 6bzmur
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # /api/slide-rank

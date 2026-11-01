@@ -41,6 +41,7 @@ publish: true
 site_uuid: 7a7ca52b-0cd0-49d7-8b55-82068b76b508
 hex_code: 7brdos
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # DeckMatrix

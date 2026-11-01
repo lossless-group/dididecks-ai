@@ -20,6 +20,7 @@ publish: false
 site_uuid: 7609273b-1935-426f-b72f-372572694b63
 hex_code: 3feukx
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Slide Audit Registry · Data Model

@@ -21,6 +21,7 @@ date_modified: 2026-06-07
 publish: true
 site_uuid: 925f384a-9843-41ee-ab16-82709f515586
 hex_code: s3oiqn
+type: Sitemap
 ---
 
 # Sitemap — Universal Shell Layer

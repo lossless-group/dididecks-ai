@@ -23,6 +23,7 @@ date_modified: 2026-05-17
 publish: false
 site_uuid: 5bb21d12-037b-4335-bfe1-ec78686a264f
 hex_code: lm10sl
+type: Plans
 ---
 
 # Refactor data-assets audit for per-asset quality ratings, brand-asset disambiguation, and deck-render guards

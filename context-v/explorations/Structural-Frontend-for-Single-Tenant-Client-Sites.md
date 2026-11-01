@@ -29,6 +29,7 @@ date_modified: 2026-08-04
 publish: false
 site_uuid: 28b8cfa5-4823-452f-9808-553101cff974
 hex_code: yqa320
+type: Explorations
 ---
 
 # A Structural Frontend for Single-Tenant Client Sites

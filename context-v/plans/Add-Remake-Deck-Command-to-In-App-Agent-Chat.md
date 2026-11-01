@@ -22,6 +22,7 @@ builds_on:
   - "[[Remake-Source-Deck-into-Design-Variants]]"
   - "[[Remote-Mount-Contract-for-In-App-Agent]]"
   - "[[In-App-Agent-Chat-As-Built-vs-As-Specced]]"
+type: Plans
 ---
 
 # Plan: /remake-deck in the in-app agent chat

@@ -30,6 +30,7 @@ publish: true
 site_uuid: d94d3ca6-aafc-4bd1-886e-ed74d83523a6
 hex_code: ws2pmo
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # /play/[deckSlug]/[variantSlug]/print/

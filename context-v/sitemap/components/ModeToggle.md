@@ -45,6 +45,7 @@ publish: true
 site_uuid: 15eefef0-e83a-4ccd-ad9d-15c1ca6e07fc
 hex_code: cwdzg7
 date_authored_current_draft: 2026-06-06
+type: Sitemap
 ---
 
 # ModeToggle

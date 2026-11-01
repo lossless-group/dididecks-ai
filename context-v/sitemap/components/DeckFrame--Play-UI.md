@@ -32,6 +32,7 @@ publish: true
 site_uuid: dc6b9036-8273-4f0c-97b3-018e7910affc
 hex_code: 3yg3s5
 date_authored_current_draft: 2026-05-13
+type: Sitemap
 ---
 
 # DeckFrame--Play-UI

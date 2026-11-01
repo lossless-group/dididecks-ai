@@ -28,6 +28,7 @@ publish: true
 site_uuid: 78fa6c78-bf45-4ed5-9690-b8c0034c9581
 hex_code: k78erw
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # DeckOverlay--Play-UI

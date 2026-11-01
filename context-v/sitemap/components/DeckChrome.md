@@ -49,6 +49,7 @@ publish: true
 site_uuid: 176c912a-6ad7-4b41-8aa7-50f2a1cf0cfc
 hex_code: t2e9mq
 date_authored_current_draft: 2026-05-14
+type: Sitemap
 ---
 
 # DeckChrome

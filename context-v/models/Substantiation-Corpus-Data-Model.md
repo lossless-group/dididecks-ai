@@ -18,6 +18,7 @@ publish: false
 site_uuid: d3d7fc6b-c131-4e3f-9b1b-1195b1cc8473
 hex_code: mjnq2o
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Substantiation Corpus · Data Model

@@ -29,6 +29,7 @@ date_modified: 2026-05-12
 publish: false
 site_uuid: 6bce5fab-be65-4a8a-88c9-3930a9b8629a
 hex_code: 21u3fp
+type: Plans
 ---
 
 # Stand Up @dididecks/shell and Ship the Chroma TOC + Slide-Ranking UI

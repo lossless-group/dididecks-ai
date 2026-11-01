@@ -37,6 +37,7 @@ publish: true
 site_uuid: 32b3ba95-1d39-4825-a597-a7fb9a81148f
 hex_code: 0rlgwm
 date_authored_current_draft: 2026-05-17
+type: Sitemap
 ---
 
 # /data-assets/companies

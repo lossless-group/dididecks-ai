@@ -18,6 +18,7 @@ tags:
   - Quality-Gate
   - Source-Deck
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+type: Prompts
 ---
 
 # Prompt: Audit a source-deck extraction

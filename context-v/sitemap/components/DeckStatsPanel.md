@@ -42,6 +42,7 @@ publish: true
 site_uuid: a6a81047-8d66-4a70-b6f2-d185eee53c8f
 hex_code: 4gn8y6
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # DeckStatsPanel

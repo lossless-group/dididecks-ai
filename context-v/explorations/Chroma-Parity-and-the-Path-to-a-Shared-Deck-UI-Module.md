@@ -27,6 +27,7 @@ date_modified: 2026-05-12
 publish: false
 site_uuid: 64b281fc-5067-4508-bb52-5919c0cacc74
 hex_code: 0ro4xp
+type: Explorations
 ---
 
 # Chroma-Decks Parity with Calmstorm-Decks, and the Path to a Shared Deck UI Module

@@ -31,6 +31,7 @@ publish: true
 site_uuid: ad3a1f82-6942-4ed7-8e23-602dec12d20c
 hex_code: x5firz
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # /api/slide-decompose

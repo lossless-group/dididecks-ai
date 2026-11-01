@@ -35,6 +35,7 @@ publish: true
 site_uuid: 750b2f94-d7b7-4118-b6d9-7d57ce74046e
 hex_code: c57t6v
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # /toc/[deckSlug]/

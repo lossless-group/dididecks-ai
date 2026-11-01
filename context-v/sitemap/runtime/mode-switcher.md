@@ -38,6 +38,7 @@ publish: true
 site_uuid: 5ba29148-17fd-4b51-a1b1-2fd3fc5c5c49
 hex_code: o2ycp1
 date_authored_current_draft: 2026-06-06
+type: Sitemap
 ---
 
 # runtime/mode-switcher

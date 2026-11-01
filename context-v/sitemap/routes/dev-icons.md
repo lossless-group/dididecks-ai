@@ -33,6 +33,7 @@ publish: true
 site_uuid: cddb7c21-cd5d-4ae3-85e8-8e57a418784f
 hex_code: 3bavu6
 date_authored_current_draft: 2026-05-17
+type: Sitemap
 ---
 
 # /dev/icons

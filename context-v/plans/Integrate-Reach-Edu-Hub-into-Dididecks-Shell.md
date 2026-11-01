@@ -33,6 +33,7 @@ date_modified: 2026-06-29
 publish: false
 site_uuid: 2baf9267-4398-4fb1-be37-dff8f96e9c16
 hex_code: h97rq3
+type: Plans
 ---
 
 # Integrate reach-edu-hub into the shared shell

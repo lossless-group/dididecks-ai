@@ -33,6 +33,7 @@ date_modified: 2026-06-07
 publish: false
 site_uuid: e3f14271-189d-44fa-a132-c3e31dd2f53a
 hex_code: 3g1sc6
+type: Explorations
 ---
 
 # Bridging PLG Self-Serve with the Previous Approach

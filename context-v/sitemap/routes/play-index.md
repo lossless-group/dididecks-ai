@@ -26,6 +26,7 @@ publish: true
 site_uuid: ae39fef9-e914-4e80-b1db-26f93af50e64
 hex_code: fol4vb
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # /play/[deckSlug]/[variantSlug]/

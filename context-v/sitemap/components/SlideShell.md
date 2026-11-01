@@ -47,6 +47,7 @@ publish: true
 site_uuid: 9b60853a-565e-40f0-9e13-cd391a639814
 hex_code: k3u2uw
 date_authored_current_draft: 2026-06-06
+type: Sitemap
 ---
 
 # SlideShell

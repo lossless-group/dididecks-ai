@@ -28,6 +28,7 @@ date_modified: 2026-05-12
 publish: false
 site_uuid: a55b9fca-4d21-41d9-b9fd-0687ef8779d3
 hex_code: o8t7iq
+type: Plans
 ---
 
 # Phase A++ — Play Fidelity, In-Play Ranking, and Variant URL Safety

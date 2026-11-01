@@ -33,6 +33,7 @@ publish: true
 site_uuid: 9462cf15-a163-4626-9821-b74b46f0850a
 hex_code: cdyj7o
 date_authored_current_draft: 2026-05-12
+type: Sitemap
 ---
 
 # SlideRankPill (→ SlideClassifierPill, rename pending)

@@ -16,6 +16,7 @@ publish: false
 site_uuid: 6c6de6d1-de3d-45c9-82c5-91d9042e0c34
 hex_code: 8d3vga
 date_authored_current_draft: 2026-06-07
+type: Models
 ---
 
 # Company · Data Model

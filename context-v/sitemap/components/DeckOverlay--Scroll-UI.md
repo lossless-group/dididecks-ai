@@ -26,6 +26,7 @@ publish: true
 site_uuid: 2be2884d-3da7-4a7c-8c3c-24afedb0b678
 hex_code: ql5n99
 date_authored_current_draft: 2026-05-15
+type: Sitemap
 ---
 
 # DeckOverlay--Scroll-UI

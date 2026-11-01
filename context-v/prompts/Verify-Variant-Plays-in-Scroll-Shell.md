@@ -19,6 +19,7 @@ tags:
   - Browser-Drive
   - Scroll-UI
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+type: Prompts
 ---
 
 # Prompt: Verify a variant plays in the Scroll-UI shell

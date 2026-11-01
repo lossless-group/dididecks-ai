@@ -38,6 +38,7 @@ tags:
   - Dididecks
   - Calmstorm-Decks
 publish: true
+type: Sitemap
 ---
 
 # /data-assets/slides
