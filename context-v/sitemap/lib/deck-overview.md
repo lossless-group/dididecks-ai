@@ -4,7 +4,7 @@ lede: "`loadDeckOverview(deckSlug)` reads registry paths off `globalThis.__didid
 artifact_kind: lib
 ownership: shell
 mode: n/a
-status: shipped
+status: Shipped
 shell_version_introduced: 0.2.0
 public_api:
   - "loadDeckOverview(deckSlug: string = 'pitch'): Promise<DeckOverview>"
@@ -35,6 +35,7 @@ site_uuid: 82d565bd-41dd-4a90-abc9-b6223203e229
 hex_code: vx6mqs
 date_authored_current_draft: 2026-06-06
 type: Sitemap
+date_first_published: 2026-06-06
 ---
 
 # lib/deck-overview

@@ -11,7 +11,6 @@ tags:
   - Reminder
   - Auth
   - Shared-Auth
-  - Chroma-Decks
   - Calmstorm-Decks
   - Open-Items
 status: Active

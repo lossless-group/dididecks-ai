@@ -4,7 +4,7 @@ lede: "Reviewer audit over `data/**/portfolio/*.md` — companies are told from 
 artifact_kind: route
 ownership: shell
 mode: n/a
-status: shipped
+status: Shipped
 shell_version_introduced: 0.0.1
 route_pattern: "/data-assets/companies"
 prerender: false
@@ -38,6 +38,7 @@ site_uuid: 32b3ba95-1d39-4825-a597-a7fb9a81148f
 hex_code: 0rlgwm
 date_authored_current_draft: 2026-05-17
 type: Sitemap
+date_first_published: 2026-05-17
 ---
 
 # /data-assets/companies

@@ -4,7 +4,7 @@ lede: "Reviewer audit over `data/**/{team,portfolio}/*.md` — people are told f
 artifact_kind: route
 ownership: shell
 mode: n/a
-status: shipped
+status: Shipped
 shell_version_introduced: 0.0.1
 route_pattern: "/data-assets/people"
 prerender: false
@@ -38,6 +38,7 @@ site_uuid: 82fe47b3-e846-40ed-966f-be3f1bd718ef
 hex_code: omk5vk
 date_authored_current_draft: 2026-05-17
 type: Sitemap
+date_first_published: 2026-05-17
 ---
 
 # /data-assets/people

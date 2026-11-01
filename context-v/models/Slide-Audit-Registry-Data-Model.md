@@ -4,7 +4,7 @@ lede: "The only runtime-mutable model on disk: one JSON per client holding per-(
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-filesystem
+status: Reference
 applies_to:
   - client-sites/calmstorm-decks
   - client-sites/chroma-decks
@@ -20,6 +20,8 @@ publish: false
 site_uuid: 7609273b-1935-426f-b72f-372572694b63
 hex_code: 3feukx
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

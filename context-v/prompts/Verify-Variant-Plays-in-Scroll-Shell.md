@@ -19,6 +19,8 @@ tags:
   - Browser-Drive
   - Scroll-UI
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+site_uuid: c1e5471a-43ca-40d0-a078-4e54dfec3448
+hex_code: l2nx13
 type: Prompts
 ---
 

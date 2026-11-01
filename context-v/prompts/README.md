@@ -16,6 +16,8 @@ tags:
   - Prompt-Templates
   - Subagent-Orchestration
   - Deck-Iteration-Workflow
+site_uuid: 32cbfd06-7d29-427c-8321-3e3ab4f3556b
+hex_code: 4f2nes
 type: Prompts
 ---
 

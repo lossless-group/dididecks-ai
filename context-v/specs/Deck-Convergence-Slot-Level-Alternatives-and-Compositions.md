@@ -7,9 +7,10 @@ date_authored_final_draft:
 date_first_published:
 date_last_updated: 2026-08-04
 at_semantic_version: 0.0.1.0
-status: In-Discussion
+status: In-Review
 category: Specification
-augmented_with: Claude Code on Claude Opus 5 (1M context)
+augmented_with:
+  - Claude Code on Claude Opus 5 (1M context)
 authors:
   - Michael Staton
 tags:

@@ -4,7 +4,7 @@ lede: "The gitignored `<client>/corpus/` layer — founder PDFs, page-burst PNGs
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-filesystem
+status: Reference
 applies_to:
   - client-sites/chroma-decks
   - client-sites/humain-vc-decks
@@ -18,6 +18,8 @@ publish: false
 site_uuid: d3d7fc6b-c131-4e3f-9b1b-1195b1cc8473
 hex_code: mjnq2o
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

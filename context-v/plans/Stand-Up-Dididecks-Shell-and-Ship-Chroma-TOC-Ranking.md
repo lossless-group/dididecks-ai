@@ -8,13 +8,13 @@ date_first_published: 2026-05-12
 date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
 status: Partially-Shipped
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell
   - Astro-Integration
   - Monorepo-First-Capability
-  - Chroma-Decks
   - TOC-and-Ranking
   - Phase-1-to-Phase-2-Bridge
   - Decomposition-Stub-Generator

@@ -4,7 +4,7 @@ lede: "One markdown file per portfolio company with colocated brand assets; the 
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-filesystem
+status: Reference
 applies_to:
   - client-sites/calmstorm-decks
   - client-sites/chroma-decks
@@ -16,6 +16,8 @@ publish: false
 site_uuid: 6c6de6d1-de3d-45c9-82c5-91d9042e0c34
 hex_code: 8d3vga
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

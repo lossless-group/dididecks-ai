@@ -18,6 +18,8 @@ tags:
   - Subagent-Orchestration
   - Deck-Iteration-Workflow
 calls: "[[Remake-Source-Deck-into-Design-Variants]]"
+site_uuid: 9624e53c-d3c5-4ea5-bfe0-e2b18a6d17ee
+hex_code: g5e8v9
 type: Loops
 ---
 

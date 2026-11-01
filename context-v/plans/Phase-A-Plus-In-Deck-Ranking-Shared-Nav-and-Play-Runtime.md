@@ -15,7 +15,8 @@ post_ship_note: |
   and Play-UI are two coordinated implementations with different
   constraints, not two views of the same content. See CLAUDE.md
   "Naming is fuzzy here" for the corrected framing.
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell

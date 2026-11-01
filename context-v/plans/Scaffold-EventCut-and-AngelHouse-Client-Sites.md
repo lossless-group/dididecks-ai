@@ -4,7 +4,8 @@ date_created: 2026-08-02
 date_modified: 2026-08-02
 authors:
   - Michael Staton
-augmented_with: Claude Opus 4.8 on Claude Code
+augmented_with:
+  - Claude Opus 4.8 on Claude Code
 semantic_version: 0.0.0.1
 status: Implementing
 lede: "Two new gated deck client-sites — eventcut-ai (eventcut.ai) and angelhouse (angelhouse.life) — stood up via the proven per-client-repo ritual, cloning chroma-decks' wired auth + shell rather than the deferred shared-host idea."

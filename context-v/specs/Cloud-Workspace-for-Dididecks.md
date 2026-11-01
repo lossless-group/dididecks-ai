@@ -11,12 +11,12 @@ date_modified: 2026-06-05
 at_semantic_version: 0.0.0.1
 status: Draft
 category: Specification
-augmented_with: Claude Code on Claude Opus 4.7 (1M context)
+augmented_with:
+  - Claude Code on Claude Opus 4.7 (1M context)
 authors:
   - Michael Staton
 tags:
   - Cloud-Workspace
-  - Dididecks-AI
   - Multi-Tenant
   - Privacy-Model
   - Threat-Model

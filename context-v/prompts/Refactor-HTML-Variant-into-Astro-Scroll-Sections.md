@@ -19,6 +19,8 @@ tags:
   - Scroll-UI
   - Refactor
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+site_uuid: bdadab4d-a83d-4fed-83a1-157413e6a974
+hex_code: 7824s4
 type: Prompts
 ---
 

@@ -4,7 +4,7 @@ lede: "Layout-neutral (`display: contents`) mount for the affordances riding ove
 artifact_kind: component
 ownership: shell
 mode: scroll-ui
-status: shipped
+status: Shipped
 shell_version_introduced: 0.1.0-rc.0
 composes:
   - SlideRankPill
@@ -27,6 +27,7 @@ site_uuid: 2be2884d-3da7-4a7c-8c3c-24afedb0b678
 hex_code: ql5n99
 date_authored_current_draft: 2026-05-15
 type: Sitemap
+date_first_published: 2026-05-16
 ---
 
 # DeckOverlay--Scroll-UI

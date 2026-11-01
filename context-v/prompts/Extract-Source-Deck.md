@@ -19,6 +19,8 @@ tags:
   - Vision-Extraction
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
 prior_art: "client-sites/eventcut-ai/context-v/narratives/Source-Deck-Extraction.md"
+site_uuid: 2068ecaf-b738-4601-a73c-8e13c5982534
+hex_code: jhjfz1
 type: Prompts
 ---
 

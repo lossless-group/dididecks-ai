@@ -4,7 +4,7 @@ lede: "Fixed top-right button cycling light → dark → vibrant, persisted unde
 artifact_kind: component
 ownership: shell
 mode: both
-status: shipped
+status: Shipped
 shell_version_introduced: 0.2.0
 composes:
   - "runtime/mode-switcher (inline import + createModeSwitcher call)"
@@ -46,6 +46,7 @@ site_uuid: 15eefef0-e83a-4ccd-ad9d-15c1ca6e07fc
 hex_code: cwdzg7
 date_authored_current_draft: 2026-06-06
 type: Sitemap
+date_first_published: 2026-06-06
 ---
 
 # ModeToggle

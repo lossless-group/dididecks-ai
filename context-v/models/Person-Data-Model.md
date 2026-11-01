@@ -4,7 +4,7 @@ lede: "One markdown file per person plus colocated headshot; `role_class` discri
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-filesystem
+status: Reference
 applies_to:
   - client-sites/calmstorm-decks
   - client-sites/chroma-decks
@@ -16,6 +16,8 @@ publish: false
 site_uuid: 011b8974-826e-48cf-8108-06f024d5f1e5
 hex_code: nnemqt
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

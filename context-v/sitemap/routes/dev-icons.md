@@ -4,7 +4,7 @@ lede: "A kept design-review workbench — one `/dev/*` page rendering every cand
 artifact_kind: route
 ownership: shell
 mode: utility
-status: shipped
+status: Shipped
 shell_version_introduced: 0.1.0-rc.0
 route_pattern: "/dev/icons"
 emits_for: "single static page"
@@ -34,6 +34,7 @@ site_uuid: cddb7c21-cd5d-4ae3-85e8-8e57a418784f
 hex_code: 3bavu6
 date_authored_current_draft: 2026-05-17
 type: Sitemap
+date_first_published: 2026-05-17
 ---
 
 # /dev/icons

@@ -4,7 +4,7 @@ lede: "Append-only PageView + Action logs in the auth astro:db — the foundatio
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-db-config
+status: Reference
 applies_to:
   - client-sites/chroma-decks (current implementation)
   - client-sites/calmstorm-decks (similar)
@@ -19,6 +19,8 @@ publish: false
 site_uuid: dd277eab-a224-431a-ad04-78e44fe40e87
 hex_code: tt5agc
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

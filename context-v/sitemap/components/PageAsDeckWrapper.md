@@ -4,7 +4,7 @@ lede: "Wraps `<section data-slot data-variant>` children in a scroll-snap deck: 
 artifact_kind: component
 ownership: shell
 mode: scroll-ui
-status: shipped
+status: Shipped
 shell_version_introduced: 0.2.0
 composes: []
 composed_by:
@@ -41,6 +41,7 @@ site_uuid: bb9986fa-827b-471d-abfa-abeee14e7076
 hex_code: 0ghj58
 date_authored_current_draft: 2026-06-06
 type: Sitemap
+date_first_published: 2026-06-06
 ---
 
 # PageAsDeckWrapper

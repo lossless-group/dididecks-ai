@@ -7,12 +7,12 @@ date_authored_final_draft:
 date_first_published: 2026-06-29
 date_last_updated: 2026-06-29
 at_semantic_version: 0.0.2.0
-status: Phases-A-D-Shipped   # scroll-UI integration done + verified 2026-06-29; Phase E (new decks, shell iteration) ongoing
-augmented_with: Claude Code (Opus 4.8, 1M context)
+status: Partially-Shipped   # scroll-UI integration done + verified 2026-06-29; Phase E (new decks, shell iteration) ongoing
+augmented_with:
+  - Claude Code (Opus 4.8, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell
-  - Reach-Edu-Hub
   - Client-Site-Onboarding
   - Scroll-UI
   - Shell-Integration

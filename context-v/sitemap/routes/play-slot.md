@@ -4,7 +4,7 @@ lede: "Static per-slot route: dynamic-imports `slides/{variant}/{slot}-{slug}.as
 artifact_kind: route
 ownership: shell
 mode: play-ui
-status: partial
+status: Partially-Shipped
 shell_version_introduced: 0.1.0-rc.0
 route_pattern: "/play/[deckSlug]/[variantSlug]/[slot]/"
 emits_for: "every slot in SLOTS[variantSlug] for every (deck, variant)"
@@ -36,6 +36,7 @@ site_uuid: 822f5b12-5287-4e2b-a79f-2c55bfde7cfc
 hex_code: 7mm2rh
 date_authored_current_draft: 2026-05-12
 type: Sitemap
+date_first_published: 2026-05-12
 ---
 
 # /play/[deckSlug]/[variantSlug]/[slot]/

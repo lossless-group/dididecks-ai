@@ -6,8 +6,9 @@ date_authored_current_draft: 2026-06-07
 date_first_published: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: Initial-Draft
-augmented_with: Claude Code (Opus 4.7, 1M context)
+status: Draft
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Data-Model-Index
 authors:
   - Michael Staton

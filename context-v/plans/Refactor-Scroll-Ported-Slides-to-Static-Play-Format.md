@@ -13,7 +13,8 @@ post_ship_note: |
   Reusable for future client engagements — file stays "Shipped" because
   the per-client repeat-application is part of normal use, not an
   outstanding deliverable.
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell

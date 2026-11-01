@@ -9,12 +9,12 @@ date_last_updated: 2026-06-07
 at_semantic_version: 0.0.0.1
 status: Draft
 category: Exploration
-augmented_with: Claude Code on Claude Opus 4.7 (1M context)
+augmented_with:
+  - Claude Code on Claude Opus 4.7 (1M context)
 authors:
   - Michael Staton
 tags:
   - Exploration
-  - Dididecks-AI
   - Product-Led-Growth
   - Self-Serve
   - Cloud-Workspace

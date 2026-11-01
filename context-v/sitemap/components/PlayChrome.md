@@ -4,7 +4,7 @@ lede: "Deprecated as of v0.2 — a thin shim around `<DeckChrome>` kept so exter
 artifact_kind: component
 ownership: shell
 mode: play-ui
-status: deprecated
+status: Superseded
 shell_version_introduced: 0.1.0-rc.0
 deprecated_in: 0.2.0
 slated_for_removal: 0.3.0
@@ -29,6 +29,7 @@ site_uuid: bf3490e5-459e-4364-8949-8132495ad2e4
 hex_code: dhwh0p
 date_authored_current_draft: 2026-05-14
 type: Sitemap
+superseded_by: "[[DeckChrome]]"
 ---
 
 # PlayChrome

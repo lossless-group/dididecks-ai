@@ -19,6 +19,8 @@ tags:
   - Scroll-UI
   - Tailwind
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+site_uuid: ea7f6139-a1ad-45ab-9ae9-1f54efa77fb4
+hex_code: bryl54
 type: Prompts
 ---
 

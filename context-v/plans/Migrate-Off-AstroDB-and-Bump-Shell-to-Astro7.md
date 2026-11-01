@@ -4,7 +4,8 @@ date_created: 2026-08-02
 date_modified: 2026-08-02
 authors:
   - Michael Staton
-augmented_with: Claude Opus 4.8 on Claude Code
+augmented_with:
+  - Claude Opus 4.8 on Claude Code
 semantic_version: 0.0.0.1
 status: Draft
 lede: "@astrojs/db is deprecated and the shell pins everyone to Astro 6. Move the client-site auth layer to direct @libsql/client (Turso) and republish the shell for Astro 7 — starting with eventcut-ai as the pilot."

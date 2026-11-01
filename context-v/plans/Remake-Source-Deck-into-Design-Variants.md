@@ -26,6 +26,8 @@ calls:
   - "[[Verify-Variant-Plays-in-Scroll-Shell]]"
 called_by: "[[Remake-Source-Decks-Queue]]"
 prior_art: "client-sites/eventcut-ai (faithful + continuum / zero / hypercut, built by hand 2026-08)"
+site_uuid: 31641856-9f49-49e5-9398-94771045c771
+hex_code: 897k98
 type: Plans
 ---
 

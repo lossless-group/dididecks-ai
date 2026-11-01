@@ -9,7 +9,8 @@ date_last_updated: 2026-08-04
 at_semantic_version: 0.0.0.1
 status: Draft
 category: Exploration
-augmented_with: Claude Code on Claude Opus 5 (1M context)
+augmented_with:
+  - Claude Code on Claude Opus 5 (1M context)
 authors:
   - Michael Staton
 tags:

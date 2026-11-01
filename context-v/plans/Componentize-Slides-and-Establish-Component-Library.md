@@ -10,7 +10,6 @@ augmented_with:
 semantic_version: 0.0.3.0
 tags:
   - Plan
-  - Calmstorm-Decks
   - Component-Library
   - Design-System
   - Componentization

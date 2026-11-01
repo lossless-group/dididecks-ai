@@ -4,7 +4,7 @@ lede: "One `firm.md` per firm-anchored directory — present in calmstorm and ch
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-filesystem
+status: Reference
 applies_to:
   - client-sites/calmstorm-decks
   - client-sites/chroma-decks
@@ -16,6 +16,8 @@ publish: false
 site_uuid: ac89a5c5-9ca5-40c4-b044-f6ec6e8549da
 hex_code: 2u3xv9
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 

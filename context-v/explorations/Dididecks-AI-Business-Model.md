@@ -8,7 +8,8 @@ date_first_published:
 date_last_updated: 2026-05-11
 at_semantic_version: 0.0.0.1
 status: Draft
-augmented_with: Claude Code (Opus 4.7)
+augmented_with:
+  - Claude Code (Opus 4.7)
 category: Exploration
 tags:
   - Business-Model
@@ -16,7 +17,6 @@ tags:
   - Hosted-Services
   - Forward-Deployed-Engineering
   - Pricing
-  - Dididecks
 authors:
   - Michael Staton
 image_prompt: "A craftsman's tool wall in a workshop, where some tools are unlocked and free for any visitor to take, others are chained to brass placards reading 'service contract,' and a small table near the door has two coffee chairs labeled 'Forward Deployed.' Warm gaslight, sawdust, restrained palette."

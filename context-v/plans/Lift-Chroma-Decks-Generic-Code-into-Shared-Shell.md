@@ -7,14 +7,14 @@ date_authored_final_draft:
 date_first_published: 2026-06-06
 date_last_updated: 2026-06-06
 at_semantic_version: 0.0.2.0
-status: Mostly-Shipped   # Phases 1, 2, 3, 5 shipped 2026-06-06; Phase 4 (deck-overview) held — see Phase 4 deferral note below
-augmented_with: Claude Code (Opus 4.7, 1M context)
+status: Partially-Shipped   # Phases 1, 2, 3, 5 shipped 2026-06-06; Phase 4 (deck-overview) held — see Phase 4 deferral note below
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell
   - Shell-Promotion
   - Chroma-Decks-Migration
-  - Humain-VC-Decks
   - PageAsDeckWrapper
   - SlideShell
   - ModeToggle

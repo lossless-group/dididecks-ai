@@ -7,12 +7,13 @@ date_authored_final_draft:
 date_first_published:
 date_last_updated: 2026-11-01
 at_semantic_version: 0.0.1.0
-status: Parked
-augmented_with: Claude Code (Opus 5.5, 1M context)
+status: Deferred
+deferral_note: "Parked: Instadeck's output doesn't work the way Michael wants, so no further experiments for now."
+augmented_with:
+  - Claude Code (Opus 5.5, 1M context)
 category: Exploration
 tags:
   - Instadeck
-  - Dididecks-AI
   - Collaborations
   - Integration
   - Sense-Making

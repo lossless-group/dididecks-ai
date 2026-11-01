@@ -8,7 +8,8 @@ date_first_published:
 date_last_updated: 2026-05-17
 at_semantic_version: 0.0.1.0
 status: Active
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Spec
 tags:
   - Shared-Auth

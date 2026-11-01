@@ -4,11 +4,12 @@ lede: "Three Phase A+ gaps: `/play/pitch/proto/` 404s on a slot-less variant, Pl
 date_authored_initial_draft: 2026-05-12
 date_authored_current_draft: 2026-05-12
 date_authored_final_draft:
-date_first_published:
+date_first_published: 2026-05-12
 date_last_updated: 2026-05-16
 at_semantic_version: 0.0.1.0
 status: Partially-Shipped
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Plan
 tags:
   - Dididecks-Shell

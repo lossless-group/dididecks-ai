@@ -18,7 +18,8 @@ historical_correction_note: |
   same content. See `CLAUDE.md` "Naming is fuzzy here — Scroll-UI vs.
   Play-UI" and the memory note `feedback_scroll_vs_play_are_different_components`
   for the corrected model.
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Exploration
 tags:
   - Plans-Inventory

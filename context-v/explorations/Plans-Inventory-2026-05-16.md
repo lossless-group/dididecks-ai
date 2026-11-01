@@ -6,9 +6,10 @@ date_authored_current_draft: 2026-05-16
 date_last_updated: 2026-05-16
 date_first_published: 2026-05-16
 at_semantic_version: 0.0.1.0
-status: Active
+status: Reference
 supersedes: "[[Plans-Inventory-and-Phase-A-Outcome]]"
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Exploration
 tags:
   - Plans-Inventory

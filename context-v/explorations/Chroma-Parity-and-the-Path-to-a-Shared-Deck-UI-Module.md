@@ -8,11 +8,10 @@ date_first_published:
 date_last_updated: 2026-05-12
 at_semantic_version: 0.0.2.0
 status: Draft
-augmented_with: Claude Code (Opus 4.7, 1M context)
+augmented_with:
+  - Claude Code (Opus 4.7, 1M context)
 category: Exploration
 tags:
-  - Chroma-Decks
-  - Calmstorm-Decks
   - Parity
   - Shell-as-Integration
   - Astro-Integration

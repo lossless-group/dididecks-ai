@@ -18,6 +18,8 @@ tags:
   - Quality-Gate
   - Source-Deck
 called_by: "[[Remake-Source-Deck-into-Design-Variants]]"
+site_uuid: 7dc38262-c759-4d50-9359-0e56025e06a4
+hex_code: zhsv2m
 type: Prompts
 ---
 

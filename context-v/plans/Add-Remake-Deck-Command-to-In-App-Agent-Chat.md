@@ -22,6 +22,8 @@ builds_on:
   - "[[Remake-Source-Deck-into-Design-Variants]]"
   - "[[Remote-Mount-Contract-for-In-App-Agent]]"
   - "[[In-App-Agent-Chat-As-Built-vs-As-Specced]]"
+site_uuid: ef43e60e-11eb-4666-9c18-9fe689b63ee3
+hex_code: 4xh1et
 type: Plans
 ---
 

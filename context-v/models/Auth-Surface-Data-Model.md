@@ -4,7 +4,7 @@ lede: "The auth tables that gate every deck — already SQLite-shaped (astro:db 
 date_authored_initial_draft: 2026-06-07
 date_last_updated: 2026-06-07
 at_semantic_version: 0.0.1.0
-status: As-observed-from-db-config
+status: Reference
 applies_to:
   - client-sites/chroma-decks (current authoritative shape)
   - client-sites/calmstorm-decks (older, simpler shape)
@@ -20,6 +20,8 @@ publish: false
 site_uuid: 6c722284-4c1e-45c7-81a4-dcc4401e37f5
 hex_code: 6mf373
 date_authored_current_draft: 2026-06-07
+authors:
+  - Michael Staton
 type: Models
 ---
 
