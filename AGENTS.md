@@ -1,134 +1,163 @@
-# Agent instructions for dididecks-ai
+# Agent instructions for `dididecks-ai`
 
-## What this repo is
+> `CLAUDE.md` is a symlink to this file, so every coding agent reads the same
+> instructions. Edit `AGENTS.md`; never replace the symlink with a copy.
 
-`dididecks-ai` is a core child of the `ai-labs` pseudomonorepo. It is the
-home for a code-first slide-deck operating system aimed at Due-Diligence-grade
-content. The driving narrative lives in `context-v/specs/Dididecks-AI-Slide-Decks-as-Code.md`.
+DidiDecks is a code-first slide-deck operating system for due-diligence-grade
+content. This repo is a child of the `ai-labs` pseudomonorepo and is itself a
+pseudomonorepo: it carries the shared deck tooling and, as submodules, one
+repo per client engagement.
 
-## Read these before working here
+***
 
-1. `context-v/specs/Dididecks-AI-Slide-Decks-as-Code.md` — the parent spec.
-2. `context-v/specs/Dididecks-AI-DD-Ready-Citation-and-Source-Access.md` — sibling spec.
-3. `context-v/specs/Dididecks-AI-Visual-and-Diagram-Component-Library.md` — sibling spec.
-4. `context-v/explorations/Dididecks-AI-Business-Model.md` — business-model exploration.
-5. `context-v/sitemap/README.md` — living map of every shell artifact (routes + components). Per-client sitemaps live in `client-sites/<client>/context-v/sitemap/`.
-6. `client-sites/calmstorm-decks/` and `client-sites/reach-edu-hub/` — the two live client engagements that exercise the DidiDecks pattern.
+## Read first
 
-## Naming is fuzzy here — Scroll-UI vs. Play-UI
+1. `context-v/specs/Dididecks-AI-Slide-Decks-as-Code.md`: the parent spec.
+2. `FILEMAP.md`: the living map of the repo.
+3. `context-v/sitemap/README.md`: every shell route and component. Each client
+   site has its own under `client-sites/<client>/context-v/sitemap/`.
+4. Sibling specs when the work touches them:
+   `Dididecks-AI-DD-Ready-Citation-and-Source-Access.md`,
+   `Dididecks-AI-Visual-and-Diagram-Component-Library.md`.
 
-DidiDecks' proprietary process maintains **two coordinated implementations** of every deck — NOT two views of the same content. They are different components with different constraints, deliberately coupled by slot identity.
+***
 
-- **Scroll-UI slide** — a **section** component inside one long `/scroll/{deck}/{variant}/index.astro` page. Responsive CSS, vertical reading, can carry inline scripts and reveal animations. This is the surface Codex (and most humans) design **in**, because responsive sections come naturally.
-- **Play-UI slide** — a **standalone component file** at `src/components/slides/{variant}/{slot}-{slug}.astro`, rendered by the shell's `/play/[deck]/[variant]/[slot]/` route inside `SlideCanvas`. Rigid 16:9 aspect ratio at the 1920×1080 design size. **No responsive CSS. No JS in the slide itself.** Static HTML/CSS only, so it letterboxes cleanly to any viewport and can be exported to PDF without runtime hydration. This is the surface Codex is **bad at** — the rigid-aspect, no-responsive, no-JS constraint is unfamiliar.
+## Layout
 
-### The workflow this implies
+| Path | What it is |
+|---|---|
+| `apps/deck-shell/` | `@dididecks/shell` (published name `@lossless-group/dididecks-shell`): the Astro integration every client site installs. Authoring side: slide rater, triage, deck registry, injected `/play` and `/toc` routes. Its viewer components are one-line re-exports from the player. |
+| `packages/dididecks-player/` | **Submodule**, its own public repo `lossless-group/dididecks-player`, on npm as `@lossless-group/dididecks-player`. Viewer side: `SlideCanvas`, `DeckPlayer`, `PrintDeck`, `PageAsDeckWrapper`, `DeckChrome`, `ModeToggle`. Usable from any Astro site. Commit there, not here. |
+| `packages/deck-export/` | `deck-export` CLI: slide PDFs, full decks, and the `html` single-file tier (`--public` drops post-NDA sections, `--clean` strips authoring tools for a client's own site). Run with `pnpm export …`. |
+| `packages/shared/` | `@dididecks/shared`: shared types and helpers. |
+| `apps/frontend/` | `@dididecks/frontend`: the SvelteKit product shell for Vercel. Persistence, auth, billing and AI workflows belong to the backend (`aistack-backend/app/products/dididecks`), never here. See `architecture/`. |
+| `client-sites/<client>/` | **Submodules**, one private repo per engagement: calmstorm-decks, chroma-decks, eventcut-ai, humain-vc-decks, lfg-hub, lossless-decks, reach-edu-hub, the-water-foundation. `.gitmodules` is authoritative. `jobmachine/` is a gitignored local checkout. |
+| `corpus/` | **Submodule**: example decks and slide archetypes. |
+| `splash/` | GitHub Pages site. Standalone install (`--ignore-workspace`), deploys on push to `main`. |
+| `context-v/` | Specs, plans, prompts, loops, and a snapshot of the skills this repo depends on. |
 
-Design first in Scroll-UI, then **convert each section into its Play-UI counterpart**. The conversion is non-trivial — it's the "recreate, don't extract" discipline encoded in `/api/slide-decompose`. This is Phase 1 → Phase 2 of the deck-iteration-workflow. The two implementations are coordinated by **slot identity** (e.g. `pitch/enhanced-v3/05` is the same conceptual slot in both), but the files are different and live in different parts of the tree.
+***
 
-### Practical consequences
+## Scroll-UI and Play-UI: two implementations, not two views
 
-- A deck **has** Play-UI only when its per-slide files exist at `src/components/slides/{variant}/`. The presence of a `/scroll/` route does **not** imply `/play/` is available. The `/play/` chooser should reflect per-slide-file existence at runtime, not a static `format` field in the registry.
-- When asked to "add a slide," ask which UI you're working in. If you're designing fresh, default to Scroll-UI; if you're presenting/shipping, the Play-UI counterpart must exist.
-- Several **overlay** components ship in paired variants (`<DeckOverlay--Scroll-UI>` and `<DeckOverlay--Play-UI>`) because the overlay surfaces themselves differ; the `--Scroll-UI` / `--Play-UI` suffix is part of the public name.
-- A **slide** is one slot's worth of content; a **variant** is an ordered set of slides (e.g. `enhanced-v3`); a **deck** is the variant *as-rendered* in whichever UI mode the reader is in.
+Every deck is built twice, coordinated by **slot identity** (`pitch/enhanced-v1/05`
+is the same slot in both):
 
-### Why we work this way
+| | Scroll-UI | Play-UI |
+|---|---|---|
+| Where | sections in one `src/pages/scroll/<deck>/<variant>/index.astro` | one file per slide, `src/components/slides/<variant>/<NN>-<slug>.astro` |
+| Rendered by | the page itself | the shell's `/play/<deck>/<variant>/<slot>/` route inside `SlideCanvas` |
+| Rules | responsive CSS, scripts and reveal animations allowed | fixed 1920×1080, **no responsive CSS, no JS in the slide**, static HTML/CSS only |
+| For | designing and iterating; reading on the web | presenting and PDF export |
 
-Codex (and modern LLMs in general) are good at responsive section-based design and poor at rigid no-JS static-aspect-ratio layouts. The Scroll-UI is where ideas get explored cheaply; the Play-UI is where they get pinned to fundraise-grade presentation discipline. The shell exists to keep those two implementations coordinated without forcing premature pinning.
+**Workflow:** design in Scroll-UI, then recreate each section as its Play-UI
+slide ("recreate, don't extract"). A deck has Play-UI only when its slide files
+exist; a `/scroll/` route does not imply `/play/`.
 
-## Skills to load when working here
+**Why:** agents are good at responsive sections and poor at rigid fixed-aspect
+layouts. Scroll is where ideas get cheap; Play is where they get pinned.
 
-- `context-vigilance` — directory roles, frontmatter, versioning for context-v/.
-- `astro-knots` — framework rules, prohibitions, tech hierarchy for any Astro work (the splash and the client-sites both live in this constraint set).
-- `pseudomonorepos` — parent-repo patterns, branch alignment, submodule mechanics. This repo is itself a pseudomonorepo (it carries client-sites as submodules) AND a child of `ai-labs`.
-- `maintain-splash-pages` — splash conventions when working under `splash/`.
-- `deck-iteration-workflow` — slide-iteration rhythm aligned with the calmstorm-decks pattern.
-- `remake-deck` — turn a source deck into N clean-room design variants. Also the `/remake-deck` slash command (`.Codex/commands/remake-deck.md`). Both run `context-v/plans/Remake-Source-Deck-into-Design-Variants.md`; read `context-v/prompts/README.md` first. Every command this repo offers is listed in `README.md` → "Commands".
+**Both ship.** Scroll is the better web experience; Play and the PDF exist for
+presenting and for people who want an attachment. When putting a deck on a
+client's site, offer the scroll deck first (`deck-export html --public --clean`)
+with play and PDF alongside.
 
-### Where the canonical snapshot of these skills lives in-repo
+**Vocabulary:** a *slide* is one slot; a *variant* is an ordered set of slides
+(`enhanced-v1`); a *deck* is a variant as rendered in either UI. Paired overlay
+components carry the mode in their name: `DeckOverlay--Scroll-UI`,
+`DeckOverlay--Play-UI`.
 
-A checked-in snapshot of every skill load-bearing for dididecks-ai work
-lives at `context-v/agent-skills/`. Each agent reads skills from
-*its own* install location (Codex from `~/.Codex/skills/`,
-Pi from `~/.pi/skills/`, etc.), so the in-repo copy is **not** what
-agents actually load at runtime.
+**PDF pitfalls:** blurred `box-shadow` prints as grey boxes in Preview, and
+CSS-masked logos leave hairlines. Play CSS should drop shadows and draw marks
+as filtered images.
 
-**Each collaborator will have their own system for managing
-agent-skills on their machine. Collaborators should make sure their
-skills are current with `dididecks-ai`'s `agent-skills` in
-`context-v`. Alternately, if they iterate on or create agent-skills,
-they should update them in the `dididecks-ai` repo as best they can.**
+***
 
-See `context-v/agent-skills/README.md` for the full list, the
-authoring discipline, and what's deliberately not included.
+## Commands and skills
 
-## Branch discipline
+- `/remake-deck <Company> <client-site> <source-deck> [KEY=value …]`: a source
+  deck becomes N clean-room design variants in Scroll-UI. Runs
+  `context-v/plans/Remake-Source-Deck-into-Design-Variants.md`; read
+  `context-v/prompts/README.md` first.
+- `/slide-target <deck> <variant> <slot>`: scope work to one slide.
+- `README.md` → "Commands" lists every command. To add one: procedure in
+  `context-v/` first, a thin `.claude/commands/<name>.md`, a mirror skill in
+  `context-v/agent-skills/<name>/`, and a README row.
 
-Three tiers: `development` → `main` → `master`. Default branch is `development`.
-Do not push directly to `main` or `master` without a deliberate ship reason.
+Load these skills here: `deck-iteration-workflow`, `remake-deck`,
+`setup-new-dddecks-workspace` (new client), `astro-knots`, `theme-system`,
+`pseudomonorepos`, `context-vigilance`, `changelog-conventions`,
+`git-conventions`, `maintain-splash-pages` (under `splash/`).
 
-## Submodules carried by this repo
+`context-v/agent-skills/` is a checked-in **snapshot** for collaborators;
+agents load skills from their own install location. Keep the snapshot current
+with what you use, and push skill changes back to it.
 
-- `client-sites/calmstorm-decks` — Calm/Storm fundraise materials (tracks `development`).
-- `client-sites/reach-edu-hub` — Reach University fundraising surface (tracks `main`).
+***
 
-Both are independent repos on GitHub. The `branch =` line in `.gitmodules` is
-required per the pseudomonorepos branch-alignment discipline.
+## Working rules
 
-## Auth surface conventions
+- **Branches:** `development` → `main` → `master`; `development` is default.
+  Each submodule tracks the branch named in `.gitmodules`. Don't push to `main`
+  or `master` without a ship reason.
+- **Submodules:** commit inside the child repo. Leave this repo's gitlinks
+  dirty during a session; bump them once at wrap-up in a
+  `chore(submodule): bump <names>` commit.
+- **Installs:** there is no workspace lockfile for now (submodule lockfiles
+  collide with it). Install with `pnpm install --no-lockfile`, and don't
+  recreate `pnpm-lock.yaml` at the root. `splash/` keeps its own lockfile.
+- **Privacy:** client sites are private. Their content never rolls up to the
+  splash or any public surface, and post-NDA slides carry `data-tier="post-nda"`
+  so exports can drop them.
+- **Dev servers:** never use port 3000; pick from 3100 up.
+- **Changelogs:** `changelog/YYYY-MM-DD_NN.md` here and in each client site,
+  per `changelog-conventions`. Section breaks are `***`, never `---`.
 
-The deck client-sites (calmstorm-decks, chroma-decks, future) install a
-shared auth pattern: middleware-gated routes, `Identity` + `Session` +
-`MintedToken` tables in astro:db, OAuth via `arctic`, magic-link redemption,
-passcode tier-3 fallback. Plan files live in each client-site's
-`context-v/plans/Install-Auth-Surface-from-Calmstorm-Pattern.md`.
+***
 
-**Organization naming convention — domain-as-id.** `Organization.id` is the
-org's canonical email domain (e.g. `lossless.group`, `trychroma.com`,
-`calmstormvc.com`). `Organization.slug` carries the human-readable handle.
-Every deck seeds **`lossless.group`** (operating-team org) plus
-**`{client-domain}`** (the client this deck represents). Personal-email
-signups bucket as `id = "personal"`. Full rationale + edge-case handling
-in the parent ai-labs Shared-Auth exploration:
-`../context-v/explorations/Shared-Auth-for-Applied-AI-Labs.md` → section
-"Organization naming convention — domain-as-id."
+## Auth on client sites
 
-## Local RAG over the Lossless corpus (ChromaDB)
+Client sites share one auth pattern: middleware-gated routes, `Identity`,
+`Session` and `MintedToken` tables, OAuth via `arctic`, magic links, and a
+passcode fallback. Install plan per site:
+`client-sites/<client>/context-v/plans/Install-Auth-Surface-from-Calmstorm-Pattern.md`.
 
-A local Chroma database is wired into Codex via the `chroma` MCP server. Four collections aggregate prior Lossless work across the whole tree:
+- `Organization.id` is the org's email domain (`lossless.group`,
+  `trychroma.com`); `slug` is the readable handle. Every deck seeds
+  `lossless.group` and the client's domain; personal email signs up as
+  `personal`. Rationale: `../context-v/explorations/Shared-Auth-for-Applied-AI-Labs.md`.
+- Passcodes must contain no dashes: the matcher reads everything after the
+  first dash as a label.
 
-- `context-vigilance-corpus` — section-chunked `context-v/` files across every repo
-- `lossless-changelog`        — every `<repo>/changelog/` entry, cross-repo
-- `Codex-sessions`      — every prior Codex message turn
-- `Codex-tool-traces`   — every prior tool invocation, with success/error flag
+***
 
-**Use it before answering from training data.** When the user asks a question that prior work might answer — *"what did we decide about X"*, *"when did we ship X"*, *"why did we choose X over Y"*, *"has this errored before"*, *"where did we put X"* — call `mcp__chroma__chroma_query_documents` against the most relevant collection (start with `n_results=5`). If results cover the question, synthesize an answer and cite `source_path` + timestamp + `source_repo_slug` for every claim. If there is a gap, run one more focused query. **Cap at 5 chroma queries per question** — if the corpus has no answer, say so explicitly rather than silently falling back to training data.
+## Prior work (ChromaDB)
 
-The full algorithm (decompose → execute → evaluate → synthesize, plus `where`-filter patterns, anti-patterns, and when NOT to use it) lives in the `search-lossless-corpus` skill, which auto-loads when the question matches the trigger shapes. This block is the backstop so the corpus is known to exist even when the skill description does not match.
+The `chroma` MCP server indexes the whole Lossless tree:
+`context-vigilance-corpus`, `lossless-changelog`, `claude-code-sessions`,
+`claude-code-tool-traces`. For "what did we decide / when did we ship / has
+this broken before", query it before answering from memory: `n_results=5`,
+at most five queries, cite `source_path`. Full method in the
+`search-lossless-corpus` skill. Never re-ingest as a side effect; the user runs
+`context-v-corpus/scripts/ingest-all.sh` deliberately.
 
-Ingestion lives under `context-v-corpus/scripts/` at the anchor root (`ingest-all.sh` is the master). Do not re-ingest as a side effect of unrelated work — the user runs it deliberately.
+***
 
 <!-- lossless:browser-drive:start -->
-## Browser-drive verification (Playwright MCP + Codex Chrome)
+## Verify in a browser before handing over
 
-Agents verify UI work by driving a real browser BEFORE asking a human to walk the surface. Two tiers:
+Drive a real browser before asking a human to walk a surface.
 
-- **Codified (default): Playwright MCP** — navigate/click/type, accessibility-tree snapshots, DOM assertions; headless-capable, runs unwatched. Wire it per repo at **project scope** (config lands in the committed `.mcp.json`):
+- **Playwright MCP** (default, headless): add at project scope,
+  `claude mcp add -s project playwright -- npx @playwright/mcp@latest`.
+  New MCP servers load next session.
+- **`claude --chrome`** (interactive): drives the operator's Chrome while they
+  watch.
 
-  ```bash
-  Codex mcp add -s project playwright -- npx @playwright/mcp@latest
-  ```
-
-- **Interactive: `Codex --chrome`** (or `/chrome` → enable by default) — Codex drives the operator's real Chrome while they watch; screenshots/GIFs + console and network logs.
-
-Rules that make it safe and cheap:
-
-1. Newly added MCP servers load in the **next** session, not the current one (same rule as skills symlinks).
-2. Prefer **accessibility snapshots over screenshots** — raster is token-expensive; use it only for visual questions (layout, theme).
-3. Browser-driven **reads are unrestricted; writes only against the repo's designated safe target** — never mint test entities in shared/canonical data.
-4. The drive's click-path is **named in the phase plan before implementation**; a drive that lives only in a session transcript is not codified.
-5. A browser drive proves the buttons **work**; the human walk-through still judges whether the surface is **usable**. It augments the human rung, never replaces it.
-
-Full pattern: `context-v/blueprints/Browser-Drive-Verification-For-Agent-Sessions.md` at the anchor monorepo root (rollout draft: `context-v-corpus/context-v/blueprints/` at the anchor root). Loop integration proven in `ai-labs/augment-it/context-v/loops/`.
+Prefer accessibility snapshots to screenshots unless the question is visual.
+Read freely; write only to a designated safe target. Name the click-path in the
+phase plan. A drive proves the buttons work; the human still judges whether
+the surface is usable. Pattern:
+`context-v/blueprints/Browser-Drive-Verification-For-Agent-Sessions.md` at the
+anchor monorepo root.
 <!-- lossless:browser-drive:end -->
