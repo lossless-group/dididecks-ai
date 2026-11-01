@@ -1,0 +1,9 @@
+---
+import EntryPage from '@components/EntryPage.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  return (await getCollection('changelog')).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+---
+<EntryPage entry={Astro.props.entry} route="changelog" label="Changelog" />

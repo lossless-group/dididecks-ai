@@ -1,0 +1,30 @@
+---
+import { getCollection } from 'astro:content';
+import { formatDate, isoDate } from '@lib/date';
+import { entryDate, entryTitle } from '@lib/entries';
+
+interface Props { entries: Awaited<ReturnType<typeof getCollection<'changelog' | 'context-v'>>>; route: 'changelog' | 'context-v' }
+const { entries, route } = Astro.props;
+const base = import.meta.env.BASE_URL;
+---
+<ul class="entries">
+  {entries.map((e) => {
+    const when = entryDate(e.data, e.id);
+    return (
+      <li>
+        <a class="entry" href={`${base}${route}/${e.id}/`}>
+          <span class="entry__meta">
+            <span class="entry__from">{e.data.from}</span>
+            {when && <time datetime={isoDate(when)}>{formatDate(when)}</time>}
+            {e.data.status && <span>{e.data.status}</span>}
+          </span>
+          <span class="entry__title">{entryTitle(e.data, e.id)}</span>
+          {e.data.lede && <span class="entry__lede">{e.data.lede}</span>}
+          {e.data.tags && e.data.tags.length > 0 && (
+            <span class="tags">{e.data.tags.map((t: string) => <span class="chip">{t}</span>)}</span>
+          )}
+        </a>
+      </li>
+    );
+  })}
+</ul>

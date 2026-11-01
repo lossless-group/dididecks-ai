@@ -1,0 +1,21 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import EntryList from '@components/EntryList.astro';
+import { getCollection } from 'astro:content';
+import { entryDate } from '@lib/entries';
+
+const entries = (await getCollection('changelog')).sort(
+  (a, b) => (entryDate(b.data, b.id)?.getTime() ?? 0) - (entryDate(a.data, a.id)?.getTime() ?? 0),
+);
+const sources = [...new Set(entries.map((e) => e.data.from))];
+---
+<BaseLayout title="Changelog · DidiDecks" description="What shipped in DidiDecks, newest first.">
+  <section class="page">
+    <div class="container narrow">
+      <p class="eyebrow">Changelog</p>
+      <h1 class="page__title">What shipped.</h1>
+      <p class="lede">{entries.length} entries from {sources.join(' and ')}, newest first. Client engagements are never listed here.</p>
+      <EntryList entries={entries} route="changelog" />
+    </div>
+  </section>
+</BaseLayout>

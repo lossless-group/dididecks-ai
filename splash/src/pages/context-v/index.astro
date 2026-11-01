@@ -1,0 +1,34 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import EntryList from '@components/EntryList.astro';
+import { getCollection } from 'astro:content';
+import { entryDate, section } from '@lib/entries';
+
+// Specs and blueprints first: they say what DidiDecks is. Plans and prompts
+// say how it gets built; the sitemap is reference.
+const ORDER = ['specs', 'blueprints', 'explorations', 'plans', 'prompts', 'loops', 'reminders', 'models', 'sitemap'];
+const rank = (s: string) => (ORDER.indexOf(s) === -1 ? ORDER.length : ORDER.indexOf(s));
+
+const entries = await getCollection('context-v');
+const groups = [...Map.groupBy(entries, (e) => section(e.data.from_path) || 'other')]
+  .sort(([a], [b]) => rank(a) - rank(b) || a.localeCompare(b))
+  .map(([name, list]) => [name, list.sort((a, b) => (entryDate(b.data, b.id)?.getTime() ?? 0) - (entryDate(a.data, a.id)?.getTime() ?? 0))] as const);
+---
+<BaseLayout title="Context · DidiDecks" description="The specs, plans and explorations behind DidiDecks.">
+  <section class="page">
+    <div class="container narrow">
+      <p class="eyebrow">context-v</p>
+      <h1 class="page__title">What's written down.</h1>
+      <p class="lede">{entries.length} documents: the specs, plans and explorations DidiDecks is built from.</p>
+      <nav class="toc" aria-label="Sections">
+        {groups.map(([name, list]) => <a href={`#${name}`}>{name} <span>{list.length}</span></a>)}
+      </nav>
+      {groups.map(([name, list]) => (
+        <div class="group" id={name}>
+          <h2>{name}</h2>
+          <EntryList entries={list} route="context-v" />
+        </div>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,35 @@
+---
+import BaseLayout from '@layouts/BaseLayout.astro';
+import { render } from 'astro:content';
+import { formatDate, isoDate } from '@lib/date';
+import { entryDate, entryTitle, sourceUrl } from '@lib/entries';
+
+interface Props { entry: any; route: 'changelog' | 'context-v'; label: string }
+const { entry, route, label } = Astro.props;
+const { Content } = await render(entry);
+const base = import.meta.env.BASE_URL;
+const title = entryTitle(entry.data, entry.id);
+const when = entryDate(entry.data, entry.id);
+---
+<BaseLayout title={`${title} · DidiDecks`} description={entry.data.lede}>
+  <section class="page">
+    <div class="container narrow">
+      <p class="eyebrow"><a href={`${base}${route}/`}>← {label}</a></p>
+      <p class="entry__meta">
+        <span class="entry__from">{entry.data.from}</span>
+        {when && <time datetime={isoDate(when)}>{formatDate(when)}</time>}
+        {entry.data.status && <span>{entry.data.status}</span>}
+        {entry.data.at_semantic_version && <span>v{entry.data.at_semantic_version}</span>}
+      </p>
+      <h1 class="page__title">{title}</h1>
+      {entry.data.lede && <p class="lede">{entry.data.lede}</p>}
+      {entry.data.tags && entry.data.tags.length > 0 && (
+        <p class="tags">{entry.data.tags.map((t: string) => <span class="chip">{t}</span>)}</p>
+      )}
+      <article class="prose"><Content /></article>
+      <p class="source">
+        Source: <a href={sourceUrl(entry.data.from, entry.data.from_path)}><code>{entry.data.from}/{entry.data.from_path}</code></a>
+      </p>
+    </div>
+  </section>
+</BaseLayout>

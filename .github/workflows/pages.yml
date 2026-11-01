@@ -5,6 +5,9 @@ on:
     branches: [main]
     paths:
       - 'splash/**'
+      - 'changelog/**'
+      - 'context-v/**'
+      - '.gitmodules'
       - '.github/workflows/pages.yml'
   workflow_dispatch:
 
@@ -50,6 +53,11 @@ jobs:
 
       - name: Build
         run: pnpm build
+        env:
+          # Public children's changelog/ and context-v/ are read from the
+          # GitHub API at build time (src/loaders/github.ts); the token only
+          # raises the rate limit.
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3

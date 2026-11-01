@@ -29,14 +29,25 @@ in the repo settings on first run.
 
 ## Where content lives
 
-- **Hero, principles, system map** — `src/pages/index.astro` (hand-curated copy).
-- **Long-form** — the splash links into the repo's `context-v/specs/` and
-  `changelog/`; future iteration will roll up those files via
-  `pnpm rollup:sync` per the `maintain-splash-pages` habit.
-- **Tokens** — `src/styles/global.css`.
+- **Hero, principles, system map:** `src/pages/index.astro` (hand-curated copy).
+- **Tokens:** `src/styles/global.css`.
+- **`/changelog/` and `/context-v/`:** read at build time, never copied into
+  this repo (`src/content.config.ts`):
+  - dididecks-ai's own `changelog/` and `context-v/` from the checkout;
+  - each child in `../.gitmodules` from the GitHub API
+    (`src/loaders/github.ts`: one tree call per child, then blobs by sha).
+
+A child is read only when its repo is **public** and it is **not** under
+`client-sites/`. Anything that can't be shown to be public is skipped with a
+warning, so a private repo can never leak here. Files with `publish: false` or
+`private: true` are held back, and `context-v/extra/` and
+`context-v/agent-skills/` never become pages.
+
+There is no sync step. A deploy picks up whatever the children have on their
+tracked branch (`branch =` in `.gitmodules`). Locally, set `GITHUB_API_TOKEN`
+(or `GITHUB_TOKEN`) to raise the API rate limit; CI passes its own token.
 
 ## Status
 
-First-pass scaffold. Hero, two North Stars, Design Principles, system map,
-and sibling-spec gallery render. Rollup pipeline and per-entry detail routes
-will follow.
+Hero, North Stars, principles, system map, spec gallery, changelog and
+context-v render. Search (Pagefind) and sort controls are not added yet.

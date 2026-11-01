@@ -1,0 +1,9 @@
+---
+import EntryPage from '@components/EntryPage.astro';
+import { getCollection } from 'astro:content';
+
+export async function getStaticPaths() {
+  return (await getCollection('context-v')).map((entry) => ({ params: { slug: entry.id }, props: { entry } }));
+}
+---
+<EntryPage entry={Astro.props.entry} route="context-v" label="Context" />
