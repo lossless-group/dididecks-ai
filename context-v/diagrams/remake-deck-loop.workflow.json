@@ -1,0 +1,270 @@
+{
+  "schema_version": 2,
+  "diagram_type": "workflow",
+  "meta": {
+    "title": "DidiDecks Remake-Deck Loop",
+    "quality_profile": "showcase",
+    "legend": {
+      "mode": "hidden"
+    },
+    "output": "remake-deck-loop.html",
+    "viewBox": [
+      1040,
+      660
+    ]
+  },
+  "lanes": [
+    {
+      "id": "operator",
+      "label": "Operator"
+    },
+    {
+      "id": "orchestrator",
+      "label": "Plan: VP Eng orchestrator"
+    },
+    {
+      "id": "subagents",
+      "label": "Prompt subagents"
+    },
+    {
+      "id": "gates",
+      "label": "Gates + recovery",
+      "variant": "exception"
+    }
+  ],
+  "phases": [
+    {
+      "id": "setup",
+      "label": "Set up",
+      "fromCol": 0,
+      "toCol": 0
+    },
+    {
+      "id": "content",
+      "label": "Content",
+      "fromCol": 1,
+      "toCol": 2
+    },
+    {
+      "id": "design_phase",
+      "label": "Design fan-out",
+      "fromCol": 3,
+      "toCol": 4,
+      "variant": "emphasis"
+    },
+    {
+      "id": "ship_phase",
+      "label": "Verify + ship",
+      "fromCol": 5,
+      "toCol": 5,
+      "variant": "dashed"
+    }
+  ],
+  "mainPath": [
+    "queue",
+    "resolve",
+    "extract",
+    "audit",
+    "design",
+    "refactor",
+    "wire",
+    "verify",
+    "report",
+    "pick"
+  ],
+  "nodes": [
+    {
+      "id": "queue",
+      "lane": "operator",
+      "col": 0,
+      "type": "external",
+      "label": "/remake-deck",
+      "sublabel": "or next queue line",
+      "width": 140
+    },
+    {
+      "id": "pick",
+      "lane": "operator",
+      "col": 5,
+      "type": "external",
+      "label": "Pick a favorite",
+      "sublabel": "rank slides in TOC",
+      "width": 140
+    },
+    {
+      "id": "resolve",
+      "lane": "orchestrator",
+      "col": 0,
+      "type": "backend",
+      "label": "Resolve variables",
+      "sublabel": "slugs, git status",
+      "tag": "step 0",
+      "width": 140
+    },
+    {
+      "id": "wire",
+      "lane": "orchestrator",
+      "col": 4,
+      "type": "database",
+      "label": "Wire registry",
+      "sublabel": "decks.ts + slides.ts",
+      "tag": "step 5",
+      "width": 140
+    },
+    {
+      "id": "report",
+      "lane": "orchestrator",
+      "col": 5,
+      "type": "backend",
+      "label": "Commit + report",
+      "sublabel": "two commits",
+      "tag": "step 7",
+      "width": 140
+    },
+    {
+      "id": "extract",
+      "lane": "subagents",
+      "col": 1,
+      "type": "frontend",
+      "label": "Extract source",
+      "sublabel": "slides.json + narrative",
+      "tag": "step 1",
+      "width": 140
+    },
+    {
+      "id": "audit",
+      "lane": "subagents",
+      "col": 2,
+      "type": "security",
+      "label": "Audit extraction",
+      "sublabel": "fresh subagent",
+      "tag": "step 2",
+      "width": 140
+    },
+    {
+      "id": "design",
+      "lane": "subagents",
+      "col": 3,
+      "type": "frontend",
+      "label": "Design ×N",
+      "sublabel": "single-HTML variants",
+      "tag": "own seed",
+      "width": 140
+    },
+    {
+      "id": "refactor",
+      "lane": "subagents",
+      "col": 4,
+      "type": "frontend",
+      "label": "Refactor ×N",
+      "sublabel": "Astro scroll sections",
+      "tag": "step 4",
+      "width": 140
+    },
+    {
+      "id": "verify",
+      "lane": "subagents",
+      "col": 5,
+      "type": "security",
+      "label": "Verify ×N",
+      "sublabel": "plays in Scroll shell",
+      "tag": "step 6",
+      "width": 140
+    },
+    {
+      "id": "fix_audit",
+      "lane": "gates",
+      "col": 2,
+      "type": "messagebus",
+      "label": "Fix + re-audit",
+      "sublabel": "max two rounds",
+      "width": 140
+    },
+    {
+      "id": "send_back",
+      "lane": "gates",
+      "col": 3,
+      "type": "messagebus",
+      "label": "Send back",
+      "sublabel": "fact or divergence fail",
+      "width": 140
+    }
+  ],
+  "edges": [
+    {
+      "id": "start",
+      "from": "queue",
+      "to": "resolve",
+      "variant": "emphasis"
+    },
+    {
+      "id": "brief-extract",
+      "from": "resolve",
+      "to": "extract",
+      "label": "brief",
+      "variant": "emphasis"
+    },
+    {
+      "id": "to-audit",
+      "from": "extract",
+      "to": "audit",
+      "variant": "default"
+    },
+    {
+      "id": "audit-fix",
+      "from": "audit",
+      "to": "fix_audit",
+      "label": "FIX-AND-RECHECK",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "audit-pass",
+      "from": "audit",
+      "to": "design",
+      "label": "PASS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "design-fail",
+      "from": "design",
+      "to": "send_back",
+      "label": "gate fails",
+      "variant": "security",
+      "role": "error"
+    },
+    {
+      "id": "to-refactor",
+      "from": "design",
+      "to": "refactor",
+      "variant": "default"
+    },
+    {
+      "id": "refs",
+      "from": "refactor",
+      "to": "wire",
+      "label": "VariantRef",
+      "variant": "default"
+    },
+    {
+      "id": "to-verify",
+      "from": "wire",
+      "to": "verify",
+      "label": "build + dev server",
+      "variant": "default"
+    },
+    {
+      "id": "verified",
+      "from": "verify",
+      "to": "report",
+      "label": "PASS",
+      "variant": "emphasis"
+    },
+    {
+      "id": "to-human",
+      "from": "report",
+      "to": "pick",
+      "variant": "emphasis"
+    }
+  ]
+}

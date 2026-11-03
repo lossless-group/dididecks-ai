@@ -1,6 +1,8 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
 
+const base = import.meta.env.BASE_URL;
+
 const northStars = [
   {
     tag: 'NS-1',
@@ -132,6 +134,33 @@ const siblings = [
                                        └──── re-integrate ────────┘
                                              fresh inputs`}</pre>
       </div>
+    </div>
+  </section>
+
+  <section id="remake-loop">
+    <div class="container">
+      <p class="eyebrow">How a deck gets remade</p>
+      <h2>The remake-deck loop.</h2>
+      <p class="lede" style="max-width: 62ch; margin-bottom: 1.5rem;">
+        One command turns a source deck into N clean-room design variants that play in the
+        Scroll-UI shell. An orchestrator briefs one subagent per job, checks every result against a
+        gate, and sends failures back: extraction is audited before anything is designed, invented
+        facts fail a variant, and near-identical drafts go back with a sharper brief.
+      </p>
+      <figure class="diagram-embed">
+        <iframe
+          src={`${base}diagrams/remake-deck-loop.html`}
+          title="Workflow diagram of the DidiDecks remake-deck loop: operator, orchestrator, prompt subagents, and gates"
+          loading="lazy"
+        ></iframe>
+        <figcaption>
+          Pan, zoom and search inside the diagram, or
+          <a href={`${base}diagrams/remake-deck-loop.html`}>open it full screen</a>.
+          Source: <a href="https://github.com/lossless-group/dididecks-ai/tree/development/context-v/prompts">the prompts, plan and loop</a>
+          in <code>context-v/</code>, run with <code>/remake-deck</code>. Drawn with
+          <a href="https://github.com/tt-a1i/archify">Archify</a>.
+        </figcaption>
+      </figure>
     </div>
   </section>
 

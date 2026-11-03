@@ -186,6 +186,28 @@ section:first-of-type { border-top: none; }
   line-height: 1.5;
 }
 
+.diagram-embed {
+  margin: 0;
+  background: var(--bg-elev);
+  border: 1px solid var(--stroke);
+  border-radius: var(--rad-lg);
+  overflow: hidden;
+}
+.diagram-embed iframe {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  min-height: 28rem;
+  border: 0;
+}
+.diagram-embed figcaption {
+  padding: 0.9rem 1.25rem;
+  border-top: 1px solid var(--stroke);
+  color: var(--fg-dim);
+  font-size: 0.9rem;
+}
+.diagram-embed figcaption code { font-family: var(--f-mono); font-size: 0.85em; }
+
 .footer {
   border-top: 1px solid var(--stroke);
   padding: 3rem 0 4rem;

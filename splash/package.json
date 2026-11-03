@@ -5,10 +5,11 @@
   "private": true,
   "description": "GitHub Pages splash for the dididecks-ai pseudomonorepo",
   "scripts": {
-    "dev": "astro dev",
-    "build": "astro build",
+    "dev": "node scripts/sync-diagrams.mjs && astro dev",
+    "build": "node scripts/sync-diagrams.mjs && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:diagrams": "node scripts/sync-diagrams.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.4",
