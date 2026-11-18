@@ -82,12 +82,18 @@ function keep(rel: string): boolean {
   return !parts.slice(0, -1).some((p) => SKIP_DIRS.has(p));
 }
 
+/** A doc's first `# Heading` outside code fences, as plain text. */
+function firstHeading(body: string): string | undefined {
+  const match = body.replace(/^```[\s\S]*?^```/gm, '').match(/^# +(.+)$/m);
+  return match?.[1].replace(/`/g, '').trim();
+}
+
 // ─── Loader: this repo from disk, public children from the GitHub API ─────
 
 function repoLoader(dir: 'changelog' | 'context-v') {
   return {
     name: `dididecks-${dir}`,
-    load: async ({ store, parseData, renderMarkdown, logger }: any): Promise<void> => {
+    load: async ({ store, parseData, logger }: any): Promise<void> => {
       store.clear();
       const counts: Record<string, number> = {};
       let held = 0;
@@ -97,7 +103,13 @@ function repoLoader(dir: 'changelog' | 'context-v') {
         // Per-file opt-out, even in a public repo.
         if (data.publish === false || data.private === true) { held++; return; }
         const id = `${from}/${rel.replace(/\.md$/, '')}`;
-        const merged = { ...data, from, from_path: `${dir}/${rel}` };
+        const merged = {
+          ...data,
+          // A doc without a title falls back to its own first heading.
+          title: data.title || firstHeading(body),
+          from,
+          from_path: `${dir}/${rel}`,
+        };
         let parsed: Record<string, unknown>;
         try {
           parsed = await parseData({ id, data: merged });
@@ -105,7 +117,8 @@ function repoLoader(dir: 'changelog' | 'context-v') {
           logger.warn(`schema fallback for ${id}: ${(err as Error).message}`);
           parsed = merged;
         }
-        store.set({ id, data: parsed, body, rendered: await renderMarkdown(body) });
+        // Bodies render through LFM on the detail pages (src/lib/markdown.ts).
+        store.set({ id, data: parsed, body });
         counts[from] = (counts[from] ?? 0) + 1;
       };
 
@@ -135,7 +148,46 @@ function repoLoader(dir: 'changelog' | 'context-v') {
   };
 }
 
+// ─── Toolkit cards on the home page (src/content/toolkit/*.md) ────────────
+
+const lenientNumber = z.preprocess(
+  (v) => (v === '' || v === null ? undefined : v),
+  z.number().optional(),
+);
+
+const toolkit = defineCollection({
+  loader: {
+    name: 'toolkit-loader',
+    load: async ({ store, parseData, logger }: any): Promise<void> => {
+      store.clear();
+      const dir = resolve(process.cwd(), 'src', 'content', 'toolkit');
+      for await (const file of fsGlob('*.md', { cwd: dir })) {
+        const { data, body } = parseFrontmatter(await readFile(resolve(dir, file), 'utf8'));
+        const id = file.replace(/\.md$/, '');
+        try {
+          store.set({ id, data: await parseData({ id, data }), body });
+        } catch (err) {
+          logger.warn(`toolkit fallback for ${id}: ${(err as Error).message}`);
+          store.set({ id, data, body });
+        }
+      }
+    },
+  },
+  schema: z
+    .object({
+      title: lenientString,
+      lede: lenientString,
+      label: lenientString,
+      status: lenientString,
+      order: lenientNumber,
+      href: lenientString,
+      tags: lenientStringArray,
+    })
+    .passthrough(),
+});
+
 export const collections = {
   changelog: defineCollection({ loader: repoLoader('changelog'), schema }),
   'context-v': defineCollection({ loader: repoLoader('context-v'), schema }),
+  toolkit,
 };

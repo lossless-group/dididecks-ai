@@ -5,8 +5,8 @@ description: >-
   Design system for the dididecks-ai splash site. A dark, editorial,
   Due-Diligence-grade aesthetic: deep ink surfaces, brass and ember accents,
   Cormorant Garamond display serif over Inter, JetBrains Mono for engineered
-  labels. Tokens mirror the CSS custom properties in src/styles/global.css's
-  :root block — that file remains the runtime source of truth; this DESIGN.md
+  labels. Tokens mirror the CSS custom properties in src/styles/theme.css
+  (Tier 1 and Tier 2 blocks) — that file remains the runtime source of truth; this DESIGN.md
   is the human- and agent-readable contract.
 
 # ─── Colors ──────────────────────────────────────────────────────────
@@ -314,7 +314,7 @@ imagery:
 
 # DidiDecks-AI Splash — Design System
 
-> The runtime source of truth is `src/styles/global.css`'s `:root` block,
+> The runtime source of truth is `src/styles/theme.css` (Tier 1 and Tier 2 blocks),
 > which defines the CSS custom properties consumed by every page-scoped
 > style. This document is the **human- and agent-readable** contract that
 > explains the system's intent. Keep the two in sync when either changes.
@@ -386,7 +386,7 @@ A **fixed-max-width** layout: every page wraps content in `.container { max-widt
 
 ## Elevation & Depth
 
-The system is **flat**. There are no `box-shadow` declarations anywhere in `global.css`. Depth is conveyed by three mechanisms only:
+The original splash was **flat**: no `box-shadow` anywhere. The 2026-11-18 rebuild took ai-labs' theme structure, which adds a soft card shadow (`--shadow-card`); otherwise depth still comes from three mechanisms:
 
 1. **Tonal layering.** ink → ink-2 → ink-3 reads as three perceptible shelves. The system-map (ink-2) reads as elevated above the body. The cards (ink-3) read as further elevated still. No shadow needed.
 2. **Brass-tinted hairline borders at two alphas.** Default border (`--stroke`, brass at 18%) is the resting state; hover (`--stroke-hi`, brass at 40%) brightens to signal interactivity. The transition is 120ms — fast enough to feel responsive, slow enough that the warming doesn't feel mechanical.

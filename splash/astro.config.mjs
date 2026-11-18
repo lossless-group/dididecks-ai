@@ -1,5 +1,6 @@
 // @ts-check
 import { defineConfig } from 'astro/config';
+import pagefind from 'astro-pagefind';
 import sitemap from '@astrojs/sitemap';
 
 export default defineConfig({
@@ -8,6 +9,9 @@ export default defineConfig({
   trailingSlash: 'ignore',
 
   integrations: [
+    // Builds the static search index into dist/ after `astro build`.
+    pagefind(),
+
     sitemap({
       filter: (page) =>
         !page.includes('/llms.txt') &&

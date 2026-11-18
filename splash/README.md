@@ -6,13 +6,14 @@ Live target: `https://lossless-group.github.io/dididecks-ai/`.
 ## Local dev
 
 ```bash
-pnpm install --ignore-workspace
+pnpm install
 pnpm dev
 # visit http://localhost:4321/dididecks-ai/
 ```
 
-`--ignore-workspace` is required because the parent (`ai-labs/`) workspace
-boundaries do not include this splash; the splash installs its own deps.
+The splash's own `pnpm-workspace.yaml` keeps it out of any workspace above it
+and approves the build scripts for esbuild and sharp, so don't pass
+`--ignore-workspace` (that skips the file and the approvals with it).
 
 ## Build
 
@@ -23,14 +24,25 @@ pnpm build
 
 ## Deploy
 
-Push to `main`. A GitHub Actions workflow (TBD) builds `splash/` and deploys
-via `actions/deploy-pages@v4`. Pages source must be set to "GitHub Actions"
-in the repo settings on first run.
+Push to `main`. `.github/workflows/pages.yml` builds `splash/` and deploys it
+with `actions/deploy-pages@v4`. The build reads two things from GitHub:
+`OPENPANEL_CLIENT_ID` (a repo Variable, for analytics in production) and the
+workflow's own `GITHUB_TOKEN` (for the API reads below).
 
 ## Where content lives
 
-- **Hero, principles, system map:** `src/pages/index.astro` (hand-curated copy).
-- **Tokens:** `src/styles/global.css`.
+- **Home page copy:** `src/pages/index.astro` (the bar, the loop, the two bets
+  and seven rules, the reading list).
+- **Toolkit cards:** one file each in `src/content/toolkit/`. Add a file to add
+  a card; `order` sets its place.
+- **Share images:** `src/lib/share-cards.ts` says what each page's card reads;
+  `src/lib/og-render.ts` draws a tall og:image and a wide twitter:image for
+  every page at build time (after `astro-knots/sites/cathode-site`).
+- **Tokens:** `src/styles/theme.css` (two tiers, three modes). `DESIGN.md` is
+  the readable contract for the same values.
+- **llms.txt prose:** `src/llms/*.md`.
+- **Remake-deck diagram:** copied from `../context-v/diagrams/` by
+  `scripts/sync-diagrams.mjs` on every dev and build.
 - **`/changelog/` and `/context-v/`:** read at build time, never copied into
   this repo (`src/content.config.ts`):
   - dididecks-ai's own `changelog/` and `context-v/` from the checkout;
@@ -49,5 +61,6 @@ tracked branch (`branch =` in `.gitmodules`). Locally, set `GITHUB_API_TOKEN`
 
 ## Status
 
-Hero, North Stars, principles, system map, spec gallery, changelog and
-context-v render. Search (Pagefind) and sort controls are not added yet.
+Rebuilt 2026-11-18 on the ai-labs splash structure: sticky header with search
+and the light/dark/vibrant toggle, LFM-rendered entries, Pagefind search,
+sort controls, llms.txt, per-page share cards, and OpenPanel analytics.

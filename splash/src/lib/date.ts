@@ -22,7 +22,9 @@ export function toDate(v: unknown): Date | undefined {
 export function formatDate(v: unknown, opts?: Intl.DateTimeFormatOptions): string {
   const d = toDate(v);
   if (!d) return '';
-  return d.toLocaleDateString('en-US', opts ?? { year: 'numeric', month: 'short', day: '2-digit' });
+  // Frontmatter dates are calendar days parsed as UTC midnight; format in UTC
+  // or they show a day early west of Greenwich.
+  return d.toLocaleDateString('en-US', { timeZone: 'UTC', ...(opts ?? { year: 'numeric', month: 'short', day: '2-digit' }) });
 }
 
 export function isoDate(v: unknown): string {

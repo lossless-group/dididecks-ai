@@ -32,8 +32,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node
         uses: actions/setup-node@v4
@@ -54,6 +52,7 @@ jobs:
       - name: Build
         run: pnpm build
         env:
+          OPENPANEL_CLIENT_ID: ${{ vars.OPENPANEL_CLIENT_ID }}
           # Public children's changelog/ and context-v/ are read from the
           # GitHub API at build time (src/loaders/github.ts); the token only
           # raises the rate limit.

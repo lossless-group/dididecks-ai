@@ -1,21 +1,128 @@
 ---
 import BaseLayout from '@layouts/BaseLayout.astro';
-import EntryList from '@components/EntryList.astro';
+import SortControls from '@components/SortControls.astro';
 import { getCollection } from 'astro:content';
-import { entryDate } from '@lib/entries';
+import { toDate, formatDate, isoDate } from '@lib/date';
 
-const entries = (await getCollection('changelog')).sort(
-  (a, b) => (entryDate(b.data, b.id)?.getTime() ?? 0) - (entryDate(a.data, a.id)?.getTime() ?? 0),
-);
-const sources = [...new Set(entries.map((e) => e.data.from))];
+const base = import.meta.env.BASE_URL;
+
+// Each entry decorated with the four sort keys the SortControls component
+// reads via data-sort-{key} on each <li>. ISO date strings sort
+// lexicographically (same as time-order); title is lowercased for stable
+// alpha sort. Empty values sink to the bottom regardless of direction.
+const entries = (await getCollection('changelog'))
+  .map((e) => {
+    const modified = toDate(e.data.date_modified ?? e.data.date_created ?? e.data.date ?? e.data.date_authored_current_draft ?? e.data.date_authored_initial_draft);
+    const created = toDate(e.data.date_created ?? e.data.date ?? e.data.date_authored_current_draft ?? e.data.date_authored_initial_draft);
+    const published = toDate(
+      e.data.date_first_published ?? e.data.date_published ?? e.data.published_at,
+    );
+    const title = String(e.data.title ?? e.id);
+    return { entry: e, modified, created, published, title };
+  })
+  // Pre-sort to match the SortControls default (Modified desc) so the static
+  // HTML reads correctly even before JS hydrates.
+  .sort((a, b) => (b.modified?.getTime() ?? 0) - (a.modified?.getTime() ?? 0));
 ---
-<BaseLayout title="Changelog · DidiDecks" description="What shipped in DidiDecks, newest first.">
-  <section class="page">
-    <div class="container narrow">
-      <p class="eyebrow">Changelog</p>
-      <h1 class="page__title">What shipped.</h1>
-      <p class="lede">{entries.length} entries from {sources.join(' and ')}, newest first. Client engagements are never listed here.</p>
-      <EntryList entries={entries} route="changelog" />
+<BaseLayout title="Changelog" description="Ship notes from DidiDecks AI: the deck shell, the player, export, /remake-deck, and the docs behind them." shareKey="changelog">
+  <section>
+    <div class="container">
+      <p class="eyebrow">ch · changelog</p>
+      <h1>Changelog</h1>
+      <p class="lede">What shipped in DidiDecks, and why it matters. Entries come from this repo and from its public packages, read from GitHub at build time. Client deck repos stay private and never appear here.</p>
+
+      <SortControls
+        name="changelog"
+        options={[
+          { key: 'modified', label: 'Modified' },
+          { key: 'created', label: 'Created' },
+          { key: 'published', label: 'Published' },
+          { key: 'title', label: 'Title' },
+        ]}
+        defaultKey="modified"
+        defaultDirection="desc"
+      />
+
+      <ul
+        class="entry-list"
+        aria-label="Changelog entries"
+        data-pagefind-ignore="all"
+        data-sort-target="changelog"
+      >
+        {entries.map(({ entry, modified, created, published, title }) => {
+          const from = entry.data.from ?? 'dididecks-ai';
+          return (
+            <li
+              class="entry-list__item"
+              data-sort-modified={modified ? isoDate(modified) : ''}
+              data-sort-created={created ? isoDate(created) : ''}
+              data-sort-published={published ? isoDate(published) : ''}
+              data-sort-title={title.toLowerCase()}
+            >
+              <a class="entry-list__link" href={`${base}changelog/${entry.id}/`}>
+                <header class="entry-list__head">
+                  <span class="pill pill--accent">{from}</span>
+                  {modified && <time class="entry-list__time" datetime={isoDate(modified)}>{formatDate(modified)}</time>}
+                </header>
+                <h2 class="entry-list__title">{title}</h2>
+                {entry.data.lede && <p class="entry-list__lede">{entry.data.lede}</p>}
+                {entry.data.tags && entry.data.tags.length > 0 && (
+                  <ul class="tags" aria-label="Tags">
+                    {entry.data.tags.map((t: string) => <li class="chip">{t}</li>)}
+                  </ul>
+                )}
+              </a>
+            </li>
+          );
+        })}
+      </ul>
     </div>
   </section>
 </BaseLayout>
+
+<style>
+  .entry-list {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    margin-top: var(--space-8);
+  }
+  .entry-list__link {
+    display: block;
+    padding: var(--space-5) var(--space-6);
+    background: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    color: var(--color-text);
+    transition: border-color var(--transition-fast), background var(--transition-fast);
+  }
+  .entry-list__link:hover {
+    border-color: var(--color-border-strong);
+    color: var(--color-text);
+  }
+  .entry-list__head {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    margin-bottom: var(--space-2);
+  }
+  .entry-list__time {
+    font-family: var(--font__mono);
+    font-size: 0.74rem;
+    color: var(--color-text-dim);
+    letter-spacing: 0.06em;
+  }
+  .entry-list__title {
+    font-family: var(--font__display);
+    font-size: 1.2rem;
+    font-weight: 600;
+    margin: 0 0 var(--space-2);
+    color: var(--color-text);
+  }
+  .entry-list__lede {
+    color: var(--color-text-soft);
+    margin: 0;
+    font-size: 0.95rem;
+  }
+</style>
