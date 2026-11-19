@@ -1,6 +1,6 @@
 // Every page on the splash gets a card: what its share image says. Pages pass
 // their card's key to BaseLayout; the images are built at /og/{tall|wide}/{key}.jpg.
-// Blueprint: astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-Image.md
+// Blueprint: astro-knots/context-v/blueprints/Share-Every-Page-and-Section-With-Its-Own-OG-Image.md
 import { getCollection } from 'astro:content';
 
 export interface ShareCard {
