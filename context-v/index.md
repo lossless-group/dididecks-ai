@@ -6,6 +6,7 @@ okf_version: "0.2"
 
 * [Blueprints](blueprints/) - Codified patterns for the deck operating system
 * [Explorations](explorations/) - Open questions and option-space thinking before a decision
+* [Handoffs](handoffs/) - State captured at the end of work, from us or collaborators (experimental)
 * [Loops](loops/) - Recurring procedures run across decks and client sites
 * [Models](models/) - Data models behind the deck OS: decks, variants, slots, companies, auth
 * [Plans](plans/) - Ordered, scoped steps toward a spec

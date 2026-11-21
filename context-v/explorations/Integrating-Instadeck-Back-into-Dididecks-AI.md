@@ -5,8 +5,8 @@ date_authored_initial_draft: 2026-10-31
 date_authored_current_draft: 2026-11-01
 date_authored_final_draft:
 date_first_published:
-date_last_updated: 2026-11-01
-at_semantic_version: 0.0.1.0
+date_last_updated: 2026-11-21
+at_semantic_version: 0.0.1.1
 status: Deferred
 deferral_note: "Parked: Instadeck's output doesn't work the way Michael wants, so no further experiments for now."
 augmented_with:
@@ -21,7 +21,7 @@ tags:
 authors:
   - Michael Staton
 date_created: 2026-10-31
-date_modified: 2026-11-01
+date_modified: 2026-11-21
 private: true
 publish: false
 site_uuid: 18e519b3-78b1-4340-859e-7c940ad06c1c
@@ -40,6 +40,11 @@ type: Explorations
 **Parked, 2026-11-01.** Michael's conclusion: Instadeck's output doesn't work
 the way he wants, so no further experiments for now. The public write-up is the
 splash page `studies/collaborations/dididecks-vs-instadeck-recheck`.
+
+**Update, 2026-11-21:** on 2026-11-10 her developer sent a V4 "technical MVP"
+handoff addressed to Lossless. It is summarized in
+[[Instadeck-V4-MVP-Handoff-Received-2026-11-10]]. This exploration stays parked
+until Michael decides whether the handoff reopens it.
 
 ## The situation
 
