@@ -5,9 +5,9 @@
  * evaluate as a data URL import. Works for files outside Vite's analyzed tree
  * (the registries live in the consuming client-site, not in the shell package).
  *
- * Esbuild is transitively available in every consumer because Astro 6 ships
- * Vite 5+ which depends on esbuild — we never have to install it on the
- * consumer side.
+ * esbuild is a direct dependency of the shell (since 0.4.1). Older versions
+ * relied on Vite bringing it in, which stopped being true with Vite 8: it
+ * bundles with Rolldown and no longer depends on esbuild.
  */
 import fs from "node:fs/promises";
 import path from "node:path";
