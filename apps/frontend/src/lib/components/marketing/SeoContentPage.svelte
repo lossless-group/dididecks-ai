@@ -1,14 +1,14 @@
 <script lang="ts">
   import PageHeader from '#lib/components/common/PageHeader.svelte';
 
-  export type SeoContentItem = {
+  type SeoContentItem = {
     title: string;
     body: string;
     href?: string;
     label?: string;
   };
 
-  export type SeoContentSection = {
+  type SeoContentSection = {
     eyebrow?: string;
     title: string;
     body?: string;

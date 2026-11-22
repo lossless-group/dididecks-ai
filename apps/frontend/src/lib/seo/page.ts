@@ -8,6 +8,18 @@ type Breadcrumb = {
   path: string;
 };
 
+// One node in the page's JSON-LD @graph.
+type GraphNode = Record<string, unknown>;
+
+// Normalise the optional extra schema into graph nodes. Typing it as plain
+// records keeps TypeScript from comparing it against every branch of
+// svelte-meta-tags' schema union ("Excessive complexity comparing types").
+function toGraphNodes(schema: JsonLdProps['schema']): GraphNode[] {
+  const value: unknown = schema;
+  if (!value) return [];
+  return Array.isArray(value) ? (value as GraphNode[]) : [value as GraphNode];
+}
+
 type PageSeoInput = {
   title: string;
   description?: string;
@@ -90,12 +102,8 @@ export function definePageSeo({
             }))
           ]
         },
-        ...(schema
-          ? Array.isArray(schema)
-            ? schema
-            : [schema]
-          : [])
-      ]
+        ...toGraphNodes(schema)
+      ] satisfies GraphNode[]
     }
   };
 }
