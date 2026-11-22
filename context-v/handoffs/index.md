@@ -1,3 +1,9 @@
+---
+title: "Handoffs"
+private: true
+publish: false
+---
+
 # Handoffs
 
 Experimental folder: state captured at the end of a piece of work so the next session or collaborator can pick it up without starting over.
