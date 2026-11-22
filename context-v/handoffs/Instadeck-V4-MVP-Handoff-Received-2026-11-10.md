@@ -157,8 +157,9 @@ with it now.**
 - Does this reopen [[Integrating-Instadeck-Back-into-Dididecks-AI]]? Option 5
   there ("host our loop and take her plumbing") is the obvious place it
   connects.
-- Who signs off on investor-ready content, and how is that sign-off recorded?
-  She asks this directly.
+- ~~Who signs off on investor-ready content?~~ Settled 2026-11-21: there's
+  no gate, and it isn't part of Instadeck. An evaluative agent gives
+  rubric-based feedback instead; see [[Rubric-Driven-Deck-Evaluation-Agent]].
 
 ## References
 

@@ -79,7 +79,7 @@ client details. They apply to our remake loop as much as to hers.
 - Which slide roles are recommended for each stage and sector, and which should be left out when evidence is missing?
 - When should the product stop and ask for missing financials or an investment ask instead of generating something?
 - Which claims need external verification, which can stay company-reported, and which must block distribution?
-- What counts as investor-ready, who signs off, and how is the sign-off recorded?
+- ~~Who signs off as investor-ready?~~ Settled: no gate. The rubric feeds an advisory evaluation agent ([[Rubric-Driven-Deck-Evaluation-Agent]]).
 
 ## Where this could go
 
