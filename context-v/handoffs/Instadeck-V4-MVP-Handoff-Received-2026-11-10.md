@@ -12,7 +12,7 @@ authors:
   - Michael Staton
 augmented_with:
   - Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
+at_semantic_version: 0.0.0.2
 status: Reference
 category: Handoff
 tags:
@@ -131,9 +131,9 @@ with a person choosing, and OpenAI against Claude.
 | P2 | Reusable knowledge or vector memory, only if needed | Decide whether evidence from the source deck alone is enough |
 | Lossless follow-up | Font hosting and privacy review | Self-host font files instead of loading Google Fonts and similar. GDPR worry raised, not audited |
 
-The **font privacy point applies to us too.** Our client sites and splash pages
-load fonts from outside services in places. It's worth its own look, separate
-from this handoff.
+The font privacy point applies to our own sites too, which load fonts from
+outside services in places. **Deferred (2026-11-21): we don't want to deal
+with it now.**
 
 ## Our read
 
@@ -147,9 +147,8 @@ from this handoff.
 3. **The VC worksheet is the part worth keeping, whatever we decide.** The
    rules about what evidence each slide needs carry straight into our own
    DD-ready work ([[Dididecks-AI-DD-Ready-Citation-and-Source-Access]]).
-4. **The source deck is one of our client engagements.** The client's content
-   was run through a third-party pipeline. Confirm that was authorized before
-   any further online runs on client material.
+4. **The source deck is one of our client engagements.** Michael confirmed
+   (2026-11-21) that running it through her pipeline is not a concern.
 
 ## Open decisions for Michael
 
