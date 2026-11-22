@@ -15,7 +15,7 @@
     "export": "pnpm --filter @dididecks/deck-export exec deck-export",
     "export:calmstorm": "node packages/deck-export/src/index.mjs all --site-root client-sites/calmstorm-decks --pattern '/dev/shot/{slot}/{variant}' --slots 01-17 --variants v1,v2,v3 --deck-name calmstorm-teaser"
   },
-  "packageManager": "pnpm@10.15.0",
+  "packageManager": "pnpm@12.21.0",
   "engines": {
     "node": ">=20.0.0",
     "pnpm": ">=10.0.0"

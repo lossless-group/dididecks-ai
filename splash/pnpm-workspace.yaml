@@ -8,11 +8,6 @@ allowBuilds:
   esbuild: true
   sharp: true
 
-# pnpm 10.15, pinned in the root package.json, reads this key instead.
-onlyBuiltDependencies:
-  - esbuild
-  - sharp
-
 # SECURITY: satori pins fflate 0.7.3 exactly (GHSA-px8p-9vwx-vf98, fixed in
 # 0.7.5). Drop this once satori's own range clears it.
 overrides:
