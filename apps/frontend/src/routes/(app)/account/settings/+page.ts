@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { getCurrentAccount, listConnectionEvents } from '$lib/api/account';
+import { getCurrentAccount, listConnectionEvents } from '#lib/api/account.ts';
 
 export const load: PageLoad = async ({ fetch }) => {
   const [account, connectionEvents] = await Promise.all([getCurrentAccount(fetch), listConnectionEvents(fetch)]);

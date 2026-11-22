@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckSlide } from '$lib/types/dididecks';
+  import type { DeckSlide } from '#lib/types/dididecks.ts';
   export let slides: DeckSlide[] = [];
 </script>
 

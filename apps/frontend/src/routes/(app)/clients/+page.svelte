@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Clients" title="Client and operator portfolio shell" copy="Group decks by operator, client, cohort, or engagement without mixing the product shell with super-admin ownership." />

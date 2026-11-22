@@ -1,6 +1,6 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { northStars, principles, useCases } from '$lib/data/marketing';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { northStars, principles, useCases } from '#lib/data/marketing.ts';
 </script>
 
 <PageHeader eyebrow="About" title="A reusable deck operating system for high-stakes narrative work" copy="Built for fundraising, board, LP, diligence, and client delivery workflows where portability, proof, and repeatability matter." />

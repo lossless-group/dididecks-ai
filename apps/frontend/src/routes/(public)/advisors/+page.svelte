@@ -1,5 +1,5 @@
 <script lang="ts">
-  import SeoContentPage from '$lib/components/marketing/SeoContentPage.svelte';
+  import SeoContentPage from '#lib/components/marketing/SeoContentPage.svelte';
 
   const faqs = [
     {

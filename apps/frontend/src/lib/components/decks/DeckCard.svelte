@@ -1,6 +1,6 @@
 <script lang="ts">
-  import DeckStatusBadge from '$lib/components/deck-workspace/DeckStatusBadge.svelte';
-  import type { Deck } from '$lib/types/dididecks';
+  import DeckStatusBadge from '#lib/components/deck-workspace/DeckStatusBadge.svelte';
+  import type { Deck } from '#lib/types/dididecks.ts';
 
   export let deck: Deck;
 </script>

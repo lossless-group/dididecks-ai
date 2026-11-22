@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckShareLink } from '$lib/types/dididecks';
+  import type { DeckShareLink } from '#lib/types/dididecks.ts';
   export let links: DeckShareLink[] = [];
 </script>
 

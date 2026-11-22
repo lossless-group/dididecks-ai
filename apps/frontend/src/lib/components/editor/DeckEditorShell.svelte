@@ -4,8 +4,8 @@
     DeckEditorViewModel,
     DeckExport,
     DeckVersion
-  } from '$lib/types/dididecks';
-  import { getFieldForBlock, getFieldUsagesForField, getVariantKey } from '$lib/utils/dididecks';
+  } from '#lib/types/dididecks.ts';
+  import { getFieldForBlock, getFieldUsagesForField, getVariantKey } from '#lib/utils/dididecks.ts';
   import AiCommandPanel from './AiCommandPanel.svelte';
   import BlockInspector from './BlockInspector.svelte';
   import CommentsPanel from './CommentsPanel.svelte';

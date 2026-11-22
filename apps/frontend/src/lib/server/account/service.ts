@@ -18,7 +18,7 @@ import type {
   UserAccount,
   UserAccountViewModel,
   Workspace
-} from '$lib/types/account';
+} from '#lib/types/account.ts';
 import { getAccountState } from './repository';
 
 export function getCurrentUserMock(): UserAccount {

@@ -1,6 +1,6 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { resourceCards, siblingSpecs } from '$lib/data/marketing';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { resourceCards, siblingSpecs } from '#lib/data/marketing.ts';
 </script>
 
 <PageHeader eyebrow="Resources" title="Specs, guides, and continuity references" copy="The repo already carries the conceptual contract for the product. This route surfaces that material inside the Svelte public marketing shell." />

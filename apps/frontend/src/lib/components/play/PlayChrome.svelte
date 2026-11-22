@@ -1,7 +1,7 @@
 <script lang="ts">
   import VariantCyclePill from './VariantCyclePill.svelte';
-  import type { DeckSlide, DeckSlideVariant } from '$lib/types/dididecks';
-  import { getSurfaceVariants } from '$lib/utils/dididecks';
+  import type { DeckSlide, DeckSlideVariant } from '#lib/types/dididecks.ts';
+  import { getSurfaceVariants } from '#lib/utils/dididecks.ts';
 
   export let deckId = '';
   export let slide: DeckSlide | null = null;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { ManagedAiProviderConnection } from '$lib/types/adminAiProviders';
+  import type { ManagedAiProviderConnection } from '#lib/types/adminAiProviders.ts';
   import ProviderStatusBadge from './ProviderStatusBadge.svelte';
 
   export let connection: ManagedAiProviderConnection;

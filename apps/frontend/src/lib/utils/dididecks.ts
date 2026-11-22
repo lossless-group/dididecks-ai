@@ -5,7 +5,7 @@ import type {
   FieldUsage,
   PersistentField,
   ReviewSurface
-} from '$lib/types/dididecks';
+} from '#lib/types/dididecks.ts';
 
 export function getVariantKey(value: { variantKey?: string; id: string } | null | undefined): string {
   return value?.variantKey ?? value?.id ?? '';

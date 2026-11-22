@@ -5,7 +5,7 @@
  * matrix and review list pages visible state variation without needing a real
  * reviewer workflow backend.
  */
-import type { DeckReviewMatrixItem } from '$lib/types/dididecks';
+import type { DeckReviewMatrixItem } from '#lib/types/dididecks.ts';
 
 export const mockReviewMatrix: DeckReviewMatrixItem[] = [
   { slide: 'Narrative hook', status: 'perfect', reviewer: 'Andrea' },

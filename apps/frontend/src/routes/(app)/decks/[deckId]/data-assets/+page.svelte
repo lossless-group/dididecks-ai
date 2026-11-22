@@ -1,8 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import DataAssetsLayout from '$lib/components/data-assets/DataAssetsLayout.svelte';
+  import DeckWorkspaceShell from '#lib/components/deck-workspace/DeckWorkspaceShell.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import DataAssetsLayout from '#lib/components/data-assets/DataAssetsLayout.svelte';
   export let data: PageData;
 </script>
 

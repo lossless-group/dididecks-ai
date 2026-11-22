@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import DeckTOC from '$lib/components/viewer/DeckTOC.svelte';
-  import SlideSlotList from '$lib/components/viewer/SlideSlotList.svelte';
+  import DeckWorkspaceShell from '#lib/components/deck-workspace/DeckWorkspaceShell.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import DeckTOC from '#lib/components/viewer/DeckTOC.svelte';
+  import SlideSlotList from '#lib/components/viewer/SlideSlotList.svelte';
 
   export let data: PageData;
 </script>

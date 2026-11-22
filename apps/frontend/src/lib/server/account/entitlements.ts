@@ -4,7 +4,7 @@
  * These checks are display and MVP gating rules only. They should later be
  * backed by real billing state and durable usage tracking.
  */
-import type { CustomerSubscription } from '$lib/types/account';
+import type { CustomerSubscription } from '#lib/types/account.ts';
 
 export function canCreateDeck(subscription: CustomerSubscription): boolean {
   return subscription.limits.maxDecks > 0;

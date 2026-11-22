@@ -8,7 +8,7 @@ import type {
   ProviderConnection,
   UserAccount,
   Workspace
-} from '$lib/types/account';
+} from '#lib/types/account.ts';
 
 export interface AccountState {
   users: UserAccount[];

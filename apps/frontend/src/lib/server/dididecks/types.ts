@@ -9,8 +9,8 @@ import type {
   DeckShareLink,
   DeckVersion,
   RebuildJob
-} from '$lib/types/dididecks';
-import type { ManagedAiProviderConnection } from '$lib/types/adminAiProviders';
+} from '#lib/types/dididecks.ts';
+import type { ManagedAiProviderConnection } from '#lib/types/adminAiProviders.ts';
 
 export interface DididecksState {
   decks: Deck[];

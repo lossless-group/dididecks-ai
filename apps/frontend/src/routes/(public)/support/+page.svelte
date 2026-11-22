@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Support" title="Support for the deck operating system" copy="Use this surface for workspace, access, export, billing, and review-flow support without turning the frontend into a backend control plane." />

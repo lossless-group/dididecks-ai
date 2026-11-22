@@ -5,7 +5,7 @@
  * blocks so preview/apply flows can explain which blocks change when a field
  * value is updated.
  */
-import type { FieldUsage, PersistentField } from '$lib/types/dididecks';
+import type { FieldUsage, PersistentField } from '#lib/types/dididecks.ts';
 
 export const mockPersistentFields: PersistentField[] = [
   {

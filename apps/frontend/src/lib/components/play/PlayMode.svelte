@@ -1,7 +1,7 @@
 <script lang="ts">
   import { goto } from '$app/navigation';
-  import type { DeckEditorViewModel, DeckSlide } from '$lib/types/dididecks';
-  import { getBlocksForSlideVariant, getPrimaryVariant, getSurfaceVariants } from '$lib/utils/dididecks';
+  import type { DeckEditorViewModel, DeckSlide } from '#lib/types/dididecks.ts';
+  import { getBlocksForSlideVariant, getPrimaryVariant, getSurfaceVariants } from '#lib/utils/dididecks.ts';
   import PlayChrome from './PlayChrome.svelte';
   import PlaySlideCanvas from './PlaySlideCanvas.svelte';
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckReviewMatrixItem } from '$lib/types/dididecks';
+  import type { DeckReviewMatrixItem } from '#lib/types/dididecks.ts';
   import SurfaceReviewMatrix from './SurfaceReviewMatrix.svelte';
 
   export let items: DeckReviewMatrixItem[] = [];

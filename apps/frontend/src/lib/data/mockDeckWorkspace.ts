@@ -5,7 +5,7 @@
  * demo deck. They remain in-memory so another developer can safely replace
  * them with repository-backed persistence later.
  */
-import type { AiCommand, DeckComment, DeckExport, DeckVersion } from '$lib/types/dididecks';
+import type { AiCommand, DeckComment, DeckExport, DeckVersion } from '#lib/types/dididecks.ts';
 
 export const mockVersions: DeckVersion[] = [
   { id: 'ver-1', deckId: 'deck-001', label: 'v2.4', createdAt: 'Today', summary: 'Investor hook tightened.' },

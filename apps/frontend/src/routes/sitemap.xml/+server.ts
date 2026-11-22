@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 
-import { PUBLIC_INDEXABLE_PATHS } from '$lib/seo/routes';
-import { absoluteUrl } from '$lib/seo/site';
+import { PUBLIC_INDEXABLE_PATHS } from '#lib/seo/routes.ts';
+import { absoluteUrl } from '#lib/seo/site.ts';
 
 export const prerender = true;
 

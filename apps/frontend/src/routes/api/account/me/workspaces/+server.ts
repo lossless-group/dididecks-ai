@@ -5,9 +5,8 @@
  * repo-local account service. Production auth will later determine the current
  * user from a real session rather than the mock account selector.
  */
-import { json } from '@sveltejs/kit';
-import { getCurrentUserMock, listUserWorkspaces } from '$lib/server/account/service';
+import { getCurrentUserMock, listUserWorkspaces } from '#lib/server/account/service.ts';
 
 export function GET() {
-  return json(listUserWorkspaces(getCurrentUserMock().id));
+  return Response.json(listUserWorkspaces(getCurrentUserMock().id));
 }

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 
   const creationModes = [
     { title: 'Upload existing deck', copy: 'Bring in PPTX or PDF and map persistent fields before editing.' },

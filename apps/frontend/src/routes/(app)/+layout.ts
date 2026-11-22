@@ -1,6 +1,6 @@
 import type { LayoutLoad } from './$types';
 
-import { definePageSeo } from '$lib/seo/page';
+import { definePageSeo } from '#lib/seo/page.ts';
 
 export const load: LayoutLoad = () =>
   definePageSeo({

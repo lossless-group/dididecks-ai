@@ -5,7 +5,7 @@
  * evaluated before acceptance. Production should replace this with a more
  * robust guardrail service.
  */
-import type { AiChangeProposal, GuardrailDecision } from '$lib/types/dididecks';
+import type { AiChangeProposal, GuardrailDecision } from '#lib/types/dididecks.ts';
 
 const SECRET_PATTERN = /(api[_-]?key|sk-[a-z0-9]{10,}|token|password)/i;
 const HIGH_STAKES_PATTERN = /(guaranteed return|no downside|certain outcome)/i;

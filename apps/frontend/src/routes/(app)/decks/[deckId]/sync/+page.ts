@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { getDataAssets, getGuardrails } from '$lib/api/dididecks';
+import { getDataAssets, getGuardrails } from '#lib/api/dididecks.ts';
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const [assets, guardrails] = await Promise.all([

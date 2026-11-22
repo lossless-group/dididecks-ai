@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckSlideVariant } from '$lib/types/dididecks';
+  import type { DeckSlideVariant } from '#lib/types/dididecks.ts';
 
   export let variants: DeckSlideVariant[] = [];
   export let activeVariantKey = '';

@@ -1,7 +1,7 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { mockPlans } from '$lib/data/mockPlans';
-  import type { BillingPlan } from '$lib/types/billing';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { mockPlans } from '#lib/data/mockPlans.ts';
+  import type { BillingPlan } from '#lib/types/billing.ts';
 
   const plansPromise = Promise.resolve(mockPlans);
 

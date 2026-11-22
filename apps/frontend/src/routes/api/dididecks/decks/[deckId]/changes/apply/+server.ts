@@ -4,9 +4,8 @@
  * Apply mutates the repo-local mock deck state and creates a mock version
  * snapshot. Production should keep the contract but replace the persistence.
  */
-import { json } from '@sveltejs/kit';
-import { applyFieldChanges } from '$lib/server/dididecks';
-import type { ChangeRequest } from '$lib/types/dididecks';
+import { applyFieldChanges } from '#lib/server/dididecks/index.ts';
+import type { ChangeRequest } from '#lib/types/dididecks.ts';
 
 export async function POST({ params, request }) {
   if (!params.deckId) {
@@ -18,5 +17,5 @@ export async function POST({ params, request }) {
     throw new Error('Changes array is required');
   }
 
-  return json(applyFieldChanges(params.deckId, body.changes));
+  return Response.json(applyFieldChanges(params.deckId, body.changes));
 }

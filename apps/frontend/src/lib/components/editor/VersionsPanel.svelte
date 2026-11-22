@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckVersion } from '$lib/types/dididecks';
+  import type { DeckVersion } from '#lib/types/dididecks.ts';
 
   export let versions: DeckVersion[] = [];
 </script>

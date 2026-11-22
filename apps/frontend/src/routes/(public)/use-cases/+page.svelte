@@ -1,6 +1,6 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { useCases } from '$lib/data/marketing';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { useCases } from '#lib/data/marketing.ts';
 </script>
 
 <PageHeader eyebrow="Use Cases" title="Where reusable deck infrastructure matters most" copy="The strongest fit is recurring, high-stakes narrative work where decks change often, proof matters, and brand context varies by audience." />

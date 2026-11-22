@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import DeckWorkspaceShell from '#lib/components/deck-workspace/DeckWorkspaceShell.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 
   export let data: PageData;
 </script>

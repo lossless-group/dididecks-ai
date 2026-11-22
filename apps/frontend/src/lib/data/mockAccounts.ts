@@ -16,7 +16,7 @@ import type {
   ProviderConnection,
   UserAccount,
   Workspace
-} from '$lib/types/account';
+} from '#lib/types/account.ts';
 
 export const mockUsers: UserAccount[] = [
   {

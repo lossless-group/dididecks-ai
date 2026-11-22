@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { getDeck, getDeckEditorView } from '$lib/api/dididecks';
+import { getDeck, getDeckEditorView } from '#lib/api/dididecks.ts';
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const [deck, editorView] = await Promise.all([

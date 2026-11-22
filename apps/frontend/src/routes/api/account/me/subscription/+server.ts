@@ -5,9 +5,8 @@
  * account. It is display and gating data only until a real billing backend is
  * connected.
  */
-import { json } from '@sveltejs/kit';
-import { getCurrentAccountViewModel } from '$lib/server/account/service';
+import { getCurrentAccountViewModel } from '#lib/server/account/service.ts';
 
 export function GET() {
-  return json(getCurrentAccountViewModel().subscription);
+  return Response.json(getCurrentAccountViewModel().subscription);
 }

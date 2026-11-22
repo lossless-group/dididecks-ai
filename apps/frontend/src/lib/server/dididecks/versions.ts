@@ -5,7 +5,7 @@
  * change is applied. They are mock-backed today but shaped like a future audit
  * trail for real persistence.
  */
-import type { DeckVersion } from '$lib/types/dididecks';
+import type { DeckVersion } from '#lib/types/dididecks.ts';
 import { getDididecksState } from './repository';
 
 export function listVersions(deckId: string): DeckVersion[] {

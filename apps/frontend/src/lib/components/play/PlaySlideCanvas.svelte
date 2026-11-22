@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { DeckBlock, DeckSlide } from '$lib/types/dididecks';
-  import ContentFit from '$lib/components/viewer/ContentFit.svelte';
-  import { buildCanvasBlockStyle, getBlockContentSummary, getBlockDisplayType } from '$lib/utils/dididecks';
+  import type { DeckBlock, DeckSlide } from '#lib/types/dididecks.ts';
+  import ContentFit from '#lib/components/viewer/ContentFit.svelte';
+  import { buildCanvasBlockStyle, getBlockContentSummary, getBlockDisplayType } from '#lib/utils/dididecks.ts';
 
   export let slide: DeckSlide | null = null;
   export let blocks: DeckBlock[] = [];

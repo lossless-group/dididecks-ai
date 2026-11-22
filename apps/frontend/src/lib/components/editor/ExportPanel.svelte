@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckExport } from '$lib/types/dididecks';
+  import type { DeckExport } from '#lib/types/dididecks.ts';
 
   export let deckId = '';
   export let exportsList: DeckExport[] = [];

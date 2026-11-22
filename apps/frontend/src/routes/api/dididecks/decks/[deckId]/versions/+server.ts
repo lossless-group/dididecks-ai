@@ -4,13 +4,12 @@
  * This route returns mock version history for a deck. Production version data
  * should later come from durable persistence and background jobs.
  */
-import { json } from '@sveltejs/kit';
-import { listVersions } from '$lib/server/dididecks';
+import { listVersions } from '#lib/server/dididecks/index.ts';
 
 export function GET({ params }) {
   if (!params.deckId) {
-    return json({ error: 'Missing deckId' }, { status: 400 });
+    return Response.json({ error: 'Missing deckId' }, { status: 400 });
   }
 
-  return json(listVersions(params.deckId));
+  return Response.json(listVersions(params.deckId));
 }

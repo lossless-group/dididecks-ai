@@ -1,7 +1,7 @@
 import type { RequestHandler } from './$types';
 
-import { PRIVATE_ROBOTS_DISALLOWS } from '$lib/seo/routes';
-import { absoluteUrl } from '$lib/seo/site';
+import { PRIVATE_ROBOTS_DISALLOWS } from '#lib/seo/routes.ts';
+import { absoluteUrl } from '#lib/seo/site.ts';
 
 export const prerender = true;
 

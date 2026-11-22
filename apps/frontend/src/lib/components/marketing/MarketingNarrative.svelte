@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { loopDiagram, northStars, principles, siblingSpecs, useCases } from '$lib/data/marketing';
+  import { loopDiagram, northStars, principles, siblingSpecs, useCases } from '#lib/data/marketing.ts';
 </script>
 
 <section class="splash-section marketing-block">

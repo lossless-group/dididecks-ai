@@ -1,6 +1,6 @@
 import type { PageLoad } from './$types';
-import { getDeckMap } from '$lib/api/dididecks';
-import { getAffectedBlockIds, getAffectedSlideIds, getFieldUsagesForField } from '$lib/utils/dididecks';
+import { getDeckMap } from '#lib/api/dididecks.ts';
+import { getAffectedBlockIds, getAffectedSlideIds, getFieldUsagesForField } from '#lib/utils/dididecks.ts';
 
 export const load: PageLoad = async ({ params, fetch, url }) => {
   const editorView = await getDeckMap(params.deckId, fetch);

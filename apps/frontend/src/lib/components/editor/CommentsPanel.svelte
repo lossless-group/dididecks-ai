@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckComment } from '$lib/types/dididecks';
+  import type { DeckComment } from '#lib/types/dididecks.ts';
 
   export let comments: DeckComment[] = [];
   export let activeSlideId = '';

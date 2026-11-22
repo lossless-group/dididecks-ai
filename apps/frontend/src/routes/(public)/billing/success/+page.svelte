@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Billing" title="Payment received" copy="Your checkout completed. Subscription state will still be confirmed by the backend before the workspace is fully upgraded." />

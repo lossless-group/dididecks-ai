@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Templates" title="Portable deck templates" copy="Review reusable slide systems, brand profiles, and component-library driven templates that can move across client sites." />

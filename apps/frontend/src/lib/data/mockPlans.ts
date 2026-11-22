@@ -4,7 +4,7 @@
  * These values are product copy only. Real billing prices, checkout links, and
  * entitlement enforcement must remain backend-owned.
  */
-import type { BillingPlan } from '$lib/types/billing';
+import type { BillingPlan } from '#lib/types/billing.ts';
 
 export const mockPlans: BillingPlan[] = [
   {

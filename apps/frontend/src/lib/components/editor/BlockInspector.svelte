@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckBlock, DeckSlide, DeckSlideVariant, FieldUsage, PersistentField } from '$lib/types/dididecks';
+  import type { DeckBlock, DeckSlide, DeckSlideVariant, FieldUsage, PersistentField } from '#lib/types/dididecks.ts';
   import {
     getAffectedBlockIds,
     getAffectedSlideIds,
@@ -7,7 +7,7 @@
     getBlockDisplayType,
     getBlockPositionSummary,
     getBlockStyleSummary
-  } from '$lib/utils/dididecks';
+  } from '#lib/utils/dididecks.ts';
 
   export let block: DeckBlock | null = null;
   export let slide: DeckSlide | null = null;

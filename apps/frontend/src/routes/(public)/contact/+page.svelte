@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Contact" title="Talk to the team behind the deck system" copy="Use this route for product walkthroughs, client-site portability, onboarding, support, and commercial collaboration." />

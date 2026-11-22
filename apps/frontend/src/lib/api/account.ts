@@ -10,7 +10,7 @@ import type {
   ProviderConnection,
   UserAccountViewModel,
   Workspace
-} from '$lib/types/account';
+} from '#lib/types/account.ts';
 import { apiGet } from './client';
 
 export function getCurrentAccount(fetcher?: typeof fetch): Promise<UserAccountViewModel> {

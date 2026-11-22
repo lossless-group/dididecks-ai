@@ -1,6 +1,6 @@
 <script lang="ts">
-  import type { DeckBlock, DeckSlide, DeckSlideVariant } from '$lib/types/dididecks';
-  import { buildCanvasBlockStyle, getBlockContentSummary, getBlockDisplayType } from '$lib/utils/dididecks';
+  import type { DeckBlock, DeckSlide, DeckSlideVariant } from '#lib/types/dididecks.ts';
+  import { buildCanvasBlockStyle, getBlockContentSummary, getBlockDisplayType } from '#lib/utils/dididecks.ts';
 
   export let slide: DeckSlide | null = null;
   export let variant: DeckSlideVariant | null = null;

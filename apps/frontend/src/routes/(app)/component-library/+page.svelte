@@ -1,9 +1,9 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import ComponentRegistryBrowser from '$lib/components/infrastructure/ComponentRegistryBrowser.svelte';
-  import DeckRegistryWorkspace from '$lib/components/infrastructure/DeckRegistryWorkspace.svelte';
-  import InfoDisplaySwitcher from '$lib/components/infrastructure/InfoDisplaySwitcher.svelte';
-  import { componentRegistry, infoDisplayOptions } from '$lib/registry/componentRegistry';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import ComponentRegistryBrowser from '#lib/components/infrastructure/ComponentRegistryBrowser.svelte';
+  import DeckRegistryWorkspace from '#lib/components/infrastructure/DeckRegistryWorkspace.svelte';
+  import InfoDisplaySwitcher from '#lib/components/infrastructure/InfoDisplaySwitcher.svelte';
+  import { componentRegistry, infoDisplayOptions } from '#lib/registry/componentRegistry.ts';
 
   const items = [
     { title: 'App shell components', body: 'Layout primitives for dashboard and workspace continuity.' },

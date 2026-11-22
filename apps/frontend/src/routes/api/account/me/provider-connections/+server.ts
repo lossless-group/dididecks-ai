@@ -5,9 +5,8 @@
  * customer account. Raw API keys never leave the server layer and are never
  * persisted in frontend state.
  */
-import { json } from '@sveltejs/kit';
-import { getCurrentAccountViewModel } from '$lib/server/account/service';
+import { getCurrentAccountViewModel } from '#lib/server/account/service.ts';
 
 export function GET() {
-  return json(getCurrentAccountViewModel().providerConnections);
+  return Response.json(getCurrentAccountViewModel().providerConnections);
 }

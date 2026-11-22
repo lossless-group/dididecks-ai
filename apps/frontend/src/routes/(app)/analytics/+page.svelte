@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Analytics" title="Portfolio analytics shell" copy="Track deck throughput, review velocity, readiness posture, and export activity across the workspace." />

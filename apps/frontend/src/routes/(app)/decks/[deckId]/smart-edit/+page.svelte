@@ -1,9 +1,9 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import type { AiChangeProposal, AiCommand, PersistentField } from '$lib/types/dididecks';
-  import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { acceptAiCommand, createAiCommand, rejectAiCommand } from '$lib/api/dididecks';
+  import type { AiChangeProposal, AiCommand, PersistentField } from '#lib/types/dididecks.ts';
+  import DeckWorkspaceShell from '#lib/components/deck-workspace/DeckWorkspaceShell.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { acceptAiCommand, createAiCommand, rejectAiCommand } from '#lib/api/dididecks.ts';
   export let data: PageData;
 
   let commands: AiCommand[] = [...data.commands];

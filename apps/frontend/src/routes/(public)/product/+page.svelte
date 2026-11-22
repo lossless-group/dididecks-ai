@@ -1,6 +1,6 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { northStars, principles } from '$lib/data/marketing';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { northStars, principles } from '#lib/data/marketing.ts';
 </script>
 
 <PageHeader eyebrow="Product" title="A deck operating system, not a single-deck tool" copy="The product boundary is built around ingest, structured editing, live play, white-label publish, and export-ready continuity." />

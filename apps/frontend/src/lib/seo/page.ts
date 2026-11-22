@@ -1,7 +1,7 @@
 import { definePageMetaTags } from 'svelte-meta-tags';
 import type { JsonLdProps } from 'svelte-meta-tags';
 
-import { absoluteUrl, defaultSocialImagePath, siteDescription, siteName } from '$lib/seo/site';
+import { absoluteUrl, defaultSocialImagePath, siteDescription, siteName } from '#lib/seo/site.ts';
 
 type Breadcrumb = {
   name: string;

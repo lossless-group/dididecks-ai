@@ -5,7 +5,7 @@
  * Apply calls mutate the in-memory deck state, update any bound blocks, and
  * create a mock version snapshot so later screens can observe the change.
  */
-import type { ChangePreview, ChangeRequest, DeckEditorViewModel } from '$lib/types/dididecks';
+import type { ChangePreview, ChangeRequest, DeckEditorViewModel } from '#lib/types/dididecks.ts';
 import { getDididecksState } from './repository';
 import { createVersionSnapshot } from './versions';
 

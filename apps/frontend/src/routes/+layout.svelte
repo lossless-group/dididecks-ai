@@ -1,18 +1,22 @@
 <script lang="ts">
   import '../app.css';
   import { onMount } from 'svelte';
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
+  import type { Snippet } from 'svelte';
   import { MetaTags, JsonLd, deepMerge } from 'svelte-meta-tags';
   import type { JsonLdProps, MetaTagsProps } from 'svelte-meta-tags';
-  import { theme } from '$lib/stores/theme';
+  import { theme } from '#lib/stores/theme.ts';
 
-  export let data: {
-    baseMetaTags: Readonly<MetaTagsProps>;
-    baseJsonLd: JsonLdProps['schema'];
-  };
+  let { data, children }: {
+    data: {
+      baseMetaTags: Readonly<MetaTagsProps>;
+      baseJsonLd: JsonLdProps['schema'];
+    };
+    children: Snippet;
+  } = $props();
 
-  $: metaTags = deepMerge(data.baseMetaTags, $page.data.pageMetaTags ?? {});
-  $: jsonLdSchema = [data.baseJsonLd, $page.data.pageJsonLd].filter(Boolean);
+  const metaTags = $derived(deepMerge(data.baseMetaTags, page.data.pageMetaTags ?? {}));
+  const jsonLdSchema = $derived([data.baseJsonLd, page.data.pageJsonLd].filter(Boolean));
 
   onMount(() => {
     theme.initialise();
@@ -33,9 +37,9 @@
 </svelte:head>
 
 <div class="app-frame">
-  <button class="theme-toggle button-secondary" type="button" on:click={() => theme.toggleTheme()}>
+  <button class="theme-toggle button-secondary" type="button" onclick={() => theme.toggleTheme()}>
     {$theme === 'dark' ? 'Light mode' : 'Dark mode'}
   </button>
 
-  <slot />
+  {@render children()}
 </div>

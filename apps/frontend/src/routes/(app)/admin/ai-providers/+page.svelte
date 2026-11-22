@@ -1,10 +1,10 @@
 <script lang="ts">
-  import type { ManagedAiProviderConnection, ManagedAiProviderCreatePayload } from '$lib/types/adminAiProviders';
+  import type { ManagedAiProviderConnection, ManagedAiProviderCreatePayload } from '#lib/types/adminAiProviders.ts';
   import type { PageData } from './$types';
-  import ManagedProviderCard from '$lib/components/admin/ManagedProviderCard.svelte';
-  import ManagedProviderForm from '$lib/components/admin/ManagedProviderForm.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import { createManagedAiProviderConnection } from '$lib/api/adminAiProviders';
+  import ManagedProviderCard from '#lib/components/admin/ManagedProviderCard.svelte';
+  import ManagedProviderForm from '#lib/components/admin/ManagedProviderForm.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import { createManagedAiProviderConnection } from '#lib/api/adminAiProviders.ts';
 
   export let data: PageData;
 

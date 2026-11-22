@@ -1,4 +1,4 @@
-import { absoluteUrl, siteDescription, siteName } from '$lib/seo/site';
+import { absoluteUrl, siteDescription, siteName } from '#lib/seo/site.ts';
 
 export function softwareApplicationSchema(name: string, description: string, path: string) {
   return {

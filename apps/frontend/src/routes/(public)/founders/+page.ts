@@ -1,6 +1,6 @@
 import type { PageLoad } from './$types';
-import { definePageSeo } from '$lib/seo/page';
-import { faqPageSchema, softwareApplicationSchema } from '$lib/seo/schemas';
+import { definePageSeo } from '#lib/seo/page.ts';
+import { faqPageSchema, softwareApplicationSchema } from '#lib/seo/schemas.ts';
 
 const faqs = [
   {

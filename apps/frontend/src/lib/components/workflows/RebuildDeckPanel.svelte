@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckEditorViewModel, PersistentField } from '$lib/types/dididecks';
+  import type { DeckEditorViewModel, PersistentField } from '#lib/types/dididecks.ts';
 
   export let editorView: DeckEditorViewModel;
   export let selectedField: PersistentField | null = null;

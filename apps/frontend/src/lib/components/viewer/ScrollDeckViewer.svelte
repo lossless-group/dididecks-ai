@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { DeckEditorViewModel } from '$lib/types/dididecks';
+  import type { DeckEditorViewModel } from '#lib/types/dididecks.ts';
   import { onMount } from 'svelte';
-  import VariantCyclePill from '$lib/components/play/VariantCyclePill.svelte';
+  import VariantCyclePill from '#lib/components/play/VariantCyclePill.svelte';
   import ActiveSlideObserver from './ActiveSlideObserver.svelte';
   import ContentFit from './ContentFit.svelte';
   import DeckTOC from './DeckTOC.svelte';
@@ -11,7 +11,7 @@
     getBlocksForSlideVariant,
     getPrimaryVariant,
     getSurfaceVariants
-  } from '$lib/utils/dididecks';
+  } from '#lib/utils/dididecks.ts';
 
   export let deckId = '';
   export let model: DeckEditorViewModel;

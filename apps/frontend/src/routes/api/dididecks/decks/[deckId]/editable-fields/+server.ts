@@ -5,13 +5,12 @@
  * to edit. The repo-local service models a future backend response for field
  * editing surfaces.
  */
-import { json } from '@sveltejs/kit';
-import { listEditableFields } from '$lib/server/dididecks';
+import { listEditableFields } from '#lib/server/dididecks/index.ts';
 
 export function GET({ params }) {
   if (!params.deckId) {
-    return json({ error: 'Missing deckId' }, { status: 400 });
+    return Response.json({ error: 'Missing deckId' }, { status: 400 });
   }
 
-  return json({ fields: listEditableFields(params.deckId) });
+  return Response.json({ fields: listEditableFields(params.deckId) });
 }

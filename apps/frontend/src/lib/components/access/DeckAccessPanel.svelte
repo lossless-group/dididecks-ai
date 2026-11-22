@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckAccessEntry, DeckShareLink } from '$lib/types/dididecks';
+  import type { DeckAccessEntry, DeckShareLink } from '#lib/types/dididecks.ts';
   import DeckAccessWorkspace from './DeckAccessWorkspace.svelte';
   import PermissionMatrix from './PermissionMatrix.svelte';
 

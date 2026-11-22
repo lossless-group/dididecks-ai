@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { DeckAccessEntry } from '$lib/types/dididecks';
+  import type { DeckAccessEntry } from '#lib/types/dididecks.ts';
   export let entries: DeckAccessEntry[] = [];
 </script>
 

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import StatusBadge from '$lib/components/common/StatusBadge.svelte';
+  import StatusBadge from '#lib/components/common/StatusBadge.svelte';
 
   export let status = 'draft';
 

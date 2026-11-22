@@ -5,7 +5,7 @@
  * editor, map, play, scroll, and print routes. It is intentionally small so a
  * new developer can trace how data flows through the MVP.
  */
-import type { DeckBlock, DeckEditorViewModel } from '$lib/types/dididecks';
+import type { DeckBlock, DeckEditorViewModel } from '#lib/types/dididecks.ts';
 import { mockFieldUsage, mockPersistentFields } from './mockPersistentFields';
 import { mockDecks } from './mockDecks';
 import { mockExports, mockVersions } from './mockDeckWorkspace';

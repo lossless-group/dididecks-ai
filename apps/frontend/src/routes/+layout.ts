@@ -1,7 +1,7 @@
 import { defineBaseMetaTags } from 'svelte-meta-tags';
 import type { LayoutLoad } from './$types';
 
-import { absoluteUrl, defaultSocialImagePath, siteDescription, siteName, siteTagline } from '$lib/seo/site';
+import { absoluteUrl, defaultSocialImagePath, siteDescription, siteName, siteTagline } from '#lib/seo/site.ts';
 
 export const load: LayoutLoad = () => {
   const siteUrl = absoluteUrl('/');

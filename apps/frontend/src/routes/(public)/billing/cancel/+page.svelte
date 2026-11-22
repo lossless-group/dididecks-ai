@@ -1,5 +1,5 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
 </script>
 
 <PageHeader eyebrow="Billing" title="Checkout cancelled" copy="No billing changes were applied. You can return to pricing and choose a plan whenever you are ready." />

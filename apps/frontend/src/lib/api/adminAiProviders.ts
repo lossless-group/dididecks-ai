@@ -1,7 +1,7 @@
 import type {
   ManagedAiProviderConnection,
   ManagedAiProviderCreatePayload
-} from '$lib/types/adminAiProviders';
+} from '#lib/types/adminAiProviders.ts';
 import { apiGet, apiPost } from './client';
 
 export function listManagedAiProviderConnections(fetcher?: typeof fetch): Promise<ManagedAiProviderConnection[]> {

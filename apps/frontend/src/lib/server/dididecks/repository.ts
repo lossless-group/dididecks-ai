@@ -5,12 +5,12 @@
  * SvelteKit MVP and is shaped like a future persistence layer. Data may reset
  * between server restarts or deployments.
  */
-import { mockAccessEntries, mockShareLinks } from '$lib/data/mockAccess';
-import { mockDeckEditorView } from '$lib/data/mockDeckEditor';
-import { mockAiCommands, mockComments, mockExports, mockVersions } from '$lib/data/mockDeckWorkspace';
-import { mockDecks } from '$lib/data/mockDecks';
-import type { ManagedAiProviderConnection } from '$lib/types/adminAiProviders';
-import type { DeckEditorViewModel } from '$lib/types/dididecks';
+import { mockAccessEntries, mockShareLinks } from '#lib/data/mockAccess.ts';
+import { mockDeckEditorView } from '#lib/data/mockDeckEditor.ts';
+import { mockAiCommands, mockComments, mockExports, mockVersions } from '#lib/data/mockDeckWorkspace.ts';
+import { mockDecks } from '#lib/data/mockDecks.ts';
+import type { ManagedAiProviderConnection } from '#lib/types/adminAiProviders.ts';
+import type { DeckEditorViewModel } from '#lib/types/dididecks.ts';
 import type { DididecksState } from './types';
 
 function cloneEditorView(model: DeckEditorViewModel): DeckEditorViewModel {

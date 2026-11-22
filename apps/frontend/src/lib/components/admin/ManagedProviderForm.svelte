@@ -1,6 +1,6 @@
 <script lang="ts">
   import { createEventDispatcher } from 'svelte';
-  import type { ManagedAiProviderCreatePayload } from '$lib/types/adminAiProviders';
+  import type { ManagedAiProviderCreatePayload } from '#lib/types/adminAiProviders.ts';
 
   const dispatch = createEventDispatcher<{ save: ManagedAiProviderCreatePayload }>();
 

@@ -17,7 +17,7 @@ import {
   mockSubscriptions,
   mockUsers,
   mockWorkspaces
-} from '$lib/data/mockAccounts';
+} from '#lib/data/mockAccounts.ts';
 import type { AccountState } from './types';
 
 const state: AccountState = {

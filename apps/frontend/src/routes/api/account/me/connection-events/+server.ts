@@ -5,10 +5,9 @@
  * activity. It intentionally returns hashes and metadata only, never raw
  * session cookies or provider secrets.
  */
-import { json } from '@sveltejs/kit';
-import { getCurrentAccountViewModel, listConnectionEvents } from '$lib/server/account/service';
+import { getCurrentAccountViewModel, listConnectionEvents } from '#lib/server/account/service.ts';
 
 export function GET() {
   const account = getCurrentAccountViewModel();
-  return json(listConnectionEvents(account.customerAccount.id));
+  return Response.json(listConnectionEvents(account.customerAccount.id));
 }

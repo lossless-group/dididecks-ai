@@ -1,7 +1,7 @@
 <script lang="ts">
-  import type { AiChangeProposal, AiCommand, DeckBlock, DeckSlide, DeckSlideVariant, PersistentField } from '$lib/types/dididecks';
-  import { getBlockContentSummary } from '$lib/utils/dididecks';
-  import { acceptAiCommand, createAiCommand, rejectAiCommand } from '$lib/api/dididecks';
+  import type { AiChangeProposal, AiCommand, DeckBlock, DeckSlide, DeckSlideVariant, PersistentField } from '#lib/types/dididecks.ts';
+  import { getBlockContentSummary } from '#lib/utils/dididecks.ts';
+  import { acceptAiCommand, createAiCommand, rejectAiCommand } from '#lib/api/dididecks.ts';
 
   export let deckId = 'deck-001';
   export let slide: DeckSlide | null = null;

@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { Deck } from '$lib/types/dididecks';
+  import type { Deck } from '#lib/types/dididecks.ts';
   import DeckCard from './DeckCard.svelte';
 
   export let decks: Deck[] = [];

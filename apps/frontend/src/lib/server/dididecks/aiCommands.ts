@@ -4,9 +4,9 @@
  * AI commands create proposals only. A proposal does not mutate a deck until
  * it is explicitly accepted and survives the local heuristic guardrail check.
  */
-import type { AiChangeProposal, AiCommand, ChangeRequest } from '$lib/types/dididecks';
-import { canRunAiCommand } from '$lib/server/account/entitlements';
-import { getCurrentAccountViewModel, getDeckOwnership as getDeckOwnershipRecord, getCurrentUserMock } from '$lib/server/account/service';
+import type { AiChangeProposal, AiCommand, ChangeRequest } from '#lib/types/dididecks.ts';
+import { canRunAiCommand } from '#lib/server/account/entitlements.ts';
+import { getCurrentAccountViewModel, getDeckOwnership as getDeckOwnershipRecord, getCurrentUserMock } from '#lib/server/account/service.ts';
 import { applyFieldChanges } from './changes';
 import { evaluateAiChangeProposal } from './guardrails';
 import { getDididecksState } from './repository';

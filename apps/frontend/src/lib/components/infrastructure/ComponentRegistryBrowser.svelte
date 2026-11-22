@@ -1,5 +1,5 @@
 <script lang="ts">
-  import type { RegistryEntry } from '$lib/registry/componentRegistry';
+  import type { RegistryEntry } from '#lib/registry/componentRegistry.ts';
 
   export let title = 'Component registry';
   export let description = '';

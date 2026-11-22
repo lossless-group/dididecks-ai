@@ -1,5 +1,5 @@
 <script lang="ts">
-  import { page } from '$app/stores';
+  import { page } from '$app/state';
   import DidiDecksLogo from './DidiDecksLogo.svelte';
 
   const mainItems = [
@@ -47,11 +47,11 @@
     { href: '/account/settings', label: 'Settings' }
   ];
 
-  $: pathname = $page.url.pathname;
-  $: deckMatch = pathname.match(/^\/decks\/([^/]+)/);
-  $: deckId = deckMatch?.[1] ?? null;
-  $: deckLabel = deckId ? deckId.replace(/^deck-/, 'Deck ') : 'No deck selected';
-  $: deckItems = deckId
+  const pathname = $derived(page.url.pathname);
+  const deckMatch = $derived(pathname.match(/^\/decks\/([^/]+)/));
+  const deckId = $derived(deckMatch?.[1] ?? null);
+  const deckLabel = $derived(deckId ? deckId.replace(/^deck-/, 'Deck ') : 'No deck selected');
+  const deckItems = $derived(deckId
     ? [
         { href: `/decks/${deckId}`, label: 'Overview' },
         { href: `/decks/${deckId}/map`, label: 'Deck Map' },
@@ -64,7 +64,7 @@
         { href: `/decks/${deckId}/exports`, label: 'Exports' },
         { href: `/decks/${deckId}/guardrails`, label: 'Guardrails' }
       ]
-    : [];
+    : []);
 
   function resolveHref(baseHref: string) {
     if (!deckId) {

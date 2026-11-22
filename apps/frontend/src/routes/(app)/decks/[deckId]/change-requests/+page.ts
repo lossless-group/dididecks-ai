@@ -1,5 +1,5 @@
 import type { PageLoad } from './$types';
-import { listChangeRequests } from '$lib/api/dididecks';
+import { listChangeRequests } from '#lib/api/dididecks.ts';
 
 export const load: PageLoad = async ({ params, fetch }) => {
   const requests = await listChangeRequests(params.deckId, fetch);

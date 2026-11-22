@@ -1,8 +1,8 @@
 <script lang="ts">
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import ComponentRegistryBrowser from '$lib/components/infrastructure/ComponentRegistryBrowser.svelte';
-  import DeckRegistryWorkspace from '$lib/components/infrastructure/DeckRegistryWorkspace.svelte';
-  import { componentRegistry, componentRegistryCategories, designSystemRules } from '$lib/registry/componentRegistry';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import ComponentRegistryBrowser from '#lib/components/infrastructure/ComponentRegistryBrowser.svelte';
+  import DeckRegistryWorkspace from '#lib/components/infrastructure/DeckRegistryWorkspace.svelte';
+  import { componentRegistry, componentRegistryCategories, designSystemRules } from '#lib/registry/componentRegistry.ts';
 
   const items = [
     { title: 'Theme tokens', body: 'Three-layer token architecture for portable deck branding.' },

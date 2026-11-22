@@ -1,6 +1,6 @@
 <script lang="ts">
   import SurfaceStatusCell from './SurfaceStatusCell.svelte';
-  import type { DeckReviewMatrixItem } from '$lib/types/dididecks';
+  import type { DeckReviewMatrixItem } from '#lib/types/dididecks.ts';
 
   export let items: DeckReviewMatrixItem[] = [];
 </script>

@@ -4,9 +4,8 @@
  * Preview explains the impact of field changes without mutating the in-memory
  * repository. The future backend can keep the same contract with real storage.
  */
-import { json } from '@sveltejs/kit';
-import { previewFieldChanges } from '$lib/server/dididecks';
-import type { ChangeRequest } from '$lib/types/dididecks';
+import { previewFieldChanges } from '#lib/server/dididecks/index.ts';
+import type { ChangeRequest } from '#lib/types/dididecks.ts';
 
 export async function POST({ params, request }) {
   if (!params.deckId) {
@@ -18,5 +17,5 @@ export async function POST({ params, request }) {
     throw new Error('Changes array is required');
   }
 
-  return json(previewFieldChanges(params.deckId, body.changes));
+  return Response.json(previewFieldChanges(params.deckId, body.changes));
 }

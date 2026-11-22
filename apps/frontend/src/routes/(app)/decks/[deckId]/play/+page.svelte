@@ -1,7 +1,7 @@
 <script lang="ts">
-  import DeckWorkspaceShell from '$lib/components/deck-workspace/DeckWorkspaceShell.svelte';
-  import PageHeader from '$lib/components/common/PageHeader.svelte';
-  import PlayMode from '$lib/components/play/PlayMode.svelte';
+  import DeckWorkspaceShell from '#lib/components/deck-workspace/DeckWorkspaceShell.svelte';
+  import PageHeader from '#lib/components/common/PageHeader.svelte';
+  import PlayMode from '#lib/components/play/PlayMode.svelte';
   import type { PageData } from './$types';
 
   export let data: PageData;

@@ -1,7 +1,7 @@
 <script lang="ts">
   import type { PageData } from './$types';
-  import StatCard from '$lib/components/dashboard/StatCard.svelte';
-  import RecentDecksTable from '$lib/components/dashboard/RecentDecksTable.svelte';
+  import StatCard from '#lib/components/dashboard/StatCard.svelte';
+  import RecentDecksTable from '#lib/components/dashboard/RecentDecksTable.svelte';
 
   export let data: PageData;
 

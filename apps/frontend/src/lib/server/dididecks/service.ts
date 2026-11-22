@@ -5,17 +5,17 @@
  * current mock state, while this service composes account context, ownership,
  * entitlements, and repo-local deck behavior into a backend-shaped surface.
  */
-import type { ManagedAiProviderConnection, ManagedAiProviderCreatePayload } from '$lib/types/adminAiProviders';
-import { mockReviewMatrix } from '$lib/data/mockReviewMatrix';
-import type { AiCommand, Deck, DeckComment, DeckEditorViewModel, DeckReviewMatrixItem } from '$lib/types/dididecks';
-import { canCreateDeck, canExport } from '$lib/server/account/entitlements';
+import type { ManagedAiProviderConnection, ManagedAiProviderCreatePayload } from '#lib/types/adminAiProviders.ts';
+import { mockReviewMatrix } from '#lib/data/mockReviewMatrix.ts';
+import type { AiCommand, Deck, DeckComment, DeckEditorViewModel, DeckReviewMatrixItem } from '#lib/types/dididecks.ts';
+import { canCreateDeck, canExport } from '#lib/server/account/entitlements.ts';
 import {
   createConnectionEvent,
   createProviderConnection,
   getCurrentAccountViewModel,
   getCurrentUserMock,
   getDeckOwnership as getDeckOwnershipRecord
-} from '$lib/server/account/service';
+} from '#lib/server/account/service.ts';
 import { getDididecksState } from './repository';
 
 export function listDecks(): Deck[] {

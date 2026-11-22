@@ -59,7 +59,7 @@ free per repo; only the org-wide Advanced Security page is a paid upsell.
 |---|---|---|
 | #61, #62 image-size (high, DoS) | `packages/deck-export` via pptxgenjs, which pins `^1.2.1` and never loads it | Override `image-size: ^2.0.3` in a new `packages/deck-export/pnpm-workspace.yaml`. That folder already had its own lockfile; the file makes the override apply there, and the root workspace still lists the package |
 | #57, #60 @sveltejs/adapter-vercel (medium) | `apps/frontend` | `^5.10.2` → `^6.3.5`, which still supports SvelteKit 2. Kit `^2.39.5` → `^2.70.4` |
-| #58, #59 @sveltejs/kit (low) | `apps/frontend` | **Open.** Fixed only in Kit 3, a major migration (Vite 8, TypeScript 6, vite-plugin-svelte 7). Do it as its own piece of work |
+| #58, #59 @sveltejs/kit (low) | `apps/frontend` | **Fixed the same day** by migrating to SvelteKit 3.4 (Vite 8, TypeScript 6, vite-plugin-svelte 7, adapter-vercel 7). See changelog 2026-11-21_03 |
 
 The frontend builds on the new versions. `svelte-check` reports 3 errors
 both before and after the bump (`SeoContentPage.svelte` modifiers,

@@ -5,7 +5,7 @@
  * editor, review, play, and export routes. Other decks show that workspace and
  * ownership filtering already exist even though persistence is still in-memory.
  */
-import type { Deck } from '$lib/types/dididecks';
+import type { Deck } from '#lib/types/dididecks.ts';
 
 export const mockDecks: Deck[] = [
   {
