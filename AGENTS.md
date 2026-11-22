@@ -30,7 +30,7 @@ repo per client engagement.
 | `packages/dididecks-player/` | **Submodule**, its own public repo `lossless-group/dididecks-player`, on npm as `@lossless-group/dididecks-player`. Viewer side: `SlideCanvas`, `DeckPlayer`, `PrintDeck`, `PageAsDeckWrapper`, `DeckChrome`, `ModeToggle`. Usable from any Astro site. Commit there, not here. |
 | `packages/deck-export/` | `deck-export` CLI: slide PDFs, full decks, and the `html` single-file tier (`--public` drops post-NDA sections, `--clean` strips authoring tools for a client's own site). Run with `pnpm export …`. |
 | `packages/shared/` | `@dididecks/shared`: shared types and helpers. |
-| `apps/frontend/` | `@dididecks/frontend`: the SvelteKit product shell for Vercel. Persistence, auth, billing and AI workflows belong to the backend (`aistack-backend/app/products/dididecks`), never here. See `architecture/`. |
+| `apps/frontend/` | `@dididecks/frontend`: the SvelteKit product shell for Vercel. Persistence, auth, billing and AI workflows belong to the backend (`aistack-backend/app/products/dididecks`), never here. See `context-v/architecture/`. |
 | `client-sites/<client>/` | **Submodules**, one private repo per engagement: calmstorm-decks, eventcut-ai, humain-vc-decks, lfg-hub, lossless-decks, reach-edu-hub, the-water-foundation. `.gitmodules` is authoritative. `jobmachine/` is a gitignored local checkout. **Former client sites** (no longer mounted; the repo stays on GitHub): `chroma-decks` (`lossless-group/chroma-decks`), removed 2026-11-21 because no one uses it any more. |
 | `corpus/` | **Submodule**: example decks and slide archetypes. |
 | `splash/` | GitHub Pages site. Standalone install (`--ignore-workspace`), deploys on push to `main`. |
