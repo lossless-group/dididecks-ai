@@ -43,7 +43,27 @@ The fix is still worth making, because the build runs in CI with a token.
 Why the stale 46 stayed open: GitHub's dependency graph lists **no
 manifests** for this repo (GraphQL `dependencyGraphManifests` returns
 nothing and the SBOM endpoint returns 404), so pushes aren't rescanned and
-fixed alerts never auto-close. Cause not yet known.
+fixed alerts never auto-close.
+
+**Cause, found the same day:** the dependency graph was off for this repo, and
+the org's default for new repos is off too. Michael turned it on for
+dididecks-ai on 2026-11-21. Within minutes GitHub found 10 manifests, closed
+the 46 stale alerts, and raised 6 real ones in files it had never read
+before (below). Every other lossless-group repo under ai-labs except
+lossless-ai-labs also has an empty graph and needs the same switch. It's
+free per repo; only the org-wide Advanced Security page is a paid upsell.
+
+## Second round: alerts the rescan surfaced
+
+| Alerts | Where | Fix |
+|---|---|---|
+| #61, #62 image-size (high, DoS) | `packages/deck-export` via pptxgenjs, which pins `^1.2.1` and never loads it | Override `image-size: ^2.0.3` in a new `packages/deck-export/pnpm-workspace.yaml`. That folder already had its own lockfile; the file makes the override apply there, and the root workspace still lists the package |
+| #57, #60 @sveltejs/adapter-vercel (medium) | `apps/frontend` | `^5.10.2` → `^6.3.5`, which still supports SvelteKit 2. Kit `^2.39.5` → `^2.70.4` |
+| #58, #59 @sveltejs/kit (low) | `apps/frontend` | **Open.** Fixed only in Kit 3, a major migration (Vite 8, TypeScript 6, vite-plugin-svelte 7). Do it as its own piece of work |
+
+The frontend builds on the new versions. `svelte-check` reports 3 errors
+both before and after the bump (`SeoContentPage.svelte` modifiers,
+`seo/page.ts` type complexity), so the bump didn't cause them.
 
 ## Steps
 

@@ -1,0 +1,13 @@
+# Standalone install for deck-export: its pnpm-lock.yaml sits here, not at the
+# repo root (which keeps no workspace lockfile). Install from this folder with
+# a plain `pnpm install`.
+packages:
+  - '.'
+
+# SECURITY: pptxgenjs declares image-size ^1.2.1 but its built code never
+# loads it. 1.x has no patched release (GHSA alerts #61/#62, fixed in 2.0.3),
+# so force 2.x. Drop this once pptxgenjs moves to image-size 2.
+overrides:
+  image-size: ^2.0.3
+
+allowBuilds: {}
