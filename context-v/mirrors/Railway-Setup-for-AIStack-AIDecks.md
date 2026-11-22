@@ -14,7 +14,7 @@ authors:
   - Michael Staton
 augmented_with:
   - Claude Code on Claude Opus 5.5
-at_semantic_version: 0.0.0.1
+at_semantic_version: 0.0.0.2
 status: Current
 category: Mirror
 tags:
@@ -78,8 +78,9 @@ together on 2026-11-10 at 17:15 UTC (the `deck-api` redeploy followed at
 | `deck-files` | Railway bucket, in `ams` (Amsterdam) | not measured |
 
 The handoff says V4 has no vector database by design, yet `Postgres-AI`
-(pgvector) is running with 1.3 GB in it. It may be left over from V2/V3, or
-used for something the handoff doesn't mention. Check before deleting it.
+(pgvector) is running with 1.3 GB in it. It's something she was
+implementing; whether V4 still reads from it is unknown. Check before
+deleting it.
 
 The bucket sits in Amsterdam while every service runs in Virginia, so every
 file read and write crosses the Atlantic.
@@ -114,7 +115,7 @@ dididecks-ai fork is still up.
 ## Configuration worth knowing
 
 - **One shared variable, `OPENAI_API_KEY`.** Every service can read it.
-  Whose key it is, and who pays the OpenAI bill, isn't recorded here.
+  It's Michael's key, and the OpenAI spend bills to him on purpose.
 - **One replica for every service.** There's no redundancy and no
   autoscaling, as the handoff said.
 - **No custom domains.** The three public services use Railway's generated
@@ -137,17 +138,16 @@ not the bill: the Railway usage page for the workspace is the source of
 truth. Real deck runs add CPU, and they add OpenAI spend, which isn't billed
 through Railway.
 
-## Decisions this mirror raises
+## Decisions (2026-11-21)
 
-- **Should this stay in our workspace?** It's her product, billing to The
-  Lossless Group.
-- **Shut down the leftovers and the crashed services?** That's 9 services
-  with no role in V4: `deck-v3`, `deck-v5`, `deck-v2-pr-106-preview`,
-  `deck-Aistack-front-new`, `adventurous-benevolence`,
-  `adventurous-expression` and the three crashed or offline ones. It saves
-  little money, but there's less to reason about.
-- **Whose OpenAI key is `OPENAI_API_KEY`?**
-- **Is `Postgres-AI` still used?**
+- **The stack stays in our workspace.** How the two efforts converge isn't
+  worked out yet, and this is where her product runs in the meantime.
+- **The OpenAI key is Michael's**, and that's fine.
+- **The 9 services with no role in V4 are her call.** They're listed for
+  her in [[Railway-Services-Outside-V4-to-Keep-or-Wind-Down]]: the six
+  leftovers and the three crashed or offline services.
+- **Whether `Postgres-AI` is still used is open.** That question is in the
+  same issue.
 
 ## How to re-take this mirror
 
